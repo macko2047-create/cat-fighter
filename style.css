@@ -318,13 +318,8 @@ body:has(dialog[open]) {
   user-select: none;
   -webkit-user-select: none;
 }
-#stick { flex: 1; height: 100%; display: grid; place-content: center; justify-items: center; touch-action: none; }
-.stick-ring { width: 86px; height: 86px; border: 1px solid #73918d; border-radius: 50%; display: grid; place-items: center; background: #203c43; }
-#stick-knob { width: 40px; height: 40px; border-radius: 50%; background: #c0cfc0; box-shadow: 0 3px 12px #0005; }
-.control-label { font-size: 9px; letter-spacing: 1px; color: #afc3bd; margin-top: 7px; }
-.deck-actions { display: grid; justify-items: center; gap: 6px; }
+.touch-help { font-size: 11px; letter-spacing: .3px; color: #afc3bd; text-align: center; }
 #flight-health { font-size: 10px; color: #e8dfbc; }
-#touch-bomb { min-width: 100px; min-height: 54px; border-radius: 12px; color: var(--gold); touch-action: none; }
 button:disabled { opacity: .4; cursor: default; }
 .menu-options { display: flex; flex-wrap: wrap; justify-content: center; }
 #overlay .menu-options button { min-width: 0; margin: 3px; padding: 10px; }
@@ -337,28 +332,22 @@ button:disabled { opacity: .4; cursor: default; }
 body.in-flight { overflow: hidden; height: 100dvh; }
 .in-flight header, .in-flight aside { display: none; }
 .in-flight main {
-  --deck-height: clamp(112px, 20dvh, 160px);
-  --field-height: min(calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - var(--deck-height) - 38px), calc(100vw * 4 / 3));
+  --field-height: min(calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 38px), calc((100vw - env(safe-area-inset-left) - env(safe-area-inset-right)) * 4 / 3));
   height: 100dvh; width: 100%; max-width: none; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   display: flex; align-items: center; justify-content: center; gap: 0;
 }
 .in-flight .cabinet { position: relative; width: calc(var(--field-height) * .75); border: 0; flex: none; }
 .in-flight .screen { height: var(--field-height); }
+.screen, #game { touch-action: none; }
 .in-flight canvas { width: 100%; height: 100%; max-height: none; aspect-ratio: 3 / 4; }
 .in-flight .topline { position: absolute; top: 0; left: 0; right: 0; z-index: 1; background: transparent; pointer-events: none; text-shadow: 0 1px 4px #000, 0 0 8px #000; padding: 0 10px; }
 .in-flight #overlay { z-index: 2; background: #081e30ed; }
 .in-flight .bottomline { height: 38px; }
 .in-flight .bottomline button { min-height: 36px; padding: 8px 12px; }
-.in-flight .control-deck { height: var(--deck-height); }
 @media (max-height: 500px) and (orientation: landscape) {
-  .in-flight main { --field-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 38px); }
-  .in-flight .cabinet { margin-right: 180px; }
-  .in-flight .control-deck { position: absolute; left: 100%; top: 0; width: 180px; height: 100%; flex-direction: column; padding: 8px; }
   .in-flight #overlay h2 { font-size: 30px; }
   .in-flight #overlay button { min-width: 0; padding: 8px; }
   .in-flight #overlay .eyebrow, .in-flight #overlay .hint { display: none; }
 }
-/* Put spare portrait height into the finger area instead of blank top margins. */
-.in-flight .cabinet { height: 100%; display: flex; flex-direction: column; }
+.in-flight .cabinet { display: flex; flex-direction: column; }
 .in-flight .screen, .in-flight .bottomline { flex: none; }
-.in-flight .control-deck { flex: 1; min-height: var(--deck-height); }

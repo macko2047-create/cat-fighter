@@ -24,8 +24,8 @@ let mode = "ready",
 const keys = new Set(),
   assignments = [null, null],
   previous = new Map(),
-  bindings = {},
-  deadzone = 0.2;
+  bindings = {};
+let deadzone = 0.2;
 let keyboard2 = false,
   capture = null;
 try {
@@ -34,13 +34,21 @@ try {
     JSON.parse(localStorage.getItem("catfighter-bindings") || "{}"),
   );
 } catch {}
+try {
+  const saved = localStorage.getItem('catfighter-deadzone');
+  if (saved !== null && Number.isFinite(Number(saved)))
+    deadzone = Math.max(0, Math.min(.5, Number(saved)));
+} catch {}
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n)),
   rnd = (a, b) => a + Math.random() * (b - a);
 const playerAssets = createPlayerAssetLoader(window);
 const enemyAssets = createPlayerAssetLoader(window, ENEMY_ASSETS);
 const render = createRenderer(ctx, W, H, (t) => drawWorld(ctx, W, H, t), clamp, playerAssets, enemyAssets);
 const sfx = createAudio(window, () => sound);
-const pads = () => Array.from(navigator.getGamepads?.() || []).filter(Boolean);
+const pads = () => {
+  const raw = Array.from(navigator.getGamepads?.() || []).filter(Boolean);
+  return window.halfControllers ? window.halfControllers.read(raw) : raw;
+};
 const config = (p) => bindings[p.id] || { fire: 1, bomb: 0, pause: 9 };
 function pilot(i) {
   return {
@@ -277,10 +285,13 @@ function input(i) {
       Number(p.buttons[12]?.pressed || false);
     fire ||= p.buttons[config(p).fire]?.pressed;
   }
-  // Touch owns P1 only while held; both sources share normalization and physics.
+  // Direct touch owns P1 only while held: the fighter follows the finger and fires.
   if (i === 0 && window.flightControls?.active) {
-    x = window.flightControls.x;
-    y = window.flightControls.y;
+    const target = window.flightControls.target;
+    if (target) {
+      x = target.x - players[0].x;
+      y = target.y - players[0].y;
+    }
     fire = true;
   }
   const n = Math.hypot(x, y);
@@ -325,12 +336,16 @@ function kill(e, p) {
   if (e.type === "boss") {
     mode = "win";
     show("MISSION<br>CLEAR", `珊瑚海守住了！總分 ${score} · 貓貓返航。`);
-  } else if (Math.random() < LEVEL1.dropChance)
-    supply(e.x, e.y, Math.random() < 0.5 ? "W" : "B");
+  } else {
+    const dropRoll = Math.random();
+    if (dropRoll < LEVEL1.dropChance)
+      supply(e.x, e.y, Math.random() < 0.5 ? "W" : "B");
+  }
 }
-function supply(x, y, type) {
+function supply(x, y, type, weaponType) {
   if (type !== "1UP" && drops.filter(d => !d.dead && d.type !== "1UP").length >= 2) return;
-  drops.push({ x, y, type });
+  const weapon = type === "W" ? weaponType || (Math.random() < 0.5 ? "rapid" : "spread") : null;
+  drops.push({ x, y, type, ...(type === "W" ? { weapon } : {}) });
 }
 function hurt(p) {
   if (p.inv > 0 || p.lives <= 0 || p.respawn > 0 || p.entering) return;
@@ -367,7 +382,9 @@ function spawn() {
 function update(dt) {
   elapsed += dt;
   if (elapsed >= nextSupply && nextSupply < LEVEL1.preBossDuration) {
-    supply(rnd(80, 520), -20, (nextSupply / LEVEL1.pickupInterval) % 2 ? "W" : "B");
+    const supplyX = rnd(80, 520);
+    // Ensure both choices appear each sortie, even with rare enemy drops.
+    supply(supplyX, -20, "W", nextSupply === LEVEL1.pickupInterval ? "rapid" : "spread");
     nextSupply += LEVEL1.pickupInterval;
   }
   if (!extraLifeSpawned && elapsed >= LEVEL1.extraLifeTime) {
@@ -412,7 +429,8 @@ function update(dt) {
     p.x = clamp(p.x + a.x * 260 * dt, 24, W - 24);
     p.y = clamp(p.y + a.y * 260 * dt, 60, H - 25);
     if (a.fire && p.cool <= 0) {
-      p.cool = 0.12;
+      // Level 2 is the two-way rapid-fire bonus; level 3 keeps the original spread.
+      p.cool = p.rapid ? 0.06 : 0.12;
       for (let j = 0; j < p.level; j++)
         shots.push({
           x: p.x + (j - (p.level - 1) / 2) * 12,
@@ -502,10 +520,20 @@ function update(dt) {
     for (const p of players)
       if (p.lives > 0 && p.respawn === 0 && !p.entering && !d.dead && Math.hypot(d.x - p.x, d.y - p.y) < 29) {
         d.dead = true;
-        if (d.type === "W") p.level = Math.min(3, p.level + 1);
+        if (d.type === "W") {
+          if (d.weapon) {
+            p.level = d.weapon === "rapid" ? 2 : 3;
+            p.rapid = d.weapon === "rapid";
+          } else {
+            // Compatibility for old/manual W drops without a selected weapon type.
+            p.level = Math.min(3, p.level + 1);
+          }
+        }
         if (d.type === "1UP") p.lives++;
         if (d.type === "B") p.bombs = Math.min(5, p.bombs + 1);
-        p.notice = d.type === "1UP" ? "1UP · +1 LIFE" : d.type === "W" ? `POWER ${p.level}` : `BOMB ×${p.bombs}`;
+        p.notice = d.type === "1UP" ? "1UP · +1 LIFE" : d.type === "W"
+          ? d.weapon === "rapid" ? "2-WAY · RAPID FIRE" : d.weapon === "spread" ? "3-WAY · POWER" : `POWER ${p.level}`
+          : `BOMB ×${p.bombs}`;
         p.noticeUntil = elapsed + 1.5;
         explode(d.x, d.y, d.type === "1UP" ? "#91e3bd" : "#efd58d", 12);
         sfx.playSfx("pickup");

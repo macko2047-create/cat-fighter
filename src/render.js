@@ -183,7 +183,7 @@ function createRenderer(ctx, W, H, background, clamp, playerAssets = null, enemy
         );
     }
     for (const d of drops) {
-      const color = d.type === "W" ? "#efd58d" : d.type === "1UP" ? "#91e3bd" : "#a2d3ed";
+      const color = d.type === "W" ? (d.weapon === "rapid" ? "#ff91cd" : "#efd58d") : d.type === "1UP" ? "#91e3bd" : "#a2d3ed";
       ctx.save();
       ctx.translate(d.x, d.y + Math.sin(ambient * 3 + d.x) * 3);
       ctx.shadowColor = color; ctx.shadowBlur = 12;
@@ -194,7 +194,8 @@ function createRenderer(ctx, W, H, background, clamp, playerAssets = null, enemy
       ctx.beginPath(); ctx.arc(0, -1, 17, Math.PI, Math.PI * 1.9); ctx.stroke();
       ctx.fillStyle = color;
       if (d.type === "W") {
-        for (const x of [-8, 0, 8]) {
+        const arrows = d.weapon === "rapid" ? [-6, 6] : [-8, 0, 8];
+        for (const x of arrows) {
           ctx.beginPath(); ctx.moveTo(x - 3, 6); ctx.lineTo(x - 3, -5);
           ctx.lineTo(x, -10); ctx.lineTo(x + 3, -5); ctx.lineTo(x + 3, 6); ctx.closePath(); ctx.fill();
         }
@@ -210,7 +211,7 @@ function createRenderer(ctx, W, H, background, clamp, playerAssets = null, enemy
       }
       ctx.fillStyle = color; ctx.font = "bold 9px monospace";
       ctx.textAlign = "center";
-      ctx.fillText(d.type === "W" ? "POWER" : d.type === "B" ? "BOMB" : "1UP", 0, 15);
+      ctx.fillText(d.type === "W" ? (d.weapon === "rapid" ? "RAPID" : "3-WAY") : d.type === "B" ? "BOMB" : "1UP", 0, 15);
       ctx.restore();
     }
     for (const [index, p] of players.entries())
