@@ -15,6 +15,8 @@ let mode = "ready",
   sparks = [],
   wave = 0,
   bossSpawned = false,
+  nextSupply = 50,
+  extraLifeSpawned = false,
   flash = 0,
   last = 0,
   ambient = 0,
@@ -44,7 +46,9 @@ function pilot(i) {
   return {
     x: i ? 365 : 235,
     y: 690,
-    hp: 100,
+    lives: 3,
+    respawn: 0,
+    entering: false,
     bombs: 3,
     level: 1,
     cool: 0,
@@ -58,6 +62,8 @@ function start() {
   if (keyboard2 || assignments[1] !== null) players.push(pilot(1));
   elapsed = score = wave = 0;
   bossSpawned = false;
+  nextSupply = LEVEL1.pickupInterval;
+  extraLifeSpawned = false;
   enemies = [];
   shots = [];
   hostile = [];
@@ -297,7 +303,7 @@ function explode(x, y, color = "#f5c879", n = 16) {
   sfx.playSfx("explosion");
 }
 function bomb(p) {
-  if (!p || p.hp <= 0 || p.bombs <= 0) return;
+  if (!p || p.lives <= 0 || p.respawn > 0 || p.entering || p.bombs <= 0) return;
   p.bombs--;
   flash = 0.35;
   hostile = [];
@@ -319,31 +325,26 @@ function kill(e, p) {
   if (e.type === "boss") {
     mode = "win";
     show("MISSION<br>CLEAR", `珊瑚海守住了！總分 ${score} · 貓貓返航。`);
-  } else if (Math.random() < 0.18)
-    drops.push({
-      x: e.x,
-      y: e.y,
-      type: ["W", "+", "B"][Math.floor(rnd(0, 3))],
-    });
+  } else if (Math.random() < LEVEL1.dropChance)
+    supply(e.x, e.y, Math.random() < 0.5 ? "W" : "B");
 }
-function hurt(p, n) {
-  if (p.inv > 0 || p.hp <= 0) return;
-  p.hp = Math.max(0, p.hp - n);
-  p.inv = 1.4;
-  explode(p.x, p.y, "#b7e2d6", 8);
-  if (!players.some((a) => a.hp > 0)) {
+function supply(x, y, type) {
+  if (type !== "1UP" && drops.filter(d => !d.dead && d.type !== "1UP").length >= 2) return;
+  drops.push({ x, y, type });
+}
+function hurt(p) {
+  if (p.inv > 0 || p.lives <= 0 || p.respawn > 0 || p.entering) return;
+  p.lives--;
+  p.respawn = p.lives > 0 ? 0.8 : 0;
+  if (p.index === 0) window.flightControls?.reset();
+  explode(p.x, p.y, "#b7e2d6", 24);
+  if (!players.some((a) => a.lives > 0)) {
     mode = "over";
     show("SORTIE<br>OVER", `任務失敗 · 得分 ${score} · 再次出擊！`);
   }
 }
 function spawn() {
   wave++;
-  if (wave % LEVEL1.pickupCadence === 0)
-    drops.push({
-      x: rnd(80, 520),
-      y: -20,
-      type: LEVEL1.pickupOrder[Math.floor(wave / LEVEL1.pickupCadence - 1) % LEVEL1.pickupOrder.length],
-    });
   const count = players.length === 2 ? LEVEL1.formationCount2P : LEVEL1.formationCount1P;
   // Keep heavy attributes even when the boat type wins (e.g. wave 35).
   const heavy = wave % LEVEL1.heavyWaveCadence === 0;
@@ -365,6 +366,14 @@ function spawn() {
 }
 function update(dt) {
   elapsed += dt;
+  if (elapsed >= nextSupply && nextSupply < LEVEL1.preBossDuration) {
+    supply(rnd(80, 520), -20, (nextSupply / LEVEL1.pickupInterval) % 2 ? "W" : "B");
+    nextSupply += LEVEL1.pickupInterval;
+  }
+  if (!extraLifeSpawned && elapsed >= LEVEL1.extraLifeTime) {
+    extraLifeSpawned = true;
+    supply(300, -20, "1UP");
+  }
   flash = Math.max(0, flash - dt);
   if (elapsed < LEVEL1.preBossDuration && elapsed >= wave * LEVEL1.waveInterval) spawn();
   if (elapsed >= LEVEL1.bossSpawnTime && !bossSpawned) {
@@ -380,7 +389,23 @@ function update(dt) {
     });
   }
   for (const p of players) {
-    if (p.hp <= 0) continue;
+    if (p.lives <= 0) continue;
+    if (p.respawn > 0) {
+      p.respawn = Math.max(0, p.respawn - dt);
+      if (p.respawn === 0) {
+        p.x = p.index ? 365 : 235;
+        p.y = H + 55;
+        p.entering = true;
+        p.inv = 3;
+        p.cool = 0;
+      }
+      continue;
+    }
+    if (p.entering) {
+      p.y = Math.max(690, p.y - 220 * dt);
+      if (p.y === 690) { p.entering = false; p.inv = 3; }
+      continue;
+    }
     p.inv -= dt;
     p.cool -= dt;
     const a = input(p.index);
@@ -427,7 +452,7 @@ function update(dt) {
             ? 1.5
             : 3.2;
       const target = players
-        .filter((p) => p.hp > 0)
+        .filter((p) => p.lives > 0 && p.respawn === 0)
         .sort((a, b) => Math.abs(a.x - e.x) - Math.abs(b.x - e.x))[0];
       if (target) {
         const base = Math.atan2(target.y - e.y, target.x - e.x);
@@ -467,7 +492,7 @@ function update(dt) {
     b.x += b.vx * dt;
     b.y += b.vy * dt;
     for (const p of players)
-      if (!b.dead && Math.hypot(p.x - b.x, p.y - b.y) < 14 && p.hp > 0) {
+      if (!b.dead && Math.hypot(p.x - b.x, p.y - b.y) < 14 && p.lives > 0 && p.respawn === 0) {
         hurt(p, 15);
         b.dead = true;
       }
@@ -475,11 +500,14 @@ function update(dt) {
   for (const d of drops) {
     d.y += 75 * dt;
     for (const p of players)
-      if (p.hp > 0 && !d.dead && Math.hypot(d.x - p.x, d.y - p.y) < 29) {
+      if (p.lives > 0 && p.respawn === 0 && !p.entering && !d.dead && Math.hypot(d.x - p.x, d.y - p.y) < 29) {
         d.dead = true;
         if (d.type === "W") p.level = Math.min(3, p.level + 1);
-        if (d.type === "+") p.hp = Math.min(100, p.hp + 30);
+        if (d.type === "1UP") p.lives++;
         if (d.type === "B") p.bombs = Math.min(5, p.bombs + 1);
+        p.notice = d.type === "1UP" ? "1UP · +1 LIFE" : d.type === "W" ? `POWER ${p.level}` : `BOMB ×${p.bombs}`;
+        p.noticeUntil = elapsed + 1.5;
+        explode(d.x, d.y, d.type === "1UP" ? "#91e3bd" : "#efd58d", 12);
         sfx.playSfx("pickup");
       }
   }
@@ -495,6 +523,7 @@ function draw() {
   render({
     mode,
     ambient,
+    elapsed,
     enemies,
     drops,
     players,
@@ -521,7 +550,7 @@ function updateHUD() {
     .map((i) => {
       const p = players[i],
         active = i === 0 || keyboard2 || assignments[1] !== null;
-      return `<div class="pilot ${i ? "p2" : ""}"><b>P${i + 1} · ${i ? "MINT" : "GINGER"}</b><span>${assignments[i] !== null ? "手掣已加入" : active ? "鍵盤就緒" : "等待加入"}</span>${p ? `<span>${p.hp > 0 ? "耐久 " + p.hp + "%" : "已擊落"} · 炸彈 ${p.bombs} · 火力 ${p.level}</span>` : ""}</div>`;
+      return `<div class="pilot ${i ? "p2" : ""}"><b>P${i + 1} · ${i ? "MINT" : "GINGER"}</b><span>${assignments[i] !== null ? "手掣已加入" : active ? "鍵盤就緒" : "等待加入"}</span>${p ? `<span>${p.lives > 0 ? "🐱".repeat(p.lives) : "已擊落"} · 炸彈 ${p.bombs} · 火力 ${p.level}</span>` : ""}</div>`;
     })
     .join("");
 }

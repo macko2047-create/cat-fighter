@@ -117,6 +117,7 @@ function createRenderer(ctx, W, H, background, clamp, playerAssets = null, enemy
   function draw({
     mode,
     ambient,
+    elapsed = 0,
     enemies,
     drops,
     players,
@@ -182,19 +183,45 @@ function createRenderer(ctx, W, H, background, clamp, playerAssets = null, enemy
         );
     }
     for (const d of drops) {
-      ctx.fillStyle =
-        d.type === "W" ? "#efd58d" : d.type === "+" ? "#91e3bd" : "#a2d3ed";
-      ctx.fillRect(d.x - 12, d.y - 12, 24, 24);
-      ctx.fillStyle = "#123344";
-      ctx.font = "bold 18px monospace";
+      const color = d.type === "W" ? "#efd58d" : d.type === "1UP" ? "#91e3bd" : "#a2d3ed";
+      ctx.save();
+      ctx.translate(d.x, d.y + Math.sin(ambient * 3 + d.x) * 3);
+      ctx.shadowColor = color; ctx.shadowBlur = 12;
+      ctx.fillStyle = "#0b2536"; ctx.strokeStyle = color; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.arc(0, 0, 21, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = "#ffffff66"; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(0, -1, 17, Math.PI, Math.PI * 1.9); ctx.stroke();
+      ctx.fillStyle = color;
+      if (d.type === "W") {
+        for (const x of [-8, 0, 8]) {
+          ctx.beginPath(); ctx.moveTo(x - 3, 6); ctx.lineTo(x - 3, -5);
+          ctx.lineTo(x, -10); ctx.lineTo(x + 3, -5); ctx.lineTo(x + 3, 6); ctx.closePath(); ctx.fill();
+        }
+      } else if (d.type === "B") {
+        ctx.beginPath(); ctx.arc(0, 0, 9, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = color; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(3, -8); ctx.lineTo(5, -13); ctx.lineTo(10, -11); ctx.stroke();
+        ctx.fillStyle = "#fff9dc"; ctx.beginPath(); ctx.arc(-3, -3, 2, 0, Math.PI * 2); ctx.fill();
+      } else {
+        ctx.beginPath(); ctx.moveTo(-11, 1); ctx.lineTo(-11, -13); ctx.lineTo(-5, -8);
+        ctx.lineTo(5, -8); ctx.lineTo(11, -13); ctx.lineTo(11, 1); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = "#0b2536"; ctx.fillRect(-6, -5, 3, 3); ctx.fillRect(3, -5, 3, 3);
+      }
+      ctx.fillStyle = color; ctx.font = "bold 9px monospace";
       ctx.textAlign = "center";
-      ctx.fillText(d.type, d.x, d.y + 6);
-      ctx.textAlign = "left";
+      ctx.fillText(d.type === "W" ? "POWER" : d.type === "B" ? "BOMB" : "1UP", 0, 15);
+      ctx.restore();
     }
     for (const [index, p] of players.entries())
-      if (p.hp > 0 && (p.inv <= 0 || Math.floor(ambient * 15) % 2 === 0))
+      if (p.lives > 0 && !p.respawn && (p.entering || p.inv <= 0 || Math.floor(ambient * 15) % 2 === 0))
         if (!playerSprite(p, playerVisuals?.[index]))
           plane(p.x, p.y, p.index ? "#8bd2be" : "#dec67e");
+    ctx.save(); ctx.textAlign = "center"; ctx.font = "bold 14px monospace";
+    ctx.fillStyle = "#fff0b5"; ctx.shadowColor = "#071e2f"; ctx.shadowBlur = 5;
+    for (const p of players)
+      if (p.noticeUntil > elapsed) ctx.fillText(p.notice, clamp(p.x, 85, W - 85), p.y - 45 - (1.5 - (p.noticeUntil - elapsed)) * 12);
+    ctx.restore();
     ctx.save();ctx.globalCompositeOperation="lighter";
     for (const s of shots) tracer(s.x,s.y-2,s.owner?.index ? "#298dff" : "#ffb629",9,2.5);
     for (const b of hostile) tracer(b.x,b.y,"#ff4825",6,3);

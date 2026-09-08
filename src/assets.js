@@ -69,7 +69,7 @@ function playerAssetId(index) {
 // Presentation hints are optional and read-only. Current gameplay has no
 // persistent special/hit animation timer, so it supplies directional input.
 function selectPlayerVisualState(player, movement = {}, presentation = {}) {
-  if (presentation.crash || player.hp <= 0) return "crash";
+  if (presentation.crash || player.lives <= 0 || player.respawn > 0) return "crash";
   if (presentation.special) return "special";
   if (presentation.hit) return "hit";
   if (movement.x < 0) return "left";

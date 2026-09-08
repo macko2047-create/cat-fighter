@@ -17,15 +17,15 @@
       document.body.classList.toggle("in-flight", mode !== "ready");
       document.body.dataset.mode = mode;
       const p = players[0];
-      bombButton.disabled = mode !== "playing" || !p || p.hp <= 0 || p.bombs <= 0;
+      bombButton.disabled = mode !== "playing" || !p || p.lives <= 0 || p.respawn > 0 || p.entering || p.bombs <= 0;
       bombButton.textContent = `BOMB ×${p?.bombs ?? 3}`;
       $("#flight-health").textContent = players.length
-        ? players.map(p => `P${p.index + 1} · ${p.hp}% · B ${p.bombs}`).join(" / ") : "P1 · READY";
+        ? players.map(p => `P${p.index + 1} ${"🐱".repeat(p.lives) || "OUT"} · B ${p.bombs}`).join(" / ") : "P1 · READY";
       if (mode !== "playing" && controls.active) controls.reset();
     },
   };
   stick.addEventListener("pointerdown", e => {
-    if (mode !== "playing" || pointer !== null || e.button !== 0) return;
+    if (mode !== "playing" || !players[0]?.lives || players[0].respawn > 0 || players[0].entering || pointer !== null || e.button !== 0) return;
     e.preventDefault();
     pointer = e.pointerId;
     origin = { x: e.clientX, y: e.clientY };
