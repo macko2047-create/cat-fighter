@@ -65,13 +65,16 @@ function start() {
   sparks = [];
   mode = "playing";
   $("#overlay").style.display = "none";
+  window.flightControls?.sync();
   sfx.playSfx("start");
 }
 function show(title, message) {
+  window.flightControls?.reset();
+  window.flightControls?.sync();
   $("#overlay").style.display = "flex";
   $("#overlay h2").innerHTML = title;
   $("#message").textContent = message;
-  $("#start").textContent = mode === "paused" ? "繼續任務 ▶" : "開始任務 ▶";
+  $("#start").textContent = mode === "paused" ? "RESUME ▶" : "START ▶";
   $("#join").style.display =
     mode === "ready" || mode === "over" || mode === "win" ? "block" : "none";
 }
@@ -82,6 +85,7 @@ function pause(reason = "休息一下，貓貓。") {
   } else if (mode === "paused" && !$("#settings").open) {
     mode = "playing";
     $("#overlay").style.display = "none";
+    window.flightControls?.sync();
   }
 }
 $("#start").onclick = () => (mode === "paused" ? pause() : start());
@@ -266,6 +270,12 @@ function input(i) {
       Number(p.buttons[13]?.pressed || false) -
       Number(p.buttons[12]?.pressed || false);
     fire ||= p.buttons[config(p).fire]?.pressed;
+  }
+  // Touch owns P1 only while held; both sources share normalization and physics.
+  if (i === 0 && window.flightControls?.active) {
+    x = window.flightControls.x;
+    y = window.flightControls.y;
+    fire = true;
   }
   const n = Math.hypot(x, y);
   if (n > 1) {
@@ -499,6 +509,7 @@ function draw() {
   });
 }
 function updateHUD() {
+  window.flightControls?.sync();
   $("#score").textContent = String(score).padStart(6, "0");
   $("#status").textContent =
     mode === "playing"

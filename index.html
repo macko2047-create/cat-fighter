@@ -1,15 +1,14 @@
 <!doctype html>
 <html lang="zh-Hant">
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>CAT FIGHTER • Pacific Paws</title>
   <link rel="stylesheet" href="style.css">
   <body>
     <header>
       <a class="brand" href="./">✦ CAT FIGHTER</a>
       <span>PACIFIC PAWS / 1943</span>
-      <button id="test">手掣測試 / 按鍵設定 ↗</button>
-      <button id="sound">聲音 OFF</button>
+
     </header>
     <main>
       <aside>
@@ -42,14 +41,34 @@
             <div class="eyebrow">PACIFIC PAWS</div>
             <h2>CAT<br>FIGHTER</h2>
             <p id="message">貓貓飛行隊，準備出擊。</p>
-            <button id="start">開始任務 ▶</button>
+            <button id="start">START ▶</button>
             <button id="join">加入鍵盤 P2</button>
             <p class="hint">手掣按任意按鈕加入 · 最多兩位</p>
+            <div class="menu-options">
+              <button id="sound">聲音 OFF</button>
+              <button id="test">手掣測試 / 按鍵設定 ↗</button>
+              <button id="fullscreen">FULLSCREEN</button>
+            </div>
+            <details class="instructions">
+              <summary>操作介紹 / HOW TO PLAY</summary>
+              <p>守住珊瑚海，擊退老鼠空軍與頭目。<br>觸控：底部拖動搖桿移動，按住時自動射擊；放開停止。<br>BOMB 清除敵彈，點一下用一枚，可與移動同時操作。<br>手掣：搖桿／十字掣移動 · A 射擊 · B 炸彈 · ＋ 暫停。<br>P1：WASD / F / G · P2：方向鍵 / K / L。<br>W 升級火力 · ＋ 回復耐久 · B 補充炸彈。</p>
+            </details>
           </div>
         </div>
         <div class="bottomline">
           <span>✦ CORAL SEA · 06:20 AM</span>
-          <button id="pause">暫停 II</button>
+          <button id="pause">PAUSE II</button>
+        </div>
+        <div class="control-deck" aria-label="遊戲操控區">
+          <div id="stick" aria-label="拖動移動，按住射擊">
+            <div class="stick-ring"><span id="stick-knob"></span></div>
+            <span class="control-label">MOVE + FIRE</span>
+          </div>
+          <div class="deck-actions">
+            <span id="flight-health">P1 · 100%</span>
+            <button id="touch-bomb" disabled>BOMB ×3</button>
+            <span class="control-label">P1 · B / G</span>
+          </div>
         </div>
       </section>
       <aside class="right">
@@ -81,5 +100,6 @@
     <script src="src/levels/level1.js"></script>
     <script src="src/enemies.js"></script>
     <script src="game.js"></script>
+    <script src="src/controls.js"></script>
   </body>
 </html>
