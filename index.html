@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CAT FIGHTER • Pacific Paws</title>
+  <link rel="stylesheet" href="style.css">
+  <body>
+    <header>
+      <a class="brand" href="./">✦ CAT FIGHTER</a>
+      <span>PACIFIC PAWS / 1943</span>
+      <button id="test">手掣測試 / 按鍵設定 ↗</button>
+      <button id="sound">聲音 OFF</button>
+    </header>
+    <main>
+      <aside>
+        <div class="eyebrow">THE FELINE AIR FORCE</div>
+        <h1>小小貓爪。<br>守住整片天空。</h1>
+        <p>駕駛螺旋槳戰機，穿越海面火網。<br>同你嘅僚機，一齊迎擊老鼠空軍。</p>
+        <div class="mission">
+          <small>MISSION 01</small>
+          <h2>珊瑚海防線</h2>
+          <p>海面編隊 → 轟炸機群 → 空中堡壘</p>
+          <span>1–2 PLAYERS · 約 3–5 分鐘</span>
+        </div>
+        <div id="pilots"></div>
+        <div class="help">
+          <b>KEYBOARD</b>
+          <p>P1　WASD · F 射擊 · G 炸彈<br>P2　方向鍵 · K 射擊 · L 炸彈<br>Enter 開始 · Esc 暫停</p>
+          <b>CONTROLLER</b>
+          <p>搖桿／十字掣移動<br>A 射擊 · B 炸彈 · ＋ 暫停</p>
+        </div>
+      </aside>
+      <section class="cabinet">
+        <div class="topline">
+          <span>● LIVE SORTIE</span>
+          <span id="score">000000</span>
+          <span id="status">READY</span>
+        </div>
+        <div class="screen">
+          <canvas id="game" width="600" height="800"></canvas>
+          <div id="overlay">
+            <div class="eyebrow">PACIFIC PAWS</div>
+            <h2>CAT<br>FIGHTER</h2>
+            <p id="message">貓貓飛行隊，準備出擊。</p>
+            <button id="start">開始任務 ▶</button>
+            <button id="join">加入鍵盤 P2</button>
+            <p class="hint">手掣按任意按鈕加入 · 最多兩位</p>
+          </div>
+        </div>
+        <div class="bottomline">
+          <span>✦ CORAL SEA · 06:20 AM</span>
+          <button id="pause">暫停 II</button>
+        </div>
+      </section>
+      <aside class="right">
+        <div class="eyebrow">FIELD MANUAL / 01</div>
+        <h2>一齊出擊。</h2>
+        <div class="badge">🐱</div>
+        <h3>WHISKER SQUADRON</h3>
+        <p>兩架戰機。共同戰線。<br>各自耐久、火力及炸彈。</p>
+        <div class="legend">
+          <p><i class="power">W</i> 火力升級</p>
+          <p><i class="repair">＋</i> 維修補給</p>
+          <p><i class="bomb">B</i> 炸彈補充</p>
+        </div>
+        <blockquote>「跟住我，<br>　返去食罐罐。」</blockquote>
+        <small>ORIGINAL ARCADE · LOCAL CO-OP</small>
+      </aside>
+    </main>
+    <dialog id="settings">
+      <h2>手掣測試與設定</h2>
+      <p>先喺手掣按一下按鈕，讓瀏覽器識別。<br>按「設定」後，再按你想用嘅實體按鈕。</p>
+      <div id="devices"></div>
+      <p id="mapping">搖桿死區：20% · 支援標準十字掣</p>
+      <button id="close">完成 / 返回</button>
+    </dialog>
+    <script src="src/world.js"></script>
+    <script src="src/assets.js"></script>
+    <script src="src/render.js"></script>
+    <script src="src/audio.js"></script>
+    <script src="src/levels/level1.js"></script>
+    <script src="src/enemies.js"></script>
+    <script src="game.js"></script>
+  </body>
+</html>
