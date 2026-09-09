@@ -435,3 +435,12 @@ body.in-flight { overflow: hidden; height: var(--play-height, 100dvh); }
   .in-flight[data-mode="over"] #overlay .menu-options { gap: 0; }
   .in-flight[data-mode="over"] #overlay .menu-options button { padding: 5px; margin: 2px; font-size: 9px; }
 }
+
+/* LAN setup stays reachable on both desktop and the full-screen touch layout. */
+#lan-dialog { width: min(540px, 94vw); max-height: 88dvh; overflow-y: auto; }
+#lan-dialog p { line-height: 1.6; }
+#lan-dialog input { display: block; width: 100%; padding: 12px; font: inherit; text-transform: uppercase; }
+#lan-addresses { overflow-wrap: anywhere; user-select: all; color: #ffd483; }
+#lan-bar { position: fixed; top: env(safe-area-inset-top, 0px); left: 50%; transform: translateX(-50%); z-index: 5; max-width: 95vw; font-size: 10px; padding: 3px 9px; margin: 0; opacity: .9; }
+#lan-bar[hidden], #lan-leave[hidden] { display: none; }
+button:disabled { opacity: .5; cursor: default; }

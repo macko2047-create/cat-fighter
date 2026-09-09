@@ -21,6 +21,7 @@ let mode = "ready",
   bossWreck = null,
   nextSupply = 50,
   extraLifeSpawned = false,
+  recoveryRewardPending = false,
   flash = 0,
   last = 0,
   ambient = 0,
@@ -32,6 +33,7 @@ const keys = new Set(),
 let deadzone = 0.08;
 const joined = [false, false], aircraft = [0, 1];
 function joinPilot(slot) {
+  if (window.lan?.active) return;
   if (mode==="playing" || mode==="paused") return;
   joined[slot] = !joined[slot];
   updateHUD();
@@ -77,6 +79,10 @@ function pilot(i) {
   };
 }
 function start() {
+  if (window.lan?.active) {
+    if (!window.lan.canStart()) return;
+    joined.fill(true);
+  }
   if (mode === "playing") return;
   if (!joined.some(Boolean)) joined[0] = true;
   players = joined.flatMap((active, slot) => active ? [{...pilot(0), controlSlot:slot, aircraft:aircraft[slot]}] : []);
@@ -88,6 +94,7 @@ function start() {
   bossWreck = null;
   nextSupply = LEVEL1.pickupInterval;
   extraLifeSpawned = false;
+  recoveryRewardPending = false;
   enemies = [];
   shots = [];
   hostile = [];
@@ -101,11 +108,16 @@ function start() {
   sfx.playSfx("start");
 }
 function tryRejoin(index) {
+  if (window.lan?.active && !window.lan.applying) {
+    if (window.lan.guest) { if (index === 1) window.lan.command('rejoin'); return false; }
+    if (!window.lan.owns(index)) return false;
+  }
   const p = players[index];
   if (mode !== "playing" || loopTransition > 0 || $("#settings").open || players.length !== 2 ||
     !p || p.lives > 0 || p.rejoinRemaining > 0 || !players.some(other => other !== p && other.lives > 0)) return false;
   // A fresh sortie for this pilot; the teammate and shared score keep going.
   Object.assign(p, pilot(index), { y: H + 55, entering: true, inv: 3, rapid: false, notice: '', noticeUntil: 0 });
+  recoveryRewardPending = true;
   if (index === 0) window.flightControls?.reset();
   sfx.playSfx("playerJoined");
   updateHUD();
@@ -165,6 +177,10 @@ function show(title, message) {
     mode === "ready" || mode === "over" || mode === "win" ? "block" : "none";
 }
 function pause(reason = "休息一下，貓貓。") {
+  if (window.lan?.active && !window.lan.applying) {
+    if (window.lan.guest) { window.lan.command('pause'); return; }
+    if (mode === 'paused' && !window.lan.ready) return;
+  }
   if (mode === "playing") {
     mode = "paused";
     show("PAUSED", reason);
@@ -197,6 +213,7 @@ $("#settings").addEventListener("close", () => {
   capture = null;
 });
 window.addEventListener("keydown", (e) => {
+  if (window.lan?.key(e)) return;
   if (
     [
       "ArrowUp",
@@ -278,6 +295,7 @@ function renderDevices() {
 }
 let deviceSignature = "";
 function poll() {
+  if (window.lan?.active) { window.lan.poll(); return; }
   for (const p of pads()) {
     const c = config(p),
       prev = previous.get(p.index) || [],
@@ -362,6 +380,8 @@ function poll() {
   }
 }
 function input(i) {
+  const networkInput = window.lan?.active && window.lan.inputFor(i);
+  if (networkInput) return networkInput;
   const playerIndex = i;
   i = players[i]?.controlSlot ?? i;
   const p = pads().find((p) => p.index === assignments[i]);
@@ -464,6 +484,10 @@ function damageEnemy(e, amount) {
   }
 }
 function bomb(p) {
+  if (window.lan?.active && !window.lan.applying) {
+    if (window.lan.guest) { if (p?.index === 1) window.lan.command('bomb'); return; }
+    if (p && !window.lan.owns(p.index)) return;
+  }
   if (mode !== "playing" || loopTransition > 0 || !p || p.lives <= 0 || p.respawn > 0 || p.entering || p.bombs <= 0) return;
   p.bombs--;
   flash = 0.35;
@@ -507,6 +531,12 @@ function supply(x, y, type, weaponType) {
 function hurt(p) {
   if (p.inv > 0 || p.lives <= 0 || p.respawn > 0 || p.entering) return;
   p.lives--;
+  const initial = pilot(p.index);
+  p.level = initial.level;
+  p.rapid = initial.rapid;
+  p.cool = initial.cool;
+  p.notice = '';
+  p.noticeUntil = 0;
   p.respawn = p.lives > 0 ? 0.8 : 0;
   if (p.lives === 0 && players.length === 2) p.rejoinRemaining = 10;
   if (p.index === 0) window.flightControls?.reset();
@@ -552,6 +582,11 @@ function update(dt) {
     return;
   }
   elapsed += dt;
+  // Queue one recovery carrier; existing rewards must leave the field first.
+  if (recoveryRewardPending && !rewardActive()) {
+    rewardCarrier(rnd(80, 520), "W", ["rapid", "double", "spread"][Math.floor(Math.random() * 3)]);
+    recoveryRewardPending = false;
+  }
   if (elapsed >= nextSupply && nextSupply < LEVEL1.preBossDuration && !rewardActive()) {
     const supplyX = rnd(80, 520);
     // Defer each reward until the previous carrier/drop is gone.
@@ -587,6 +622,7 @@ function update(dt) {
         p.x = p.index ? 365 : 235;
         p.y = H + 55;
         p.entering = true;
+        recoveryRewardPending = true;
         p.inv = 3;
         p.cool = 0;
       }
@@ -600,7 +636,8 @@ function update(dt) {
     p.inv -= dt;
     p.cool -= dt;
     const a = input(p.index);
-    const touchTarget = window.flightControls?.targetFor(p.index);
+    const touchTarget = window.lan?.active && p.index === 1
+      ? window.lan.targetFor(1) : window.flightControls?.targetFor(p.index);
     // Stop exactly at a nearby touch target instead of overshooting every frame.
     const arrived = touchTarget && Math.hypot(touchTarget.x - p.x, touchTarget.y - p.y) <= 260 * dt;
     p.x = clamp(arrived ? touchTarget.x : p.x + a.x * 260 * dt, 24, W - 24);
@@ -780,6 +817,13 @@ let hudClock = 0;
 function frame(ts) {
   const dt = Math.min((ts - last) / 1000 || 0, 0.035);
   last = ts;
+  if (window.lan?.guest) {
+    poll();
+    window.lan.tick(ts);
+    draw();
+    requestAnimationFrame(frame);
+    return;
+  }
   ambient += dt;
   poll();
   if (mode === "playing") update(dt);
@@ -791,6 +835,7 @@ function frame(ts) {
   }
   sparks = sparks.filter((s) => s.life > 0);
   draw();
+  window.lan?.tick(ts);
   hudClock += dt;
   if (hudClock > 0.15) {
     updateHUD();

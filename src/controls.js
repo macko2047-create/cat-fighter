@@ -57,7 +57,8 @@
     }
   }
   screen.addEventListener("pointerdown", e => {
-    if(players.length===2 && e.clientX>=canvas.getBoundingClientRect().left+canvas.getBoundingClientRect().width/2) return;
+    if(window.lan?.guest) return;
+    if(!window.lan?.active && players.length===2 && e.clientX>=canvas.getBoundingClientRect().left+canvas.getBoundingClientRect().width/2) return;
     if (e.pointerType === "mouse" || mode !== "playing" || loopTransition > 0 || !players[0]?.lives || players[0].respawn > 0 || players[0].entering || pointer !== null) return;
     e.preventDefault();
     const now = performance.now();
@@ -81,12 +82,13 @@
       y:clamp((e.clientY-rect.top-FINGER_CLEARANCE_PX)*H/rect.height,60,H-25)};
   }
   screen.addEventListener("pointerdown",e=>{
+    if(window.lan?.active && !window.lan.guest) return;
     const rect=canvas.getBoundingClientRect(), p=players[1];
     if(e.pointerType==="mouse" || mode!=="playing" || loopTransition>0 || !p?.lives || p.respawn>0 || p.entering ||
-      secondPointer!==null || e.clientX<rect.left+rect.width/2) return;
+      secondPointer!==null || (!window.lan?.guest && e.clientX<rect.left+rect.width/2)) return;
     e.preventDefault();
     const now=performance.now();
-    if(secondTap && now-secondTap<350) { bomb(p); secondTap=0; } else secondTap=now;
+    if(secondTap && now-secondTap<350) { bomb(p); secondTap=0; ignoreDblclickUntil=now+450; } else secondTap=now;
     if(loopTransition>0) return;
     secondPointer=e.pointerId; moveSecond(e); screen.setPointerCapture(secondPointer);
   });
@@ -106,7 +108,7 @@
     if (mode !== "playing") return;
     e.preventDefault();
     if (performance.now() < ignoreDblclickUntil) return;
-    useBomb();
+    if(window.lan?.guest) bomb(players[1]); else useBomb();
   });
   async function fullscreen() {
     if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
