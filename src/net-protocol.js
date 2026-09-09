@@ -18,12 +18,12 @@
     return out;
   }
   const numbers = names => Object.fromEntries(names.split(' ').map(n => [n, number]));
-  const player = {...numbers('x y lives rejoinRemaining respawn bombs level cool inv index controlSlot aircraft noticeUntil'), entering:bool, rapid:bool, notice:text};
-  const enemy = {...numbers('x y hp max v phase shoot age difficulty flight startX startY direction visibleAge chargeDuration chargeVX chargeVY chargeAge flightDelay chargeTimer chargeTargetX chargeTargetY damageReactUntil revealUntil damageStage'),
+  const player = {...numbers('netId x y lives rejoinRemaining respawn bombs level cool inv index controlSlot aircraft noticeUntil'), entering:bool, rapid:bool, notice:text};
+  const enemy = {...numbers('netId x y hp max v phase shoot age difficulty flight startX startY direction visibleAge chargeDuration chargeVX chargeVY chargeAge flightDelay chargeTimer chargeTargetX chargeTargetY damageReactUntil revealUntil damageStage'),
     type:choice(['small','heavy','boat','boss']), chargeState:choice(['ready','windup','charging','spent']), exited:bool};
   const reward = v => object(v,{type:choice(['W','B','1UP']),weapon:choice(['rapid','double','spread'])},['type']);
   function enemyValue(v) { const out=object(v,enemy,['type','x','y','hp','age']);if(Object.hasOwn(v,'reward'))out.reward=reward(v.reward);return out; }
-  const vector = numbers('x y vx vy');
+  const vector = numbers('netId x y vx vy');
   function array(v, limit, copy) {
     if(!Array.isArray(v)||v.length>limit)throw Error('Invalid network list');
     return v.map(copy);
@@ -36,7 +36,7 @@
     out.enemies=array(v.enemies,512,enemyValue);
     out.shots=array(v.shots,2048,s=>({...object(s,{...vector,dead:bool},['x','y','vx']),owner:object(s.owner,{index:choice([0,1])},['index'])}));
     out.hostile=array(v.hostile,4096,s=>object(s,vector,['x','y','vx','vy']));
-    out.drops=array(v.drops,256,s=>({...object(s,numbers('x y'),['x','y']),...reward(s)}));
+    out.drops=array(v.drops,256,s=>({...object(s,numbers('netId x y'),['x','y']),...reward(s)}));
     out.sparks=array(v.sparks,8192,s=>object(s,{...vector,life:number,color:text},['x','y','vx','vy','life','color']));
     out.bossDebris=array(v.bossDebris,240,s=>object(s,{...vector,...numbers('angle spin width height life duration'),color:text},['x','y','vx','vy','angle','spin','width','height','life','duration','color']));
     out.bossWreck=v.bossWreck===null?null:enemyValue(v.bossWreck);

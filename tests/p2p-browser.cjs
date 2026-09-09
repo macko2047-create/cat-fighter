@@ -30,6 +30,7 @@ const {createP2PServer}=require('../tools/p2p-server.cjs');
       });
       const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
       page.on('request',req=>{if(/\/(p2p|lan)\//.test(req.url()))requests.push({url:req.url(),body:req.postData()});});
+      if(process.env.SMOOTHNESS_MEASURE==='before')await page.route('**/src/presentation.js',route=>route.fulfill({contentType:'text/javascript',body:''}));
       await page.goto(base);
       await page.evaluate(()=>{document.documentElement.requestFullscreen=()=>Promise.resolve();document.querySelector('#boot').onclick();window.arcade.frame(3);});
       pages.push(page);
@@ -63,6 +64,39 @@ const {createP2PServer}=require('../tools/p2p-server.cjs');
     for(const p of pages)await click(p,'#lan-close');
     await run(host,"start();wave=999;nextSupply=999;extraLifeSpawned=true;players.forEach(p=>p.inv=999)");
     await wait(guest,"mode==='playing'&&players.length===2");
+    if(process.env.SMOOTHNESS_MEASURE){
+      await run(guest,`window.__measure={frames:[],arrivals:[],cost:[],steps:[],buffer:[]};
+        const originalDraw=draw;let previousPlayers,previousX;
+        draw=function(){const t=performance.now(),m=window.__measure;
+          if(players!==previousPlayers){m.arrivals.push(t);previousPlayers=players;}
+          originalDraw();const x=window.lan.lastVisual?.players[0]?.x??players[0]?.x;
+          if(window.__p2Probe){const q=window.__p2Probe;q.samples.push({t:performance.now()-q.start,x:window.lan.lastVisual?.players[1]?.x??players[1]?.x,auth:players[1]?.x});}
+          m.frames.push(t);m.cost.push(performance.now()-t);m.steps.push(x-previousX);previousX=x;
+          m.buffer.push(window.__channels.at(-1).bufferedAmount);};`);
+      await run(host,"window.__buffer=[];window.__bufferTimer=setInterval(()=>window.__buffer.push(window.lan.diagnostics().bufferedAmount),5);keys.add('KeyD')");
+      await new Promise(r=>setTimeout(r,900));
+      await run(host,"keys.clear();keys.add('KeyA')");
+      await new Promise(r=>setTimeout(r,900));
+      await run(host,'keys.clear()');
+      const m=await run(guest,'window.__measure');
+      const actual=await run(guest,'window.lan.diagnostics().snapshotTimes');m.arrivals=actual.filter(t=>t>=m.frames[0]);
+      const hostBuffer=await run(host,'clearInterval(window.__bufferTimer);window.__buffer');
+      const intervals=a=>a.slice(1).map((v,i)=>v-a[i]);
+      const mean=a=>a.reduce((x,y)=>x+y,0)/a.length;
+      const a=intervals(m.arrivals),f=intervals(m.frames),avg=mean(a);
+      const result={snapshotHz:1000/avg,intervalMs:avg,jitterStdMs:Math.sqrt(mean(a.map(x=>(x-avg)**2))),maxIntervalMs:Math.max(...a),fps:1000/mean(f),drawMeanMs:mean(m.cost),drawMaxMs:Math.max(...m.cost),bufferMax:Math.max(...m.buffer),hostBufferMax:Math.max(...hostBuffer),movingFrameFraction:m.steps.filter(x=>Math.abs(x)>.01).length/m.steps.length};
+      await run(guest,"window.__p2Probe={start:performance.now(),x:players[1].x,samples:[]};keys.add('KeyD')");
+      await new Promise(r=>setTimeout(r,150));
+      const probe=await run(guest,"keys.clear();window.__p2Probe");
+      result.localResponseMs=probe.samples.find(s=>Math.abs(s.x-probe.x)>.1)?.t??null;
+      result.localVisualLeadMax=Math.max(...probe.samples.map(s=>Math.abs(s.x-s.auth)));
+      if(process.env.SMOOTHNESS_MEASURE==='after'){
+        assert.ok(result.movingFrameFraction>.8,'remote motion advances at display cadence');
+        assert.ok(result.localVisualLeadMax>0,'P2 visual motion is independent of authoritative hitbox');
+      }
+      console.log(JSON.stringify(result));
+      fs.writeFileSync(path.join(out,process.env.SMOOTHNESS_MEASURE+'.json'),JSON.stringify(result,null,2));
+    }
     assert.equal(await run(guest,'window.lan.owns(0)'),false);
     assert.equal(await run(host,'window.lan.owns(1)'),false);
     // No signaling or relay service is needed once the channel is open.

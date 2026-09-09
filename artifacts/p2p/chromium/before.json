@@ -1,0 +1,14 @@
+{
+  "snapshotHz": 18.48843072465729,
+  "intervalMs": 54.087878787156306,
+  "jitterStdMs": 7.34305516883274,
+  "maxIntervalMs": 67.60000002384186,
+  "fps": 60.00112151388346,
+  "drawMeanMs": 0.09814813953858835,
+  "drawMaxMs": 0.3999999761581421,
+  "bufferMax": 131,
+  "hostBufferMax": 880,
+  "movingFrameFraction": 0.3055555555555556,
+  "localResponseMs": 100.5,
+  "localVisualLeadMax": 0
+}

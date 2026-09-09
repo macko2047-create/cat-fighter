@@ -1,0 +1,14 @@
+'use strict';
+const {test}=require('node:test');const assert=require('node:assert/strict');
+const {create}=require('../src/presentation.js');
+const entity=(netId,x,more={})=>({netId,x,y:100,...more});
+const state=(x=100)=>({mode:'playing',loop:1,loopTransition:0,elapsed:1,ambient:1,players:[entity(1,x),entity(2,300,{lives:3,respawn:0,entering:false})],enemies:[entity(3,x,{type:'boss'})],shots:[entity(4,x)],hostile:[entity(5,x)],drops:[entity(6,x)],sparks:[],bossDebris:[]});
+const neutral={x:0,y:0,target:null};
+function setup(){const p=create(),a=state(),b=state(120);p.accept(a,0);p.accept(b,50);return {p,a,b};}
+test('interpolates every moving group using copies; authoritative state stays byte-identical',()=>{const {p,b}=setup(),before=JSON.stringify(b),r=p.render(b,125,neutral,true);for(const g of ['players','enemies','shots','hostile','drops'])assert.equal(r[g][0].x,110);assert.equal(JSON.stringify(b),before);});
+test('latest membership prevents ghosts and mismatched IDs cannot blend',()=>{const {p,b}=setup();const c={...b,enemies:[entity(30,400,{type:'boss'})],shots:[]};p.accept(c,100);const r=p.render(c,125,neutral,true);assert.equal(r.enemies[0].x,400);assert.equal(r.shots.length,0);});
+test('teleport, death, entering and pause snap safely',()=>{for(const patch of [{x:450},{lives:2},{entering:true},{respawn:2}]){const {p,b}=setup();Object.assign(b.players[1],patch);p.accept(b,100);assert.deepEqual(p.render(b,125,neutral,true).players[1],b.players[1]);}const {p,b}=setup();b.mode='paused';p.accept(b,100);assert.equal(p.render(b,125,neutral,true),b);});
+test('immediate local motion, smooth release reconciliation, no authoritative write',()=>{const {p,b}=setup();p.render(b,100,neutral,true);const r=p.render(b,116.67,{x:1,y:0,target:null},true);assert.ok(r.players[1].x>300);assert.equal(b.players[1].x,300);for(let t=133;t<230;t+=16)p.render(b,t,neutral,true);assert.ok(p.render(b,240,neutral,true).players[1].x<r.players[1].x);p.reset();assert.equal(p.render(b,250,neutral,true),b);});
+test('stale stream, loop reset and reconnect do not interpolate prior history',()=>{const {p,b}=setup();assert.equal(p.render(b,400,neutral,true),b);const c=state(300);c.loop=2;p.accept(c,410);assert.equal(p.render(c,425,neutral,true).enemies[0].x,300);assert.equal(p.render(c,430,neutral,false),c);});
+test('reordered projectiles follow IDs, not array indices',()=>{const p=create(),a=state(),b=state();a.shots=[entity(10,50),entity(11,150)];b.shots=[entity(11,170),entity(10,70)];p.accept(a,0);p.accept(b,50);assert.deepEqual(p.render(b,125,neutral,true).shots.map(s=>s.x),[160,60]);});
+test('touch prediction stops at target and never writes the input or hitbox',()=>{const {p,b}=setup(),input={x:1,y:0,target:{x:301,y:100}},before=JSON.stringify(input);p.render(b,100,neutral,true);const r=p.render(b,117,input,true);assert.ok(r.players[1].x<=301);assert.equal(b.players[1].x,300);assert.equal(JSON.stringify(input),before);});

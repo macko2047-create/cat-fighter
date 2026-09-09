@@ -776,7 +776,7 @@ function update(dt) {
 }
 // Snapshot scalar values and pass the current arrays without copying entities.
 function draw() {
-  render({
+  const visualState={
     mode,
     ambient,
     elapsed,
@@ -796,7 +796,8 @@ function draw() {
       id: playerAssetId(p.aircraft ?? p.index),
       state: selectPlayerVisualState(p, input(p.index)),
     })),
-  });
+  };
+  render(window.lan?.guest ? window.lan.present(visualState) : visualState);
 }
 function updateHUD() {
   if (window.arcade?.simulating) return;

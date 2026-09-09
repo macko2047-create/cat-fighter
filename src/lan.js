@@ -54,7 +54,9 @@
     if(!res.ok) throw new Error(result.error||'Connection failed');
     return result;
   }
-  function stopMotion() {remote=neutral();keys.clear();window.flightControls?.reset();}
+  const snapshotTimes=[];
+  const presentation=window.CatPresentation?.create();
+  function stopMotion() {presentation?.reset();remote=neutral();keys.clear();window.flightControls?.reset();}
   function pauseHost(message) {
     stopMotion();
     if(mode==='playing') { applying=true;try{pause(message);}finally{applying=false;} }
@@ -93,11 +95,15 @@
     const n=Math.hypot(x,y);if(n>1){x/=n;y/=n;}
     return {x,y,fire:!!fire,target};
   }
+  const visualIds=new WeakMap();let visualSerial=0;
+  const identify=o=>{if(!visualIds.has(o))visualIds.set(o,++visualSerial);return {...o,netId:visualIds.get(o)};};
   function snapshot() {
-    return {mode,elapsed,score,players,enemies,shots:shots.map(s=>({...s,owner:{index:s.owner?.index||0}})),hostile,drops,sparks,bossDebris,wave,loop,loopTransition,bossSpawned,bossWreck,flash,ambient,aircraft:[...aircraft]};
+    return {mode,elapsed,score,players:players.map(identify),enemies:enemies.map(identify),shots:shots.map(s=>({...identify(s),owner:{index:s.owner?.index||0}})),hostile:hostile.map(identify),drops:drops.map(identify),sparks:sparks.map(identify),bossDebris:bossDebris.map(identify),wave,loop,loopTransition,bossSpawned,bossWreck,flash,ambient,aircraft:[...aircraft]};
   }
   function acceptState(s) {
     const oldMode=mode;
+    const arrival=performance.now();snapshotTimes.push(arrival);if(snapshotTimes.length>240)snapshotTimes.shift();
+    presentation?.accept(s,arrival);
     ({mode,elapsed,score,players,enemies,shots,hostile,drops,sparks,bossDebris,wave,loop,loopTransition,bossSpawned,bossWreck,flash,ambient}=s);
     aircraft.splice(0,2,...s.aircraft);joined.fill(true);
     if(oldMode!==mode){
@@ -202,6 +208,8 @@
     get active(){return !!session;},get guest(){return session?.role==='guest';},get applying(){return applying;},
     get ready(){return peerConnected;},
     command,
+    diagnostics(){return {snapshotTimes:[...snapshotTimes],bufferedAmount:transport?.bufferedAmount??null};},
+    present(state){const result=presentation?presentation.render(state,performance.now(),localInput(),peerConnected&&!document.hidden):state;lan.lastVisual=result;return result;},
     canStart(){return session?.role==='host'&&peerConnected;},
     owns(i){return !session||applying||i===(session.role==='host'?0:1);},
     targetFor(i){return session?.role==='host'&&i===1?remote.target:null;},

@@ -44,7 +44,7 @@ function runtime(){
     window:{innerHeight:800,innerWidth:600,addEventListener:(n,f)=>(events[n]??=[]).push(f)},
     navigator:{getGamepads:()=>gamepads},localStorage:{getItem:()=>null,setItem(){}},requestAnimationFrame(){}};
   vm.createContext(sandbox);
-  for(const file of ['src/world.js','src/assets.js','src/render.js','src/audio.js','src/levels/level1.js','src/enemies.js','game.js','src/controls.js','src/lan.js','src/arcade.js'])vm.runInContext(fs.readFileSync(path.join(__dirname,'..',file),'utf8'),sandbox,{filename:file});
+  for(const file of ['src/world.js','src/assets.js','src/render.js','src/audio.js','src/levels/level1.js','src/enemies.js','game.js','src/controls.js','src/presentation.js','src/lan.js','src/arcade.js'])vm.runInContext(fs.readFileSync(path.join(__dirname,'..',file),'utf8'),sandbox,{filename:file});
   const run=s=>vm.runInContext(s,sandbox);
   return {run,el,events,pad:p=>{gamepads=p;},key:(code,up=false)=>{for(const fn of events[up?'keyup':'keydown']||[])fn({code,repeat:false,target:{tagName:'BODY'},preventDefault(){}});},pointer:(type,x,y)=>{for(const fn of el('.screen').listeners[type]||[])fn({pointerId:1,pointerType:'touch',clientX:x,clientY:y,preventDefault(){}});}};
 }

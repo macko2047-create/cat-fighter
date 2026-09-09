@@ -111,6 +111,7 @@
       finally{if(!closed)timer=setTimeout(poll,750);}
     }
     const transport={
+      get bufferedAmount(){return channel?.bufferedAmount??0;},
       send(kind,data) {
         if(closed||channel?.readyState!=='open')return false;
         const value=JSON.stringify({kind,data});
