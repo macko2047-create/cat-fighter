@@ -119,7 +119,20 @@
     if (e.code === "Enter" && !$("#settings").open) fullscreen();
   });
   window.addEventListener("blur", controls.reset);
-  window.addEventListener("resize", controls.reset);
+  // iPad browser chrome can shrink the visible viewport independently of dvh.
+  function fitViewport() {
+    const viewport = window.visualViewport;
+    const style = document.documentElement.style;
+    style.setProperty('--play-height', `${viewport?.height ?? window.innerHeight}px`);
+    style.setProperty('--play-width', `${viewport?.width ?? window.innerWidth}px`);
+    style.setProperty('--play-top', `${viewport?.offsetTop ?? 0}px`);
+    style.setProperty('--play-left', `${viewport?.offsetLeft ?? 0}px`);
+    controls.reset();
+  }
+  window.addEventListener("resize", fitViewport);
+  window.visualViewport?.addEventListener("resize", fitViewport);
+  window.visualViewport?.addEventListener("scroll", fitViewport);
+  fitViewport();
   document.addEventListener("visibilitychange", () => { if (document.hidden) controls.reset(); });
   document.addEventListener("fullscreenchange", () => {
     controls.reset();

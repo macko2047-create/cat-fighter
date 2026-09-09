@@ -706,12 +706,13 @@ function update(dt) {
       if (p.lives > 0 && p.respawn === 0 && !p.entering && !d.dead && Math.hypot(d.x - p.x, d.y - p.y) < 29) {
         d.dead = true;
         if (d.type === "W") {
-          if (d.weapon) {
-            if (d.weapon === "rapid") p.rapid = true;
-            else p.level = d.weapon === "double" ? 2 : 3;
-          } else {
-            // Compatibility for old/manual W drops without a selected weapon type.
-            p.level = Math.min(3, p.level + 1);
+          if (d.weapon === "rapid") p.rapid = true;
+          else {
+            // Only a different firing pattern removes the current speed bonus.
+            // Unspecified legacy W drops still advance the pattern by one level.
+            const nextLevel = d.weapon ? (d.weapon === "double" ? 2 : 3) : Math.min(3, p.level + 1);
+            if (nextLevel !== p.level) p.rapid = false;
+            p.level = nextLevel;
           }
         }
         if (d.type === "1UP") p.lives++;
