@@ -12,8 +12,8 @@ function runtime(){
   const elements=new Map(),events={},documentEvents={};let gamepads=[];
   const ctx=new Proxy({},{get:(_,n)=>n==='createLinearGradient'?()=>({addColorStop(){}}):()=>{}});
   const el=s=>{
-    if(!elements.has(s))elements.set(s,{style:{},textContent:'',innerHTML:'',value:'',open:false,listeners:{},
-      querySelectorAll:()=>[],addEventListener(n,f){(this.listeners[n]??=[]).push(f);},showModal(){this.open=true;},close(){this.open=false;},getContext:()=>ctx,
+    if(!elements.has(s))elements.set(s,{style:{},dataset:{},textContent:'',innerHTML:'',value:'',open:false,listeners:{},
+      children:[],replaceChildren(){this.children=[];},append(child){this.children.push(child);},querySelectorAll(){return this.children;},addEventListener(n,f){(this.listeners[n]??=[]).push(f);},showModal(){this.open=true;},close(){this.open=false;},getContext:()=>ctx,
       getBoundingClientRect:()=>({left:0,top:0,width:600,height:800}),setPointerCapture(){},hasPointerCapture:()=>false,releasePointerCapture(){}});
     return elements.get(s);
   };
@@ -39,12 +39,12 @@ function runtime(){
   }
   const sandbox={console,Math,performance,AbortSignal,EventSource:SSE,
     fetch:(url,options)=>fetch(base+url,options),location:{origin:base},
-    document:{hidden:false,body:{classList:{toggle(){}},dataset:{}},documentElement:{style:{setProperty(){}}},querySelector:el,
+    document:{createElement:()=>el('created-'+Math.random()),hidden:false,body:{classList:{toggle(){}},dataset:{}},documentElement:{style:{setProperty(){}}},querySelector:el,
       addEventListener:(n,f)=>(documentEvents[n]??=[]).push(f)},
     window:{innerHeight:800,innerWidth:600,addEventListener:(n,f)=>(events[n]??=[]).push(f)},
     navigator:{getGamepads:()=>gamepads},localStorage:{getItem:()=>null,setItem(){}},requestAnimationFrame(){}};
   vm.createContext(sandbox);
-  for(const file of ['src/world.js','src/assets.js','src/render.js','src/audio.js','src/levels/level1.js','src/enemies.js','game.js','src/controls.js','src/lan.js'])vm.runInContext(fs.readFileSync(path.join(__dirname,'..',file),'utf8'),sandbox,{filename:file});
+  for(const file of ['src/world.js','src/assets.js','src/render.js','src/audio.js','src/levels/level1.js','src/enemies.js','game.js','src/controls.js','src/lan.js','src/arcade.js'])vm.runInContext(fs.readFileSync(path.join(__dirname,'..',file),'utf8'),sandbox,{filename:file});
   const run=s=>vm.runInContext(s,sandbox);
   return {run,el,events,pad:p=>{gamepads=p;},key:(code,up=false)=>{for(const fn of events[up?'keyup':'keydown']||[])fn({code,repeat:false,target:{tagName:'BODY'},preventDefault(){}});},pointer:(type,x,y)=>{for(const fn of el('.screen').listeners[type]||[])fn({pointerId:1,pointerType:'touch',clientX:x,clientY:y,preventDefault(){}});}};
 }
@@ -54,9 +54,11 @@ function runtime(){
   const host=runtime(),guest=runtime();
   const post=(route,data={},token)=>fetch(base+'/lan/'+route,{method:'POST',headers:{'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})},body:JSON.stringify(data)});
   try{
+    for(const peer of [host,guest]){peer.el('#boot').onclick();peer.run('window.arcade.frame(3)');}
     assert.equal((await fetch(base+'/tools/lan-server.cjs')).status,404,'server source not served');
     assert.equal((await fetch(base+'/src/..%2FREADME.md')).status,403,'encoded traversal rejected');
     const checkHost=await (await post('create')).json();
+    assert.deepEqual(await (await fetch(base+'/lan/rooms')).json(),{rooms:[]},'host without event stream is not advertised');
     const checkGuest=await (await post('join',{code:checkHost.code})).json();
     assert.equal((await post('state',{code:checkHost.code,state:{players:[]}},checkGuest.token)).status,405,'guest cannot publish game state');
     assert.equal((await post('input',{code:checkHost.code,input:{}},checkHost.token)).status,405,'host cannot impersonate guest input');
@@ -64,8 +66,18 @@ function runtime(){
     assert.equal((await post('join',{code:'XXXXXX'})).status,404);
     await host.el('#lan-create').onclick();
     const code=host.el('#lan-code').value;assert.match(code,/^[A-F0-9]{6}$/);
+    const roomList=async()=>{const response=await fetch(base+'/lan/rooms');assert.equal(response.headers.get('cache-control'),'no-store');return response.json();};
+    await wait(()=>streams[0].handlers.presence);
+    let listed;
+    for(let i=0;i<50;i++){listed=await roomList();if(listed.rooms.some(r=>r.code===code))break;await new Promise(r=>setTimeout(r,20));}
+    assert.deepEqual(listed,{rooms:[{code}]},'only connected empty room is public, no credentials');
+    await guest.el('#lan-open').onclick();
+    assert.equal(guest.el('#lan-rooms').children.length,1,'dialog discovers available host');
+    assert.ok(guest.el('#lan-addresses').textContent.includes(base),'server address visible before joining');
+    guest.el('#lan-close').onclick();
     host.run('start()');assert.equal(host.run('mode'),'ready','host waits for P2');
-    guest.el('#lan-code').value=code;await guest.el('#lan-join').onclick();
+    await guest.el('#lan-rooms').children[0].onclick();
+    assert.deepEqual(await roomList(),{rooms:[]},'full room is excluded');
     timer=setInterval(()=>{const now=performance.now();host.run(`frame(${now})`);guest.run(`frame(${now})`);},16);
     await wait(()=>host.run('window.lan.ready')&&guest.run('window.lan.ready'));
     assert.equal((await post('join',{code})).status,409,'third player rejected');
@@ -116,6 +128,10 @@ function runtime(){
     guest.el('#lan-leave').onclick();await wait(()=>host.run('mode')==='paused'&&!host.run('window.lan.ready'));
     guest.el('#lan-code').value=code;await guest.el('#lan-join').onclick();await wait(()=>host.run('window.lan.ready'));
     host.el('#lan-leave').onclick();await wait(()=>!guest.run('window.lan.active'));
-    console.log('PASS: real HTTP/SSE rooms, isolation, P2 keyboard/touch/gamepad, bombs, death/reset/rejoin/rewards, pause, disconnect/reconnect, next loop, leave and host shutdown.');
+    assert.deepEqual(await roomList(),{rooms:[]},'closed host is removed');
+    await guest.el('#lan-search').onclick();
+    assert.equal(guest.el('#lan-rooms').children.length,0);
+    assert.match(guest.el('#lan-discovery-status').textContent,/未找到空房/);
+    console.log('PASS: host discovery, one-click join, empty/full/closed rooms, real HTTP/SSE rooms, isolation, P2 keyboard/touch/gamepad, bombs, death/reset/rejoin/rewards, pause, disconnect/reconnect, next loop, leave and host shutdown.');
   }finally{clearInterval(timer);for(const s of streams)s.close();host.el('#lan-leave').onclick();guest.el('#lan-leave').onclick();if(server){server.dispose();await new Promise(r=>server.close(r));}}
 })().catch(e=>{console.error(e);process.exitCode=1;});

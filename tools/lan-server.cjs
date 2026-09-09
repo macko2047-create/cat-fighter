@@ -11,12 +11,13 @@ function createLanServer() {
   const rooms = new Map();
   const send = (peer, type, data) => {
     const out = peer?.stream;
-    if (!out || out.destroyed) return;
+    if (!out || out.destroyed || out.writableEnded) return;
     if (out.writableLength > 1024 * 1024) { out.destroy(); return; }
     out.write(`event: ${type}\ndata: ${JSON.stringify(data)}\n\n`);
   };
   const presence = room => {
-    const data = {host: !!room.host.stream, guest: !!room.guest?.stream};
+    const connected = peer => !!peer?.stream && !peer.stream.destroyed && !peer.stream.writableEnded;
+    const data = {host: connected(room.host), guest: connected(room.guest)};
     send(room.host, 'presence', data); send(room.guest, 'presence', data);
   };
   const closeRoom = (code, room) => {
@@ -38,6 +39,10 @@ function createLanServer() {
           const port = server.address().port;
           const addresses = Object.values(os.networkInterfaces()).flat().filter(a=>a.family==='IPv4'&&!a.internal).map(a=>`http://${a.address}:${port}`);
           return reply(res,200,{addresses});
+        }
+        if (url.pathname === '/lan/rooms' && req.method === 'GET') {
+          const available = [...rooms].filter(([,room]) => room.host.stream && !room.host.stream.destroyed && !room.host.stream.writableEnded && !room.guest);
+          return reply(res,200,{rooms:available.map(([code])=>({code}))});
         }
         let body = {};
         if (req.method === 'POST') {

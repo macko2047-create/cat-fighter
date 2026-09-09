@@ -79,6 +79,7 @@ function pilot(i) {
   };
 }
 function start() {
+  if (window.arcade && !window.arcade.beforeStart()) return;
   if (window.lan?.active) {
     if (!window.lan.canStart()) return;
     joined.fill(true);
@@ -213,6 +214,7 @@ $("#settings").addEventListener("close", () => {
   capture = null;
 });
 window.addEventListener("keydown", (e) => {
+  if (window.arcade?.key(e)) return;
   if (window.lan?.key(e)) return;
   if (
     [
@@ -809,7 +811,7 @@ function updateHUD() {
   $("#pilots").innerHTML = [0, 1]
     .map((i) => {
       const p = players.find(p=>(p.controlSlot ?? p.index)===i), active=joined[i];
-      return `<div class="pilot ${i ? "p2" : ""}"><b>P${i + 1} · ${aircraft[i] ? "MINT" : "GINGER"}</b><span>${active ? assignments[i] !== null ? "手掣已加入" : "鍵盤／觸控已加入" : "等待加入"}</span>${p ? `<span>生命 ${p.lives} · 炸彈 ${p.bombs}</span>` : ""}</div>`;
+      return `<div class="pilot ${i ? "p2" : ""}"><b>P${i + 1} · ${aircraft[i] ? "MINT" : "GINGER"}</b><span>${active ? "已加入" : "等待加入"}</span>${p ? `<span>生命 ${p.lives} · 炸彈 ${p.bombs}</span>` : ""}</div>`;
     })
     .join("");
 }
@@ -817,6 +819,10 @@ let hudClock = 0;
 function frame(ts) {
   const dt = Math.min((ts - last) / 1000 || 0, 0.035);
   last = ts;
+  if (window.arcade?.frame(dt)) {
+    requestAnimationFrame(frame);
+    return;
+  }
   if (window.lan?.guest) {
     poll();
     window.lan.tick(ts);

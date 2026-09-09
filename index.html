@@ -4,7 +4,11 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>CAT FIGHTER • Pacific Paws</title>
   <link rel="stylesheet" href="style.css">
-  <body>
+  <body class="arcade-shell" data-arcade="off">
+    <div id="boot-screen">
+      <button id="boot">BOOT <span>TOUCH TO POWER ON</span></button>
+      <div id="boot-log" hidden role="status"><span>PACIFIC PAWS · ARCADE SYSTEM</span><pre id="boot-text"></pre></div>
+    </div>
     <header>
       <a class="brand" href="./">✦ CAT FIGHTER</a>
       <span>PACIFIC PAWS / 1943</span>
@@ -36,22 +40,29 @@
         </div>
         <div class="screen">
           <canvas id="game" width="600" height="800"></canvas>
+          <div id="attract" hidden>
+            <div class="demo-top"><span>DEMONSTRATION</span><span>TOUCH TO PLAY</span></div>
+            <div class="demo-caption"><small id="demo-chapter"></small><h2 id="demo-title"></h2><p id="demo-copy"></p></div>
+            <div id="demo-finger" aria-hidden="true"><span>☝</span><b id="demo-gesture"></b></div>
+            <div class="demo-menu"><button id="demo-start">START ▶</button><div><button id="demo-lan">Wi-Fi 雙打</button><button id="demo-options">選機／雙人</button><button id="demo-sound">聲音 OFF</button></div></div>
+          </div>
           <div id="overlay">
             <div class="eyebrow">PACIFIC PAWS</div>
             <h2>CAT<br>FIGHTER</h2>
             <p id="message">貓貓飛行隊，準備出擊。</p>
             <button id="start">START ▶</button>
-            <p id="lobby-status" role="status">0 位已加入 · 按加入或手掣射擊鍵</p>
+            <p id="lobby-status" role="status">按 START 出擊，或選擇雙人</p>
             <button id="join-p1">P1 加入</button>
             <label>P1 飛機 <select id="aircraft-0"><option value="0">GINGER</option><option value="1">MINT</option></select></label>
             <button id="join">P2 加入</button>
             <label>P2 飛機 <select id="aircraft-1"><option value="1">MINT</option><option value="0">GINGER</option></select></label>
-            <p class="hint">一位加入＝單人，兩位加入＝雙人。手掣：按鍵加入，炸彈鍵選機，再按射擊開始。觸控雙人：各用左右半邊畫面。</p>
+            <p class="hint">一位加入＝單人，兩位加入＝雙人。觸控雙人：各用左右半邊畫面。</p>
             <div class="menu-options">
               <button id="lan-open">Wi-Fi 雙打</button>
               <button id="sound">聲音 OFF</button>
               <button id="test">手掣測試 / 按鍵設定 ↗</button>
               <button id="fullscreen">FULLSCREEN</button>
+              <button id="watch-demo">返回 DEMO／結束本局</button>
             </div>
             <details class="instructions">
               <summary>操作介紹 / HOW TO PLAY</summary>
@@ -111,9 +122,17 @@
     <dialog id="lan-dialog">
       <h2>Wi-Fi 連線雙打</h2>
       <p>兩部裝置連接同一個 Wi-Fi，並開啟電腦提供的遊戲網址。</p>
-      <p>房主控制 P1，另一部裝置控制 P2。各自可用 WASD／方向鍵移動、F 射擊、G 炸彈，亦支援手掣及全畫面拖曳觸控。</p>
+      <p>房主控制 P1，另一部裝置控制 P2。各自在自己的畫面按住拖動、自動射擊；同一位置快速輕觸兩下使用炸彈。</p>
       <p>電腦先在遊戲資料夾執行 <code>node tools/lan-server.cjs</code>，再開啟終端顯示的網址。</p>
       <button id="lan-create">建立房間 · P1</button>
+      <h3>Available hosts · 可加入的房主</h3>
+      <button id="lan-search">搜尋／更新房主清單</button>
+      <p id="lan-discovery-status" role="status"></p>
+      <div id="lan-rooms"></div>
+      <p>清單只顯示目前服務的空房。兩部裝置須開啟同一個電腦網址；房間碼不能跨服務使用。</p>
+      <label for="lan-host-url">另一部 host 電腦的網址</label>
+      <input id="lan-host-url" type="url" placeholder="http://192.168.0.55:8767" autocomplete="url" spellcheck="false">
+      <button id="lan-open-host">開啟 host 網址</button>
       <label for="lan-code">房間碼</label>
       <input id="lan-code" maxlength="6" placeholder="六位房間碼" autocomplete="off" autocapitalize="characters" spellcheck="false">
       <button id="lan-join">加入房間 · P2</button>
@@ -134,5 +153,6 @@
     <script src="src/controller-export.js"></script>
     <script src="src/controls.js"></script>
     <script src="src/lan.js"></script>
+    <script src="src/arcade.js"></script>
   </body>
 </html>

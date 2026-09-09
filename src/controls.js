@@ -21,7 +21,7 @@
       if (held !== null && screen.hasPointerCapture(held)) screen.releasePointerCapture(held);
     },
     sync() {
-      document.body.classList.toggle("in-flight", mode !== "ready");
+      document.body.classList.toggle("in-flight", !!window.arcade || mode !== "ready");
       document.body.dataset.mode = mode;
       const health = $("#flight-health");
       // Counts stay readable as extra lives accumulate over an endless run.

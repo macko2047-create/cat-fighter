@@ -5,9 +5,43 @@
   let remote={x:0,y:0,fire:false,target:null}, actions=[], padPrevious=[], applying=false;
   const neutral=()=>({x:0,y:0,fire:false,target:null});
   const status=text=>{ $('#lan-status').textContent=text; $('#lan-bar').textContent=text+' · 連線設定'; };
+  // Safari versions before AbortSignal.timeout still support AbortController.
+  const timeoutSignal=ms=>{
+    if(AbortSignal.timeout)return AbortSignal.timeout(ms);
+    const controller=new AbortController();
+    setTimeout(()=>controller.abort(),ms);
+    return controller.signal;
+  };
+  let searchVersion=0;
+  async function discover() {
+    const version=++searchVersion;
+    $('#lan-rooms').replaceChildren();
+    $('#lan-discovery-status').textContent='正在搜尋可加入的房主…';
+    try {
+      const [info,list]=await Promise.all(['info','rooms'].map(async route=>{
+        const response=await fetch('/lan/'+route,{cache:'no-store',signal:timeoutSignal(3000)});
+        if(!response.ok)throw Error('Wi-Fi 服務未啟動或版本不符');
+        return response.json();
+      }));
+      if(version!==searchVersion)return;
+      if(!Array.isArray(info.addresses)||!Array.isArray(list.rooms))throw Error('不是 Wi-Fi 遊戲服務');
+      $('#lan-addresses').textContent='目前服務：'+location.origin+'　其他裝置請開啟：'+(info.addresses.join('　')||location.origin);
+      $('#lan-discovery-status').textContent=list.rooms.length?`找到 ${list.rooms.length} 個可加入的房主`:'未找到空房。請房主建立房間，並確認兩部裝置使用上方同一網址，再按搜尋。';
+      for(const room of list.rooms){
+        const button=document.createElement('button');
+        button.textContent=`房主 ${room.code} · 加入 P2`;
+        button.disabled=!!session||connecting;
+        button.onclick=()=>{ $('#lan-code').value=room.code;return enter('guest'); };
+        $('#lan-rooms').append(button);
+      }
+    } catch(error) {
+      if(version!==searchVersion)return;
+      $('#lan-discovery-status').textContent='搜尋失敗：請開啟 host 電腦提供的 http://IP:連接埠 網址。直接開啟檔案或靜態網站無法搜尋房間。';
+    }
+  }
   async function request(route, data={}, credentials=session) {
     const res=await fetch('/lan/'+route, {method:'POST',headers:{'Content-Type':'application/json',...(credentials?{Authorization:'Bearer '+credentials.token}:{})},
-      body:JSON.stringify({...data,...(credentials?{code:credentials.code}:{})}),signal:AbortSignal.timeout(3000)});
+      body:JSON.stringify({...data,...(credentials?{code:credentials.code}:{})}),signal:timeoutSignal(3000)});
     const result=await res.json();
     if(!res.ok) throw new Error(result.error||'連線失敗');
     return result;
@@ -71,6 +105,8 @@
     $('#join-p1').disabled=active;$('#join').disabled=active;
     $('#aircraft-1').disabled=active;$('#aircraft-0').disabled=session?.role==='guest';
     $('#start').disabled=active&&(session.role==='guest'||!peerConnected);
+    $('#lan-open-host').disabled=active||connecting;
+    for(const button of $('#lan-rooms').querySelectorAll('button'))button.disabled=active||connecting;
   }
   function connect(credentials) {
     session=credentials;lastReceived=performance.now();lastSend=0;peerConnected=false;presenceReady=false;actions=[];padPrevious=[];
@@ -103,15 +139,14 @@
   }
   async function enter(role) {
     if(session||connecting)return;
+    window.arcade?.dismiss();
     if(mode==='playing'||mode==='paused'){status('請先完成目前遊戲，再建立或加入房間。');return;}
     connecting=true;refreshButtons();
     try {
       const credentials=await request(role==='host'?'create':'join',role==='host'?{}:{code:$('#lan-code').value.trim().toUpperCase()},null);
       connect(credentials);
-      const info=await fetch('/lan/info').then(r=>r.json());
-      $('#lan-addresses').textContent=(info.addresses.length?info.addresses.join('　'):location.origin)+`　房間碼：${credentials.code}`;
     } catch(error){status('未能連線：'+error.message+'。請用 Wi-Fi 服務提供的網址開啟遊戲。');}
-    finally {connecting=false;refreshButtons();}
+    finally {connecting=false;refreshButtons();await discover();}
   }
   function leave(notify=true) {
     const old=session;session=null;stream?.close();stream=null;peerConnected=false;actions=[];
@@ -173,7 +208,17 @@
       request(lan.guest?'input':'state',data,current).catch(()=>{if(session===current){lost('連線失敗，請檢查 Wi-Fi 或重新加入房間。');refreshButtons();}}).finally(()=>{busy=false;});
     }
   };
-  const openDialog=()=>{if(mode==='playing')pause('連線設定中');$('#lan-dialog').showModal();};
+  const openDialog=()=>{if(mode==='playing')pause('連線設定中');$('#lan-dialog').showModal();return discover();};
+  $('#lan-search').onclick=discover;
+  $('#lan-open-host').onclick=()=>{
+    if(session||connecting)return;
+    if(mode==='playing'||mode==='paused'){status('請先完成目前遊戲，再切換 host 網址。');return;}
+    try {
+      const url=new URL($('#lan-host-url').value.trim());
+      if(!['http:','https:'].includes(url.protocol)||url.username||url.password)throw Error();
+      location.assign(url.origin+'/');
+    } catch {status('請輸入完整 host 網址，例如 http://192.168.0.55:8767');}
+  };
   $('#lan-open').onclick=openDialog;
   $('#lan-bar').onclick=openDialog;
   $('#lan-close').onclick=()=>$('#lan-dialog').close();
