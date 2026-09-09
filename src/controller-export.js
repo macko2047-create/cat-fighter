@@ -47,19 +47,19 @@
     link.click();
     link.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-    status.textContent = '已產生 JSON 下載。將檔案附加到對話，或按「複製設定」貼給我。';
+    status.textContent = 'JSON download created. Attach it to the conversation, or use Copy settings and paste it.';
   };
   $('#copy-controller').onclick = async () => {
     prepare();
     try {
       if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
       await navigator.clipboard.writeText(output.value);
-      status.textContent = '已複製設定，可直接貼到對話。';
+      status.textContent = 'Settings copied. Paste them into the conversation.';
     } catch {
       $('#controller-export-preview').open = true;
       output.focus();
       output.select();
-      status.textContent = '瀏覽器未允許自動複製；已選取下方設定，請按 ⌘C／Ctrl+C 再貼到對話。';
+      status.textContent = 'The browser blocked automatic copying. Settings are selected below; press Cmd+C / Ctrl+C, then paste into the conversation.';
     }
   };
 })();

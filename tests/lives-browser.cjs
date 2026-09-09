@@ -40,7 +40,7 @@ const assert = require('node:assert/strict');
     }),[0,['W']]);
     await run(()=>{drops=[{x:150,y:560,type:'W'},{x:300,y:560,type:'B'},{x:450,y:560,type:'1UP'}];players[0].inv=0;draw();updateHUD()});
     await page.screenshot({path:'artifacts/touch-ui/lives-rewards.png'});
-    assert.equal(await page.locator('#flight-health .p1').getAttribute('aria-label'), 'P1：生命 4，炸彈 3');
+    assert.equal(await page.locator('#flight-health .p1').getAttribute('aria-label'), 'P1: Lives 4, bombs 3');
     assert.ok((await page.locator('#flight-health .p1').textContent()).includes('×4'));
     assert.deepEqual(errors,[]);
     console.log('PASS: three lives, protected bottom fly-in, reset firepower and preserved bombs, co-op defeat, 60-second supplies, one 1UP per level, pickup cap, 1.5% drop threshold, HUD and rendering');

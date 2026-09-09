@@ -14,11 +14,11 @@
   });
   showDeadzone();
   const profiles = [null, null];
-  const steps = ['向右推搖桿並放開', '向上推搖桿並放開', '按射擊鍵', '按炸彈鍵', '按暫停鍵'];
+  const steps = ['Move the stick right, then release', 'Move the stick up, then release', 'Press the fire button', 'Press the bomb button', 'Press the pause button'];
   let setup = null, releasePending = false, defaultsEnabled = true;
   const status = text => { $('#half-status').textContent = text; };
   function prompt() {
-    status(`P${setup.slot + 1}：${setup.neutral ? '放開所有搖桿及按鍵，稍候。' : steps[setup.step]}`);
+    status(`P${setup.slot + 1}: ${setup.neutral ? 'Release all sticks and buttons, then wait.' : steps[setup.step]}`);
   }
   function begin(slot) {
     capture = null;
@@ -29,7 +29,7 @@
     if (!setup || !$('#settings').open) return;
     const s = setup;
     const candidates = s.id === undefined ? raw : raw.filter(p=>p.id===s.id && p.index===s.index);
-    if (!candidates.length) { status('未讀到手掣，請先連接並按一下按鍵。'); return; }
+    if (!candidates.length) { status('No controller detected. Connect one and press a button.'); return; }
     if (s.neutral) {
       // Capture a stable resting value: non-standard pads may have idle axes at -1.
       const values = candidates.map(p=>({id:p.id,index:p.index,axes:[...p.axes]}));
@@ -52,10 +52,10 @@
         });
       }
       if (!detected) return;
-      if (s.axes.some(a=>a.axis===detected.axis)) { status('上下與左右需使用不同軸；放回中央後向上推。'); return; }
+      if (s.axes.some(a=>a.axis===detected.axis)) { status('Vertical and horizontal movement need different axes. Center the stick, then move it up.'); return; }
       const other=profiles[1-s.slot];
       if (other && other.id===detected.p.id && other.index===detected.p.index && other.axes.some(a=>a.axis===detected.axis)) {
-        status('這是另一位玩家的搖桿，請用另一半 Joy-Con。'); return;
+        status('That stick belongs to the other player. Use the other Joy-Con.'); return;
       }
       s.id=detected.p.id; s.index=detected.p.index;
       s.axes.push({axis:detected.axis,rest:detected.rest,sign:detected.sign});
@@ -65,7 +65,7 @@
       if (button<0) return;
       const other=profiles[1-s.slot];
       if (s.buttons.includes(button) || (other && other.id===p.id && other.index===p.index && other.buttons.includes(button))) {
-        status('此按鍵已被使用，請放開後選另一個鍵。'); return;
+        status('That button is already assigned. Release it and choose another.'); return;
       }
       s.buttons.push(button);
     }
@@ -73,7 +73,7 @@
     if (s.step===steps.length) {
       profiles[s.slot]={id:s.id,index:s.index,axes:s.axes,buttons:s.buttons};
       previous.delete(-100-s.slot);
-      status(`P${s.slot+1} 半支手掣設定完成。${profiles[1-s.slot] ? '兩位玩家已就緒。' : `請設定 P${2-s.slot}。`}`);
+      status(`P${s.slot+1} half-controller configured. ${profiles[1-s.slot] ? 'Both players are ready.' : `Set up P${2-s.slot} next.`}`);
       releasePending=true; setup=null; return;
     }
     s.neutral=true; s.baseline=null; prompt();
@@ -122,17 +122,17 @@
   $('#half-p2').onclick=()=>begin(1);
   $('#half-reset').onclick=()=>{
     setup=null; releasePending=false; defaultsEnabled=false; profiles.fill(null); assignments.fill(null); previous.clear();
-    status('已返回整支手掣模式。各手掣按一下按鈕重新加入。'); renderDevices();
+    status('Full-controller mode restored. Press a button on each controller to rejoin.'); renderDevices();
   };
   $('#half-default').onclick=()=>{
     setup=null; releasePending=true; defaultsEnabled=true; profiles.fill(null); previous.clear();
-    status('已恢復你的 Joy-Con 預設。按射擊加入；炸彈鍵選機；再次射擊開始。');
+    status('Joy-Con defaults restored. Press fire to join, bomb to choose an aircraft, then fire again to start.');
   };
   $('#settings').addEventListener('close',()=>{setup=null;});
   window.addEventListener('gamepaddisconnected',e=>{
     if (profiles.some(p=>p && p.index===e.gamepad.index && p.id===e.gamepad.id)) {
-      if (mode==='playing') pause('Joy-Con 已斷線；重新連接並按鍵恢復，必要時可重新校準。');
-      status('Joy-Con 已斷線；重新連接並按鍵恢復，必要時可重新校準。');
+      if (mode==='playing') pause('Joy-Con disconnected. Reconnect and press a button to recover, or recalibrate if needed.');
+      status('Joy-Con disconnected. Reconnect and press a button to recover, or recalibrate if needed.');
     }
   });
 })();

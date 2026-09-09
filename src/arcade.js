@@ -2,17 +2,17 @@
 (() => {
   // Short gameplay beats interrupt the lessons; every chapter is skippable.
   const chapters = [
-    {id:'title',seconds:6,title:'CAT FIGHTER',copy:'貓貓飛行隊 · 珊瑚海出擊'},
-    {id:'drag',seconds:7,title:'按住並拖動',copy:'跟隨手指前方 · 按住自動射擊'},
-    {id:'release',seconds:3,title:'放開，戰機停下',copy:'停止移動及射擊 · 戰鬥仍會繼續'},
-    {id:'rapid',seconds:5,title:'RAPID · 快射',copy:'拾取閃電 → 射擊速度加倍',reward:{type:'W',weapon:'rapid'}},
-    {id:'battle',seconds:4,title:'穿越敵陣',copy:'命中、擊落、得分！'},
-    {id:'double',seconds:5,title:'2-WAY · 雙線',copy:'拾取雙箭頭 → 雙線火力',reward:{type:'W',weapon:'double'}},
-    {id:'bomb',seconds:6,title:'同一位置，輕觸兩下',copy:'雙擊 → 炸彈清除彈幕'},
-    {id:'supply',seconds:4,title:'BOMB · 補給',copy:'拾取炸彈 → 補充一枚',reward:{type:'B'}},
-    {id:'spread',seconds:5,title:'3-WAY · 散射',copy:'拾取三箭頭 → 擴闊攻擊範圍',reward:{type:'W',weapon:'spread'}},
-    {id:'life',seconds:4,title:'1UP · 再一次機會',copy:'拾取貓貓金幣 → 增加一條生命',reward:{type:'1UP'}},
-    {id:'boss',seconds:11,title:'空中堡壘 · 決戰',copy:'頭目已受損 · 閃避火網，完成最後一擊'},
+    {id:'title',seconds:6,title:'CAT FIGHTER',copy:'Cat squadron · Coral Sea sortie'},
+    {id:'drag',seconds:7,title:'HOLD & DRAG',copy:'Fly ahead of your finger · Hold to fire'},
+    {id:'release',seconds:3,title:'RELEASE TO STOP',copy:'Movement and fire stop · Battle continues'},
+    {id:'rapid',seconds:5,title:'RAPID FIRE',copy:'Collect lightning → Double your fire rate',reward:{type:'W',weapon:'rapid'}},
+    {id:'battle',seconds:4,title:'BREAK THROUGH',copy:'Hit, destroy, score!'},
+    {id:'double',seconds:5,title:'2-WAY SHOT',copy:'Collect twin arrows → Two firing lanes',reward:{type:'W',weapon:'double'}},
+    {id:'bomb',seconds:6,title:'DOUBLE-TAP ONE SPOT',copy:'Double-tap → Bomb clears enemy fire'},
+    {id:'supply',seconds:4,title:'BOMB SUPPLY',copy:'Collect a bomb → Add one to your stock',reward:{type:'B'}},
+    {id:'spread',seconds:5,title:'3-WAY SPREAD',copy:'Collect triple arrows → Wider firepower',reward:{type:'W',weapon:'spread'}},
+    {id:'life',seconds:4,title:'1UP · ONE MORE CHANCE',copy:'Collect a cat coin → Gain an extra life',reward:{type:'1UP'}},
+    {id:'boss',seconds:11,title:'FLYING FORTRESS',copy:'Boss damaged · Dodge its fire and finish it'},
   ];
   let phase='off', clock=0, index=0, time=0, scene=null, simulating=false;
   let steering={x:0,y:0,fire:false}, trail=[], bombUsed=false, overTime=0;
@@ -41,7 +41,7 @@
     } else if(c.id!=='release') scene.enemies=[enemy(300,120),enemy(170,70),enemy(430,30)];
     trail=[];bombUsed=false;steering=neutral();lastScore=0;feedback='';feedbackUntil=0;
     $('#attract').dataset.chapter=c.id;
-    $('#demo-chapter').textContent=c.reward?'SUPPLY / 補給': ['drag','release','bomb'].includes(c.id)?'HOW TO PLAY':'PACIFIC PAWS / 1943';
+    $('#demo-chapter').textContent=c.reward?'SUPPLY': ['drag','release','bomb'].includes(c.id)?'HOW TO PLAY':'PACIFIC PAWS / 1943';
     $('#demo-title').textContent=c.title; $('#demo-copy').textContent=c.copy;
     $('#demo-counter').textContent=`${String(index+1).padStart(2,'0')} / ${chapters.length}`;
   }
@@ -75,9 +75,9 @@
       let x=targetX-p.x,y=targetY-p.y;
       const scale=Math.max(260*dt,Math.hypot(x,y));
       steering={x:x/scale,y:y/scale,fire:c.id!=='release'&&(c.id!=='bomb'||time>2.5)};
-      if(c.id==='bomb'&&!bombUsed&&time>=2.25){bomb(p);bombUsed=true;feedback='BOMB −1 · 彈幕清除';feedbackUntil=time+1.8;}
+      if(c.id==='bomb'&&!bombUsed&&time>=2.25){bomb(p);bombUsed=true;feedback='BOMB −1 · ENEMY FIRE CLEARED';feedbackUntil=time+1.8;}
       ambient+=dt;update(dt);updateEffects(dt);
-      if(score>lastScore){feedback=`擊落 +${score-lastScore}`;feedbackUntil=time+1;lastScore=score;}
+      if(score>lastScore){feedback=`KILL +${score-lastScore}`;feedbackUntil=time+1;lastScore=score;}
       if(p.noticeUntil>elapsed){feedback=p.notice;feedbackUntil=time+.25;}
       if((c.id==='title'||c.id==='battle')&&enemies.length===0&&time<c.seconds-1)
         enemies.push(enemy(clamp(p.x,90,510),50),enemy(150,0),enemy(450,-50));
@@ -97,7 +97,7 @@
     finger.style.top=`calc(${p.y/H*100}% + 72px)`;
     const pressing=c.id==='drag'||(c.id==='bomb'&&((time>=2&&time<2.12)||(time>=2.25&&time<2.37)));
     finger.dataset.pressed=String(pressing);
-    $('#demo-gesture').textContent=c.id==='drag'?'按住 → 拖動':c.id==='release'?'放開':time<2?'同一位置':time<2.25?'① TAP':'② TAP · BOMB';
+    $('#demo-gesture').textContent=c.id==='drag'?'HOLD → DRAG':c.id==='release'?'RELEASE':time<2?'SAME SPOT':time<2.25?'① TAP':'② TAP · BOMB';
     if(teaching) {
       const offset=72*H/fieldHeight;
       ctx.save();ctx.strokeStyle='#fff0b5';ctx.lineWidth=3;
@@ -132,7 +132,7 @@
       if(phase==='game') {
         const returning=mode==='over'&&!window.lan?.active;
         $('#demo-return').hidden=!returning;
-        if(returning){if(!frozen)overTime+=dt;$('#demo-return').textContent=`${Math.max(0,Math.ceil(15-overTime))} 秒後返回 DEMO · 按 RETRY 再出擊`;if(overTime>=15){attract();paint();return true;}}
+        if(returning){if(!frozen)overTime+=dt;$('#demo-return').textContent=`${Math.max(0,Math.ceil(15-overTime))}s until DEMO · Press RETRY to fly again`;if(overTime>=15){attract();paint();return true;}}
         else overTime=0;
         return false;
       }
@@ -146,10 +146,10 @@
       if(phase==='demo')paint();return true;
     },
   };
-  $('#boot').onclick=()=>{if(phase!=='off')return;setPhase('boot');clock=0;$('#boot').hidden=true;$('#boot-log').hidden=false;sound=true;sfx.playSfx('start');$('#sound').textContent=$('#demo-sound').textContent='聲音 ON';$('#fullscreen').onclick();};
+  $('#boot').onclick=()=>{if(phase!=='off')return;setPhase('boot');clock=0;$('#boot').hidden=true;$('#boot-log').hidden=false;sound=true;sfx.playSfx('start');$('#sound').textContent=$('#demo-sound').textContent='SOUND ON';$('#fullscreen').onclick();};
   $('#demo-start').onclick=()=>start();
   $('#demo-lan').onclick=()=>$('#lan-open').onclick();
-  $('#demo-options').onclick=()=>{dismiss();show('準備出擊','選擇戰機，單人或雙人一起出發。');};
+  $('#demo-options').onclick=()=>{dismiss();show('READY FOR TAKEOFF','Choose your aircraft and fly solo or with a friend.');};
   $('#demo-sound').onclick=()=>{$('#sound').onclick();$('#demo-sound').textContent=$('#sound').textContent;};
   $('#watch-demo').onclick=attract;$('#overlay').style.display='none';window.flightControls?.sync();
 })();

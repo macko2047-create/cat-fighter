@@ -34,7 +34,7 @@ function createLanServer() {
     try {
       const url = new URL(req.url, 'http://localhost');
       if (url.pathname.startsWith('/lan/')) {
-        if (req.headers.origin && req.headers.origin !== `http://${req.headers.host}`) return reply(res,403,{error:'來源不符'});
+        if (req.headers.origin && req.headers.origin !== `http://${req.headers.host}`) return reply(res,403,{error:'Origin mismatch'});
         if (url.pathname === '/lan/info' && req.method === 'GET') {
           const port = server.address().port;
           const addresses = Object.values(os.networkInterfaces()).flat().filter(a=>a.family==='IPv4'&&!a.internal).map(a=>`http://${a.address}:${port}`);
@@ -46,17 +46,17 @@ function createLanServer() {
         }
         let body = {};
         if (req.method === 'POST') {
-          if (!req.headers['content-type']?.startsWith('application/json')) return reply(res,415,{error:'需要 JSON'});
+          if (!req.headers['content-type']?.startsWith('application/json')) return reply(res,415,{error:'JSON required'});
           let data = '';
           for await (const chunk of req) {
             data += chunk;
-            if (Buffer.byteLength(data) > 512 * 1024) return reply(res,413,{error:'訊息太大'});
+            if (Buffer.byteLength(data) > 512 * 1024) return reply(res,413,{error:'Message too large'});
           }
-          try { body = JSON.parse(data); } catch { return reply(res,400,{error:'訊息格式錯誤'}); }
-          if (!body || typeof body !== 'object') return reply(res,400,{error:'訊息格式錯誤'});
+          try { body = JSON.parse(data); } catch { return reply(res,400,{error:'Invalid message format'}); }
+          if (!body || typeof body !== 'object') return reply(res,400,{error:'Invalid message format'});
         }
         if (url.pathname === '/lan/create' && req.method === 'POST') {
-          if (rooms.size >= 32) return reply(res,429,{error:'房間已滿，請稍後再試'});
+          if (rooms.size >= 32) return reply(res,429,{error:'Server full. Try again later'});
           let code; do { code=randomBytes(3).toString('hex').toUpperCase(); } while (rooms.has(code));
           const host={token:token(),stream:null};
           rooms.set(code,{host,guest:null,updated:Date.now(),state:null});
@@ -64,15 +64,15 @@ function createLanServer() {
         }
         const code = String(body.code || url.searchParams.get('code') || '').toUpperCase();
         const room = rooms.get(code);
-        if (!room) return reply(res,404,{error:'找不到房間，請確認房間碼'});
+        if (!room) return reply(res,404,{error:'Room not found. Check the room code'});
         if (url.pathname === '/lan/join' && req.method === 'POST') {
-          if (room.guest) return reply(res,409,{error:'房間已有 P2'});
+          if (room.guest) return reply(res,409,{error:'Room already has a P2'});
           room.guest={token:token(),stream:null}; room.updated=Date.now();
           return reply(res,200,{code,token:room.guest.token,role:'guest'});
         }
         const secret = req.headers.authorization?.replace(/^Bearer /,'') || url.searchParams.get('token');
         const role = secret === room.host.token ? 'host' : secret === room.guest?.token ? 'guest' : null;
-        if (!role) return reply(res,403,{error:'房間憑證失效'});
+        if (!role) return reply(res,403,{error:'Invalid room credentials'});
         const peer = room[role];
         room.updated=Date.now();
         if (url.pathname === '/lan/events' && req.method === 'GET') {
@@ -89,7 +89,7 @@ function createLanServer() {
           return reply(res,200,{});
         }
         if (url.pathname === '/lan/state' && req.method === 'POST' && role === 'host') {
-          if (!body.state || !Array.isArray(body.state.players)) return reply(res,400,{error:'缺少遊戲狀態'});
+          if (!body.state || !Array.isArray(body.state.players)) return reply(res,400,{error:'Missing game state'});
           room.state=body.state; send(room.guest,'state',body.state);
           return reply(res,200,{});
         }
@@ -103,23 +103,23 @@ function createLanServer() {
           });
           return reply(res,200,{});
         }
-        return reply(res,405,{error:'不允許此操作'});
+        return reply(res,405,{error:'Operation not allowed'});
       }
-      if (!['GET','HEAD'].includes(req.method)) return reply(res,405,{error:'不允許此操作'});
+      if (!['GET','HEAD'].includes(req.method)) return reply(res,405,{error:'Operation not allowed'});
       const name = decodeURIComponent(url.pathname === '/' ? '/index.html' : url.pathname);
-      if (name.split('/').some(part=>part==='..'||part==='.')) return reply(res,403,{error:'不允許存取'});
-      if (!/^\/(index\.html|style\.css|game\.js|src\/[\w./-]+|assets\/[\w./-]+)$/.test(name)) return reply(res,404,{error:'找不到檔案'});
+      if (name.split('/').some(part=>part==='..'||part==='.')) return reply(res,403,{error:'Access denied'});
+      if (!/^\/(index\.html|style\.css|game\.js|src\/[\w./-]+|assets\/[\w./-]+)$/.test(name)) return reply(res,404,{error:'File not found'});
       const file = path.resolve(ROOT, '.'+name);
-      if (!file.startsWith(ROOT+path.sep)) return reply(res,403,{error:'不允許存取'});
+      if (!file.startsWith(ROOT+path.sep)) return reply(res,403,{error:'Access denied'});
       const real = await fs.promises.realpath(file);
-      if (real !== file) return reply(res,403,{error:'不允許存取'});
+      if (real !== file) return reply(res,403,{error:'Access denied'});
       const stat=await fs.promises.stat(real);
-      if (!stat.isFile()) return reply(res,404,{error:'找不到檔案'});
+      if (!stat.isFile()) return reply(res,404,{error:'File not found'});
       const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.png':'image/png','.webp':'image/webp','.svg':'image/svg+xml','.json':'application/json','.woff2':'font/woff2'};
       res.writeHead(200,{'Content-Type':mime[path.extname(real)]||'application/octet-stream','Content-Length':stat.size,'Cache-Control':'no-cache','X-Content-Type-Options':'nosniff'});
       if(req.method==='HEAD') res.end(); else fs.createReadStream(real).on('error',()=>res.destroy()).pipe(res);
     } catch (error) {
-      if (!res.headersSent) reply(res,error.code==='ENOENT'?404:400,{error:'無法完成請求'}); else res.destroy();
+      if (!res.headersSent) reply(res,error.code==='ENOENT'?404:400,{error:'Unable to complete request'}); else res.destroy();
     }
   });
   const heartbeat=setInterval(()=>{
@@ -135,11 +135,11 @@ function createLanServer() {
 }
 if(require.main===module){
   const server=createLanServer();
-  server.on('error',e=>{console.error(`無法啟動 Wi-Fi 雙打：${e.message}`);process.exitCode=1;});
+  server.on('error',e=>{console.error(`Unable to start Wi-Fi co-op: ${e.message}`);process.exitCode=1;});
   server.listen(Number(process.env.PORT||8767),'0.0.0.0',()=>{
-    console.log(`CAT FIGHTER Wi-Fi 雙打\n本機：http://localhost:${server.address().port}`);
-    for(const a of Object.values(os.networkInterfaces()).flat()) if(a.family==='IPv4'&&!a.internal) console.log(`同一 Wi-Fi 的其他裝置：http://${a.address}:${server.address().port}`);
-    console.log('在網頁按「Wi-Fi 雙打」建立／加入房間。Ctrl+C 結束服務。');
+    console.log(`CAT FIGHTER Wi-Fi CO-OP\nLocal: http://localhost:${server.address().port}`);
+    for(const a of Object.values(os.networkInterfaces()).flat()) if(a.family==='IPv4'&&!a.internal) console.log(`Other devices on the same Wi-Fi: http://${a.address}:${server.address().port}`);
+    console.log('Select Wi-Fi CO-OP in the game to create or join a room. Press Ctrl+C to stop the server.');
   });
 }
 module.exports={createLanServer};

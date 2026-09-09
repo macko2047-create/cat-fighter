@@ -32,9 +32,9 @@
           const seconds = Math.ceil(p.rejoinRemaining || 0);
           const ready = seconds === 0 && mode === 'playing' && loopTransition <= 0;
           const hint = seconds ? 'WAIT' : loopTransition > 0 ? 'NEXT LOOP' : `FIRE / ${(p.controlSlot ?? p.index) ? 'K' : 'F'}`;
-          return `<button class="pilot-hud pilot-rejoin p${(p.controlSlot ?? p.index) + 1}" data-rejoin="${p.index}" ${ready ? '' : 'disabled'} aria-label="P${(p.controlSlot ?? p.index) + 1}：${seconds ? `${seconds} 秒後可重新加入` : '按射擊鍵或點此重新加入'}"><span>P${(p.controlSlot ?? p.index) + 1} ${seconds ? String(seconds).padStart(2, '0') : 'JOIN'}</span><span class="pilot-bombs">${hint}</span></button>`;
+          return `<button class="pilot-hud pilot-rejoin p${(p.controlSlot ?? p.index) + 1}" data-rejoin="${p.index}" ${ready ? '' : 'disabled'} aria-label="P${(p.controlSlot ?? p.index) + 1}: ${seconds ? `Rejoin in ${seconds}s` : 'Press fire or tap here to rejoin'}"><span>P${(p.controlSlot ?? p.index) + 1} ${seconds ? String(seconds).padStart(2, '0') : 'JOIN'}</span><span class="pilot-bombs">${hint}</span></button>`;
         }
-        return `<span class="pilot-hud p${(p.controlSlot ?? p.index) + 1}" aria-label="P${(p.controlSlot ?? p.index) + 1}：生命 ${p.lives}，炸彈 ${p.bombs}"><span class="pilot-lives"><b>P${(p.controlSlot ?? p.index) + 1}</b><svg class="life-icon" viewBox="0 0 16 14" aria-hidden="true"><path fill="currentColor" d="M0 0h3v2h2v2h6V2h2V0h3v11h-2v2H2v-2H0Z"/><path fill="#112b31" d="M3 6h2v2H3zm8 0h2v2h-2zM7 9h2v2H7z"/></svg><span>${p.lives > 0 ? `×${p.lives}` : 'OUT'}</span></span><span class="pilot-bombs">BOMB <b>${p.bombs}</b></span></span>`;
+        return `<span class="pilot-hud p${(p.controlSlot ?? p.index) + 1}" aria-label="P${(p.controlSlot ?? p.index) + 1}: Lives ${p.lives}, bombs ${p.bombs}"><span class="pilot-lives"><b>P${(p.controlSlot ?? p.index) + 1}</b><svg class="life-icon" viewBox="0 0 16 14" aria-hidden="true"><path fill="currentColor" d="M0 0h3v2h2v2h6V2h2V0h3v11h-2v2H2v-2H0Z"/><path fill="#112b31" d="M3 6h2v2H3zm8 0h2v2h-2zM7 9h2v2H7z"/></svg><span>${p.lives > 0 ? `×${p.lives}` : 'OUT'}</span></span><span class="pilot-bombs">BOMB <b>${p.bombs}</b></span></span>`;
       }).join('') : '<span class="pilot-ready">P1 · READY</span>';
       if (healthMarkup !== hud) { health.innerHTML = hud; healthMarkup = hud; }
       if ((mode !== "playing" || loopTransition > 0) && (controls.active || secondTarget)) controls.reset();
@@ -140,7 +140,7 @@
   document.addEventListener("visibilitychange", () => { if (document.hidden) controls.reset(); });
   document.addEventListener("fullscreenchange", () => {
     controls.reset();
-    if (!document.fullscreenElement && mode === "playing") pause("已離開全螢幕，按 RESUME 繼續。");
+    if (!document.fullscreenElement && mode === "playing") pause("Exited fullscreen. Press RESUME to continue.");
   });
   controls.sync();
 })();

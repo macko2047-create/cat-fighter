@@ -178,7 +178,7 @@ function show(title, message) {
   $("#join").style.display =
     mode === "ready" || mode === "over" || mode === "win" ? "block" : "none";
 }
-function pause(reason = "休息一下，貓貓。") {
+function pause(reason = "Take a breather, pilot.") {
   if (window.lan?.active && !window.lan.applying) {
     if (window.lan.guest) { window.lan.command('pause'); return; }
     if (mode === 'paused' && !window.lan.ready) return;
@@ -202,11 +202,11 @@ $("#join-p1").onclick = () => joinPilot(0);
 [0,1].forEach(i => { $("#aircraft-"+i).onchange = e => { aircraft[i]=Number(e.target.value); updateHUD(); }; });
 $("#sound").onclick = () => {
   sound = !sound;
-  $("#sound").textContent = "聲音 " + (sound ? "ON" : "OFF");
+  $("#sound").textContent = "SOUND " + (sound ? "ON" : "OFF");
   sfx.playSfx("soundEnabled");
 };
 $("#test").onclick = () => {
-  if (mode === "playing") pause("手掣設定中");
+  if (mode === "playing") pause("Configuring controllers");
   $("#settings").showModal();
   renderDevices();
 };
@@ -255,14 +255,14 @@ window.addEventListener("keydown", (e) => {
 window.addEventListener("keyup", (e) => keys.delete(e.code));
 window.addEventListener("blur", () => {
   keys.clear();
-  if (mode === "playing") pause("視窗離開焦點，已暫停");
+  if (mode === "playing") pause("Window lost focus. Game paused.");
 });
 document.addEventListener("visibilitychange", () => {
-  if (document.hidden && mode === "playing") pause("遊戲已暫停");
+  if (document.hidden && mode === "playing") pause("Game paused.");
 });
 window.addEventListener("gamepaddisconnected", (e) => {
   if (assignments.includes(e.gamepad.index) && mode === "playing")
-    pause("手掣已斷線。重新連接或使用鍵盤繼續。");
+    pause("Controller disconnected. Reconnect or use the keyboard to continue.");
   for (let i = 0; i < 2; i++)
     if (assignments[i] === e.gamepad.index) assignments[i] = null;
   previous.delete(e.gamepad.index);
@@ -274,13 +274,13 @@ function renderDevices() {
     ? list
         .map(
           (p) =>
-            `<div class="device" data-pad="${p.index}"><b></b><pre></pre><button data-action="fire">設定射擊</button><button data-action="bomb">設定炸彈</button><button data-action="pause">設定暫停</button></div>`,
+            `<div class="device" data-pad="${p.index}"><b></b><pre></pre><button data-action="fire">Map Fire</button><button data-action="bomb">Map Bomb</button><button data-action="pause">Map Pause</button></div>`,
         )
         .join("")
-    : "<p>未偵測到手掣。請在已連接嘅手掣按一下按鈕。</p>";
+    : "<p>No controller detected. Press a button on a connected controller.</p>";
   list.forEach((p) => {
     $(`[data-pad="${p.index}"] b`).textContent =
-      `${assignments.indexOf(p.index) >= 0 ? "P" + (assignments.indexOf(p.index) + 1) : "未加入"} · ${p.id}`;
+      `${assignments.indexOf(p.index) >= 0 ? "P" + (assignments.indexOf(p.index) + 1) : "Not joined"} · ${p.id}`;
   });
   $("#devices")
     .querySelectorAll("button")
@@ -292,7 +292,7 @@ function renderDevices() {
             action: b.dataset.action,
           };
           $("#mapping").textContent =
-            "請按想用作「" + b.textContent.replace("設定", "") + "」嘅按鈕…";
+            "Press a button for " + b.textContent.replace("Map ", "") + "…";
         }),
     );
 }
@@ -316,7 +316,7 @@ function poll() {
         localStorage.setItem("catfighter-bindings", JSON.stringify(bindings));
       } catch {}
       capture = null;
-      $("#mapping").textContent = "已儲存按鍵設定。";
+      $("#mapping").textContent = "Button mappings saved.";
     } else if ($("#settings").open && edge(c.bomb)) {
       $("#settings").close();
     } else if (!$("#settings").open) {
@@ -378,7 +378,7 @@ function poll() {
             .map((b, i) => (b.pressed ? i : null))
             .filter((x) => x !== null)
             .join(", ") || "—"
-        }\n射擊 ${config(p).fire} · 炸彈 ${config(p).bomb} · 暫停 ${config(p).pause}`;
+        }\nFire ${config(p).fire} · Bomb ${config(p).bomb} · Pause ${config(p).pause}`;
     });
   }
 }
@@ -548,7 +548,7 @@ function hurt(p) {
   explode(p.x, p.y, "#b7e2d6", 24);
   if (!players.some((a) => a.lives > 0)) {
     mode = "over";
-    show("GAME OVER", `第 ${loop} 輪 · 得分 ${score} · 再次出擊！`);
+    show("GAME OVER", `Loop ${loop} · Score ${score} · Fly again!`);
   }
 }
 function spawn() {
@@ -800,9 +800,9 @@ function draw() {
 }
 function updateHUD() {
   if (window.arcade?.simulating) return;
-  $("#join-p1").textContent = joined[0] ? "P1 已加入 · 點此退出" : "P1 加入";
-  $("#join").textContent = joined[1] ? "P2 已加入 · 點此退出" : "P2 加入";
-  $("#lobby-status").textContent = joined.filter(Boolean).length + " 位已加入 · " + (joined.every(Boolean) ? "雙人" : "單人") + " · 選機後按 START";
+  $("#join-p1").textContent = joined[0] ? "P1 JOINED · LEAVE" : "P1 JOIN";
+  $("#join").textContent = joined[1] ? "P2 JOINED · LEAVE" : "P2 JOIN";
+  $("#lobby-status").textContent = joined.filter(Boolean).length + " joined · " + (joined.every(Boolean) ? "CO-OP" : "SOLO") + " · Choose aircraft, then START";
   window.flightControls?.sync();
   $("#score").textContent = String(score).padStart(6, "0");
   $("#status").textContent =

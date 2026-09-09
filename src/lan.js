@@ -4,7 +4,7 @@
   let session=null, stream=null, busy=false, connecting=false, peerConnected=false, presenceReady=false, lastSend=0, lastReceived=0;
   let remote={x:0,y:0,fire:false,target:null}, actions=[], padPrevious=[], applying=false;
   const neutral=()=>({x:0,y:0,fire:false,target:null});
-  const status=text=>{ $('#lan-status').textContent=text; $('#lan-bar').textContent=text+' · 連線設定'; };
+  const status=text=>{ $('#lan-status').textContent=text; $('#lan-bar').textContent=text+' · Connection settings'; };
   // Safari versions before AbortSignal.timeout still support AbortController.
   const timeoutSignal=ms=>{
     if(AbortSignal.timeout)return AbortSignal.timeout(ms);
@@ -16,34 +16,34 @@
   async function discover() {
     const version=++searchVersion;
     $('#lan-rooms').replaceChildren();
-    $('#lan-discovery-status').textContent='正在搜尋可加入的房主…';
+    $('#lan-discovery-status').textContent='Searching for available hosts…';
     try {
       const [info,list]=await Promise.all(['info','rooms'].map(async route=>{
         const response=await fetch('/lan/'+route,{cache:'no-store',signal:timeoutSignal(3000)});
-        if(!response.ok)throw Error('Wi-Fi 服務未啟動或版本不符');
+        if(!response.ok)throw Error('Wi-Fi server unavailable or incompatible');
         return response.json();
       }));
       if(version!==searchVersion)return;
-      if(!Array.isArray(info.addresses)||!Array.isArray(list.rooms))throw Error('不是 Wi-Fi 遊戲服務');
-      $('#lan-addresses').textContent='目前服務：'+location.origin+'　其他裝置請開啟：'+(info.addresses.join('　')||location.origin);
-      $('#lan-discovery-status').textContent=list.rooms.length?`找到 ${list.rooms.length} 個可加入的房主`:'未找到空房。請房主建立房間，並確認兩部裝置使用上方同一網址，再按搜尋。';
+      if(!Array.isArray(info.addresses)||!Array.isArray(list.rooms))throw Error('Not a Wi-Fi game server');
+      $('#lan-addresses').textContent='Current server: '+location.origin+' · Open on other devices: '+(info.addresses.join('　')||location.origin);
+      $('#lan-discovery-status').textContent=list.rooms.length?`Found ${list.rooms.length} available hosts`:'No available rooms. Ask the host to create one, check both devices use the URL above, then search again.';
       for(const room of list.rooms){
         const button=document.createElement('button');
-        button.textContent=`房主 ${room.code} · 加入 P2`;
+        button.textContent=`Host ${room.code} · Join as P2`;
         button.disabled=!!session||connecting;
         button.onclick=()=>{ $('#lan-code').value=room.code;return enter('guest'); };
         $('#lan-rooms').append(button);
       }
     } catch(error) {
       if(version!==searchVersion)return;
-      $('#lan-discovery-status').textContent='搜尋失敗：請開啟 host 電腦提供的 http://IP:連接埠 網址。直接開啟檔案或靜態網站無法搜尋房間。';
+      $('#lan-discovery-status').textContent='Search failed. Open the host computer URL (http://IP:port). Room discovery is unavailable from local files or static websites.';
     }
   }
   async function request(route, data={}, credentials=session) {
     const res=await fetch('/lan/'+route, {method:'POST',headers:{'Content-Type':'application/json',...(credentials?{Authorization:'Bearer '+credentials.token}:{})},
       body:JSON.stringify({...data,...(credentials?{code:credentials.code}:{})}),signal:timeoutSignal(3000)});
     const result=await res.json();
-    if(!res.ok) throw new Error(result.error||'連線失敗');
+    if(!res.ok) throw new Error(result.error||'Connection failed');
     return result;
   }
   function stopMotion() {remote=neutral();keys.clear();window.flightControls?.reset();}
@@ -54,7 +54,7 @@
   function lost(message) {
     peerConnected=false;
     if(session?.role==='host') pauseHost(message);
-    else {stopMotion();if(mode==='playing'){mode='paused';show('連線中斷',message);}}
+    else {stopMotion();if(mode==='playing'){mode='paused';show('Connection lost',message);}}
     status(message);
   }
   function command(action) {
@@ -62,7 +62,7 @@
   }
   function received() {
     lastReceived=performance.now();
-    if(presenceReady&&!peerConnected){peerConnected=true;status(`房間 ${session.code} · 已重連，請房主繼續`);refreshButtons();}
+    if(presenceReady&&!peerConnected){peerConnected=true;status(`Room ${session.code} · Reconnected. Host can resume`);refreshButtons();}
   }
   function localInput() {
     if($('#settings').open||$('#lan-dialog').open) return neutral();
@@ -94,7 +94,7 @@
     aircraft.splice(0,2,...s.aircraft);joined.fill(true);
     if(oldMode!==mode){
       if(mode==='playing') $('#overlay').style.display='none';
-      else show(mode==='paused'?'PAUSED':mode==='over'?'GAME OVER':'Wi-Fi 雙打',mode==='over'?'等待房主重新開始。':'等待房主開始／繼續。');
+      else show(mode==='paused'?'PAUSED':mode==='over'?'GAME OVER':'Wi-Fi CO-OP',mode==='over'?'Waiting for the host to restart.':'Waiting for the host to start or resume.');
     }
     updateHUD();
   }
@@ -111,14 +111,14 @@
   function connect(credentials) {
     session=credentials;lastReceived=performance.now();lastSend=0;peerConnected=false;presenceReady=false;actions=[];padPrevious=[];
     stopMotion();joined.fill(true);mode='ready';players=[];$('#overlay').style.display='flex';
-    show('Wi-Fi 雙打',session.role==='host'?'等 P2 加入後，由你按 START。':'你控制 P2，等待房主開始。');
+    show('Wi-Fi CO-OP',session.role==='host'?'Wait for P2 to join, then press START.':'You control P2. Wait for the host to start.');
     $('#lan-code').value=session.code;
-    status(`房間 ${session.code} · 你是 ${session.role==='host'?'P1 房主':'P2'}`);
+    status(`Room ${session.code} · You are ${session.role==='host'?'P1 Host':'P2'}`);
     stream=new EventSource(`/lan/events?code=${session.code}&token=${session.token}`);
     stream.addEventListener('presence',e=>{
       const p=JSON.parse(e.data);presenceReady=p.host&&p.guest;peerConnected=presenceReady;lastReceived=performance.now();
-      if(!peerConnected) lost(session.role==='host'?'等待 P2 連線；遊戲已暫停':'等待房主連線；遊戲已暫停');
-      else status(`房間 ${session.code} · ${session.role==='host'?'P1 房主':'P2'} · 已連線`);
+      if(!peerConnected) lost(session.role==='host'?'Waiting for P2. Game paused.':'Waiting for the host. Game paused.');
+      else status(`Room ${session.code} · ${session.role==='host'?'P1 Host':'P2'} · Connected`);
       refreshButtons();
     });
     stream.addEventListener('input',e=>{
@@ -129,30 +129,30 @@
       try {for(const action of remote.actions||[]){
         if(action==='bomb')bomb(players[1]);
         if(action==='rejoin')tryRejoin(1);
-        if(action==='pause'&&mode==='playing')pause('P2 已暫停；由房主按 RESUME 繼續。');
+        if(action==='pause'&&mode==='playing')pause('P2 paused the game. Host: press RESUME to continue.');
       }} finally {applying=false;}
     });
     stream.addEventListener('state',e=>{if(session?.role==='guest'){received();acceptState(JSON.parse(e.data));}});
-    stream.addEventListener('ended',()=>{leave(false);status('房主已結束房間，請重新加入。');});
-    stream.onerror=()=>{if(session){lost('連線中斷，正在重連；重連後由房主繼續。');refreshButtons();}};
+    stream.addEventListener('ended',()=>{leave(false);status('The host closed the room. Please join again.');});
+    stream.onerror=()=>{if(session){lost('Connection lost. Reconnecting; the host can resume once connected.');refreshButtons();}};
     refreshButtons();updateHUD();
   }
   async function enter(role) {
     if(session||connecting)return;
     window.arcade?.dismiss();
-    if(mode==='playing'||mode==='paused'){status('請先完成目前遊戲，再建立或加入房間。');return;}
+    if(mode==='playing'||mode==='paused'){status('Finish the current run before creating or joining a room.');return;}
     connecting=true;refreshButtons();
     try {
       const credentials=await request(role==='host'?'create':'join',role==='host'?{}:{code:$('#lan-code').value.trim().toUpperCase()},null);
       connect(credentials);
-    } catch(error){status('未能連線：'+error.message+'。請用 Wi-Fi 服務提供的網址開啟遊戲。');}
+    } catch(error){status('Unable to connect: '+error.message+'. Open the game using the Wi-Fi server URL.');}
     finally {connecting=false;refreshButtons();await discover();}
   }
   function leave(notify=true) {
     const old=session;session=null;stream?.close();stream=null;peerConnected=false;actions=[];
     if(notify&&old)request('leave',{},old).catch(()=>{});
     stopMotion();mode='ready';players=[];enemies=[];shots=[];hostile=[];drops=[];sparks=[];bossDebris=[];bossWreck=null;loopTransition=0;score=0;joined.fill(false);
-    show('CAT FIGHTER','已離開連線房間。');refreshButtons();updateHUD();status('未連線');
+    show('CAT FIGHTER','You left the room.');refreshButtons();updateHUD();status('Not connected');
   }
   const lan=window.lan={
     get active(){return !!session;},get guest(){return session?.role==='guest';},get applying(){return applying;},
@@ -188,7 +188,7 @@
     poll(){
       if($('#settings').open||$('#lan-dialog').open)return;
       const p=pads().find(p=>p.index===assignments[0])||pads()[0];
-      if(!p){if(padPrevious.length&&mode==='playing'){if(lan.guest)command('pause');else pauseHost('手掣斷線，已暫停。');}padPrevious=[];return;}
+      if(!p){if(padPrevious.length&&mode==='playing'){if(lan.guest)command('pause');else pauseHost('Controller disconnected. Game paused.');}padPrevious=[];return;}
       assignments[0]=p.index;assignments[1]=null;
       const pressed=p.buttons.map(b=>b.pressed),c=config(p),edge=i=>pressed[i]&&!padPrevious[i];
       if(edge(c.bomb)){if(lan.guest)command('bomb');else bomb(players[0]);}
@@ -200,24 +200,24 @@
       if(!session)return;
       if(peerConnected&&now-lastReceived>2000&&mode==='playing'){
         if(lan.guest)command('pause');
-        lost('連線延遲過高，已暫停；請確認兩部裝置仍然連線。');refreshButtons();
+        lost('Connection timed out. Game paused; check both devices are still connected.');refreshButtons();
       }
       if(busy||now-lastSend<50)return;
       busy=true;lastSend=now;const current=session;
       const data=lan.guest?{input:mode==='playing'&&!document.hidden?localInput():neutral(),actions:actions.splice(0)}:{state:snapshot()};
-      request(lan.guest?'input':'state',data,current).catch(()=>{if(session===current){lost('連線失敗，請檢查 Wi-Fi 或重新加入房間。');refreshButtons();}}).finally(()=>{busy=false;});
+      request(lan.guest?'input':'state',data,current).catch(()=>{if(session===current){lost('Connection failed. Check Wi-Fi or rejoin the room.');refreshButtons();}}).finally(()=>{busy=false;});
     }
   };
-  const openDialog=()=>{if(mode==='playing')pause('連線設定中');$('#lan-dialog').showModal();return discover();};
+  const openDialog=()=>{if(mode==='playing')pause('Configuring connection');$('#lan-dialog').showModal();return discover();};
   $('#lan-search').onclick=discover;
   $('#lan-open-host').onclick=()=>{
     if(session||connecting)return;
-    if(mode==='playing'||mode==='paused'){status('請先完成目前遊戲，再切換 host 網址。');return;}
+    if(mode==='playing'||mode==='paused'){status('Finish the current run before switching host URLs.');return;}
     try {
       const url=new URL($('#lan-host-url').value.trim());
       if(!['http:','https:'].includes(url.protocol)||url.username||url.password)throw Error();
       location.assign(url.origin+'/');
-    } catch {status('請輸入完整 host 網址，例如 http://192.168.0.55:8767');}
+    } catch {status('Enter a full host URL, such as http://192.168.0.55:8767');}
   };
   $('#lan-open').onclick=openDialog;
   $('#lan-bar').onclick=openDialog;

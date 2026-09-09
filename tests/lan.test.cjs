@@ -131,7 +131,7 @@ function runtime(){
     assert.deepEqual(await roomList(),{rooms:[]},'closed host is removed');
     await guest.el('#lan-search').onclick();
     assert.equal(guest.el('#lan-rooms').children.length,0);
-    assert.match(guest.el('#lan-discovery-status').textContent,/未找到空房/);
+    assert.match(guest.el('#lan-discovery-status').textContent,/No available rooms/);
     console.log('PASS: host discovery, one-click join, empty/full/closed rooms, real HTTP/SSE rooms, isolation, P2 keyboard/touch/gamepad, bombs, death/reset/rejoin/rewards, pause, disconnect/reconnect, next loop, leave and host shutdown.');
   }finally{clearInterval(timer);for(const s of streams)s.close();host.el('#lan-leave').onclick();guest.el('#lan-leave').onclick();if(server){server.dispose();await new Promise(r=>server.close(r));}}
 })().catch(e=>{console.error(e);process.exitCode=1;});

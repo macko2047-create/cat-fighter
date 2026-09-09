@@ -25,7 +25,7 @@ const fs = require('node:fs');
     await page.evaluate(()=>arcade.frame(1.4));
     assert.equal(await page.evaluate(()=>arcade.phase),'demo');
     await page.evaluate(()=>arcade.frame(8));
-    assert.match(await page.locator('#demo-title').textContent(),/按住並拖動/);
+    assert.match(await page.locator('#demo-title').textContent(),/HOLD & DRAG/);
     await page.screenshot({path:path.join(out,'03-touch-demo.png')});
     const before = await page.evaluate(()=>JSON.stringify({players,score,elapsed,shots,drops,joined}));
     assert.ok(await page.evaluate(()=>arcade.demoState.score>0),'real shots kill enemies and award points');
