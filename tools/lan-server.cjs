@@ -7,7 +7,7 @@ const os = require('node:os');
 const {randomBytes} = require('node:crypto');
 const ROOT = path.resolve(__dirname, '..');
 const token = () => randomBytes(24).toString('hex');
-function createLanServer() {
+function createLanServer({handleRequest}={}) {
   const rooms = new Map();
   const send = (peer, type, data) => {
     const out = peer?.stream;
@@ -32,6 +32,7 @@ function createLanServer() {
   };
   const server = http.createServer(async (req, res) => {
     try {
+      if (handleRequest && await handleRequest(req,res)) return;
       const url = new URL(req.url, 'http://localhost');
       if (url.pathname.startsWith('/lan/')) {
         if (req.headers.origin && req.headers.origin !== `http://${req.headers.host}`) return reply(res,403,{error:'Origin mismatch'});

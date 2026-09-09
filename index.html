@@ -23,7 +23,7 @@
             <div class="demo-progress-track"><div id="demo-progress"></div></div>
             <div id="demo-feedback" hidden></div>
             <div id="demo-finger" aria-hidden="true"><svg viewBox="0 0 64 80"><path d="M24 40V9a7 7 0 0 1 14 0v24c3-5 11-3 12 2 5-2 11 1 11 7v17c0 11-8 18-20 18H30c-7 0-12-4-16-10L3 51c-4-6 4-13 9-8l12 12Z"/></svg><b id="demo-gesture"></b></div>
-            <div class="demo-menu"><button id="demo-start">START ▶</button><div><button id="demo-lan">Wi-Fi CO-OP</button><button id="demo-options">PILOTS / CO-OP</button><button id="demo-sound">SOUND OFF</button></div></div>
+            <div class="demo-menu"><button id="demo-start">START ▶</button><div><button id="demo-lan">TWO-PLAYER</button><button id="demo-options">PILOTS / CO-OP</button><button id="demo-sound">SOUND OFF</button></div></div>
           </div>
           <div id="overlay">
             <div class="eyebrow">PACIFIC PAWS</div>
@@ -38,7 +38,7 @@
             <label>P2 AIRCRAFT <select id="aircraft-1"><option value="1">MINT</option><option value="0">GINGER</option></select></label>
             <p class="hint">Join solo or as a duo. Two-player touch controls: use one half of the screen each.</p>
             <div class="menu-options">
-              <button id="lan-open">Wi-Fi CO-OP</button>
+              <button id="lan-open">TWO-PLAYER</button>
               <button id="sound">SOUND OFF</button>
               <button id="test" hidden>CONTROLLER SETTINGS ↗</button>
               <button id="fullscreen">FULLSCREEN</button>
@@ -80,9 +80,18 @@
       </div>
       <button id="close">Done / Back</button>
     </dialog>
-    <button id="lan-bar" hidden aria-label="Wi-Fi connection status and settings"></button>
+    <button id="lan-bar" hidden aria-label="Connection status and settings"></button>
     <dialog id="lan-dialog">
-      <h2>Wi-Fi co-op</h2>
+      <h2>Two-player co-op</h2>
+      <p>Open this page on both devices. P1 creates a game; P2 joins with the six-digit code.</p>
+      <button id="p2p-create">Create Game</button>
+      <label for="p2p-code">6-digit room code</label>
+      <input id="p2p-code" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="000000" autocomplete="off" spellcheck="false">
+      <button id="p2p-join">Join Game</button>
+      <button id="p2p-reconnect" hidden>Reconnect</button>
+      <p>Once connected, P1 closes this window and presses START. If the connection drops, reconnect, then P1 presses RESUME.</p>
+      <details>
+      <summary>Existing Wi-Fi LAN mode</summary>
       <p>Connect both devices to the same Wi-Fi and open the game URL provided by the computer.</p>
       <p>The host controls P1; the other device controls P2. Hold and drag to move and fire automatically. Double-tap the same spot to use a bomb.</p>
       <p>On the computer, run <code>node tools/lan-server.cjs</code> in the game folder, then open the URL shown in the terminal.</p>
@@ -98,9 +107,10 @@
       <label for="lan-code">Room code</label>
       <input id="lan-code" maxlength="6" placeholder="6-character room code" autocomplete="off" autocapitalize="characters" spellcheck="false">
       <button id="lan-join">Join room · P2</button>
-      <p id="lan-status" role="status">Not connected</p>
       <p id="lan-addresses"></p>
       <p>Once connected, the host closes this window and presses START. Disconnecting or switching to the background pauses the game. The host resumes after reconnecting.</p>
+      </details>
+      <p id="lan-status" role="status">Not connected</p>
       <button id="lan-leave" hidden>Leave room</button>
       <button id="lan-close">Back to game</button>
     </dialog>
@@ -114,6 +124,8 @@
     <script src="src/half-controllers.js"></script>
     <script src="src/controller-export.js"></script>
     <script src="src/controls.js"></script>
+    <script src="src/net-protocol.js"></script>
+    <script src="src/p2p-transport.js"></script>
     <script src="src/lan.js"></script>
     <script src="src/arcade.js"></script>
   </body>

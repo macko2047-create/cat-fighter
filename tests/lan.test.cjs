@@ -13,7 +13,7 @@ function runtime(){
   const ctx=new Proxy({},{get:(_,n)=>n==='createLinearGradient'?()=>({addColorStop(){}}):()=>{}});
   const el=s=>{
     if(!elements.has(s))elements.set(s,{style:{},dataset:{},textContent:'',innerHTML:'',value:'',open:false,listeners:{},
-      children:[],replaceChildren(){this.children=[];},append(child){this.children.push(child);},querySelectorAll(){return this.children;},addEventListener(n,f){(this.listeners[n]??=[]).push(f);},showModal(){this.open=true;},close(){this.open=false;},getContext:()=>ctx,
+      children:[],replaceChildren(){this.children=[];},append(child){this.children.push(child);},querySelectorAll(){return this.children;},addEventListener(n,f){(this.listeners[n]??=[]).push(f);},showModal(){this.open=true;},close(){this.open=false;(this.listeners.close||[]).forEach(f=>f());},getContext:()=>ctx,
       getBoundingClientRect:()=>({left:0,top:0,width:600,height:800}),setPointerCapture(){},hasPointerCapture:()=>false,releasePointerCapture(){}});
     return elements.get(s);
   };
@@ -55,6 +55,11 @@ function runtime(){
   const post=(route,data={},token)=>fetch(base+'/lan/'+route,{method:'POST',headers:{'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})},body:JSON.stringify(data)});
   try{
     for(const peer of [host,guest]){peer.el('#boot').onclick();peer.run('window.arcade.frame(3)');}
+    const cancel=runtime();
+    cancel.run("mode='playing';$('#lan-open').onclick()");
+    assert.equal(cancel.run('mode'),'paused','opening Wi-Fi settings pauses an active run');
+    cancel.el('#lan-close').onclick();
+    assert.equal(cancel.run('mode'),'playing','closing Wi-Fi settings without a room resumes the active run');
     assert.equal((await fetch(base+'/tools/lan-server.cjs')).status,404,'server source not served');
     assert.equal((await fetch(base+'/src/..%2FREADME.md')).status,403,'encoded traversal rejected');
     const checkHost=await (await post('create')).json();

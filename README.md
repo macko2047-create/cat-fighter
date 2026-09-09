@@ -22,6 +22,12 @@ P1／P2 及普通鼠兵、雙引擎重型機、巡邏艇、四引擎鼠王已接
 
 產物與驗證見 `docs/LEVEL1-INTEGRATION.md`、`artifacts/level1/`。
 
+## WebRTC 雙人連線（Phase 1）
+
+TWO-PLAYER → Create Game / Join Game 使用六位數字房號，連通後透過 WebRTC 直接傳送遊戲資料，P1 維持權威模擬。原有 Wi-Fi LAN 模式仍保留。
+
+開發伺服器：`node tools/p2p-server.cjs`。公開使用需部署同源 HTTPS 信令服務；靜態網站本身不能處理配對。架構、安全限制、操作與驗證見 [WEBRTC-PHASE1](docs/WEBRTC-PHASE1.md)。
+
 ## 開始
 
 在此資料夾執行：
