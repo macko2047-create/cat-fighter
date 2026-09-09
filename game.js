@@ -13,6 +13,7 @@ let mode = "ready",
   hostile = [],
   drops = [],
   sparks = [],
+  bossDebris = [],
   wave = 0,
   loop = 1,
   loopTransition = 0,
@@ -84,6 +85,7 @@ function start() {
   hostile = [];
   drops = [];
   sparks = [];
+  bossDebris = [];
   flash = 0;
   mode = "playing";
   $("#overlay").style.display = "none";
@@ -129,6 +131,7 @@ function nextLoop() {
   shots = [];
   drops = [];
   sparks = [];
+  bossDebris = [];
   flash = 0;
   window.flightControls?.reset();
   for (const p of players) {
@@ -380,11 +383,44 @@ function explode(x, y, color = "#f5c879", n = 16) {
     });
   sfx.playSfx("explosion");
 }
+function burstBossDebris(e, stage) {
+  const count = 6 + stage * 4;
+  // Authored variation leaves the gameplay random sequence untouched.
+  for (let i = 0; i < count; i++) {
+    const angle = i * Math.PI * 2 / count + stage * .71;
+    const speed = 100 + stage * 17 + (i % 4) * 23;
+    const duration = 1.25 + (i % 5) * .13;
+    bossDebris.push({
+      x: e.x + Math.cos(angle) * (36 + (i % 3) * 20),
+      y: e.y + Math.sin(angle) * 19 + 5,
+      vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed * .65 - 35,
+      angle, spin: (i % 2 ? -1 : 1) * (4 + i % 5),
+      width: 8 + stage + (i % 3) * 3, height: 4 + i % 4,
+      life: duration, duration,
+      color: ['#d6b270', '#91a7a7', '#947553', '#c6854b'][i % 4],
+    });
+  }
+  if (bossDebris.length > 96) bossDebris.splice(0, bossDebris.length - 96);
+}
+function updateBossDebris(dt) {
+  if (mode !== 'playing') return;
+  const drag = Math.exp(-1.1 * dt);
+  for (const piece of bossDebris) {
+    piece.x += piece.vx * dt;
+    piece.y += piece.vy * dt;
+    piece.vx *= drag;
+    piece.vy = piece.vy * drag + 95 * dt;
+    piece.angle += piece.spin * dt;
+    piece.life -= dt;
+  }
+  bossDebris = bossDebris.filter(piece => piece.life > 0);
+}
 function damageEnemy(e, amount) {
   const before = e.type === "boss" ? bossDamageStage(e) : 0;
   e.hp -= amount;
   if (e.type === "boss" && bossDamageStage(e) > before) {
     e.damageReactUntil = elapsed + .8;
+    for (let stage = before + 1; stage <= bossDamageStage(e); stage++) burstBossDebris(e, stage);
   }
 }
 function bomb(p) {
@@ -659,6 +695,7 @@ function draw() {
     shots,
     hostile,
     sparks,
+    bossDebris,
     flash,
     playerVisuals: players.map((p) => ({
       id: playerAssetId(p.index),
@@ -691,6 +728,7 @@ function frame(ts) {
   ambient += dt;
   poll();
   if (mode === "playing") update(dt);
+  updateBossDebris(dt);
   for (const s of sparks) {
     s.x += s.vx * dt;
     s.y += s.vy * dt;

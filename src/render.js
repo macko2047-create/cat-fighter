@@ -214,6 +214,7 @@ function createRenderer(ctx, W, H, background, clamp, playerAssets = null, enemy
     shots,
     hostile,
     sparks,
+    bossDebris = [],
     flash,
     playerVisuals,
   }) {
@@ -351,6 +352,26 @@ function createRenderer(ctx, W, H, background, clamp, playerAssets = null, enemy
     for (const s of shots) tracer(s.x,s.y-2,s.owner?.index ? "#298dff" : "#ffb629",9,2.5);
     for (const b of hostile) tracer(b.x,b.y,"#ff4825",6,3);
     ctx.restore();
+    // Opaque, tumbling metal panels read differently from the glowing sparks.
+    for (const piece of bossDebris) {
+      ctx.save();
+      ctx.globalAlpha = clamp(piece.life / .55, 0, 1);
+      ctx.translate(piece.x, piece.y);
+      ctx.rotate(piece.angle);
+      ctx.scale(1, .45 + Math.abs(Math.cos(piece.angle * .65)) * .55);
+      const w = piece.width, h = piece.height;
+      ctx.fillStyle = '#041a29aa';
+      ctx.fillRect(-w / 2 - 3, -h / 2 + 5, w, h);
+      ctx.fillStyle = piece.color; ctx.strokeStyle = '#26383c'; ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.moveTo(-w / 2, -h / 2); ctx.lineTo(w * .3, -h / 2);
+      ctx.lineTo(w / 2, h * .15); ctx.lineTo(w * .12, h / 2);
+      ctx.lineTo(-w / 2, h * .3); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.strokeStyle = piece.duration - piece.life < .25 ? '#ffe4aa' : '#ead7ab';
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(-w * .35, -h / 2 + 1); ctx.lineTo(w * .25, -h / 2 + 1); ctx.stroke();
+      ctx.fillStyle = '#344448'; ctx.fillRect(-w * .25, -1, 2, 2);
+      ctx.restore();
+    }
     // Existing particles supply position/lifetime; lighting never advances state.
     ctx.save();
     for (const s of sparks) {
