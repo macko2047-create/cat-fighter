@@ -52,7 +52,7 @@ const PLAYER_ASSETS = Object.freeze({
 
 // Enemy art follows its authored heading (nose down); never rotate the mouse
 // faces or global lighting along with the old geometry fallback.
-const ENEMY_ASSETS = Object.freeze(Object.fromEntries(
+const ENEMY_ASSETS = Object.freeze({ ...Object.fromEntries(
   Object.entries({ small: 72, heavy: 120, boat: 104, boss: 240 }).map(([id, size]) => [id,
     Object.freeze({ sheet: `assets/enemies/${id}.png`,
       cell: Object.freeze({ width: 256, height: 256 }),
@@ -60,7 +60,20 @@ const ENEMY_ASSETS = Object.freeze(Object.fromEntries(
       pivot: Object.freeze({ x: 0.5, y: 0.5 }), displayScale: size / 256,
     }),
   ]),
-));
+), bossDamage: Object.freeze({
+  sheet: "assets/enemies/boss-damage-sheet.png",
+  cell: Object.freeze({ width: 512, height: 512 }),
+  grid: Object.freeze({ columns: 2, rows: 2 }),
+  pivot: Object.freeze({ x: .5, y: .5 }), displayScale: 240 / 512,
+}) });
+
+// Four damage appearances in addition to the intact entry sprite.
+function bossDamageStage(enemy) {
+  if (enemy.hp <= 0) return 4;
+  if (!(enemy.max > 0)) return 0;
+  const ratio = enemy.hp / enemy.max;
+  return ratio <= .10 ? 4 : ratio <= .25 ? 3 : ratio <= .50 ? 2 : ratio <= .75 ? 1 : 0;
+}
 
 function playerAssetId(index) {
   return index === 1 ? "player.p2" : "player.p1";

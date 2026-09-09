@@ -42,18 +42,104 @@ function createRenderer(ctx, W, H, background, clamp, playerAssets = null, enemy
     if(stamp) ctx.drawImage(stamp,Math.round(x)-24,Math.round(y)-28);
     else {ctx.fillStyle=color;ctx.beginPath();ctx.ellipse(x,y,width,length,0,0,7);ctx.fill();}
   }
+  function chargeCue(enemy, ambient) {
+    if (enemy.chargeState !== "windup" && enemy.chargeState !== "charging") return;
+    ctx.save();
+    ctx.translate(enemy.x, enemy.y);
+    if (enemy.chargeState === "windup") {
+      const pulse = .5 + Math.sin(ambient * 24) * .5;
+      ctx.strokeStyle = `rgba(255,207,117,${.6 + pulse * .4})`;
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6, 5]);
+      ctx.beginPath(); ctx.arc(0, 0, 31 + pulse * 4, 0, Math.PI * 2); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = "#ffcf75";
+      ctx.font = "bold 19px monospace"; ctx.textAlign = "center";
+      ctx.fillText("!", 0, -43);
+    } else {
+      const speed = Math.hypot(enemy.chargeVX, enemy.chargeVY) || 1;
+      const dx = enemy.chargeVX / speed, dy = enemy.chargeVY / speed;
+      ctx.strokeStyle = "#ffdc9688"; ctx.lineWidth = 3;
+      for (const side of [-1, 1]) {
+        const x = -dy * side * 9, y = dx * side * 9;
+        ctx.beginPath(); ctx.moveTo(x - dx * 21, y - dy * 21);
+        ctx.lineTo(x - dx * 64, y - dy * 64); ctx.stroke();
+      }
+    }
+    ctx.restore();
+  }
+  function sortieBanner(mode, score, loop, loopTransition) {
+    if (mode !== "over" && loopTransition <= 0) return;
+    const over = mode === "over", top = over ? H * .20 : H * .34;
+    ctx.save();
+    if (!over) ctx.globalAlpha = Math.min(1, loopTransition * 2);
+    ctx.fillStyle = over ? "#08212dbb" : "#08212de8";
+    ctx.fillRect(0, top, W, over ? 188 : 172);
+    ctx.strokeStyle = "#e4c77c"; ctx.lineWidth = 2;
+    for (const y of [top + 1, top + (over ? 187 : 171)]) {
+      ctx.beginPath(); ctx.moveTo(58, y); ctx.lineTo(W - 58, y); ctx.stroke();
+    }
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#97cfc3"; ctx.font = "bold 13px monospace";
+    ctx.fillText(over ? "PACIFIC PAWS · SORTIE ENDED" : `LOOP ${String(loop).padStart(2, "0")} COMPLETE`, W / 2, top + 33);
+    ctx.font = over ? "900 76px 'Space Grotesk', sans-serif" : "900 53px 'Space Grotesk', sans-serif";
+    ctx.lineWidth = 7; ctx.lineJoin = "round"; ctx.strokeStyle = "#102c35";
+    const title = over ? "GAME OVER" : "MISSION CLEAR";
+    ctx.strokeText(title, W / 2, top + 111, W - 62);
+    ctx.fillStyle = "#f4df9b"; ctx.fillText(title, W / 2, top + 111, W - 62);
+    ctx.fillStyle = "#f0ebd3"; ctx.font = "bold 16px monospace";
+    ctx.fillText(over ? `SCORE ${String(score).padStart(6, "0")}  /  LOOP ${String(loop).padStart(2, "0")}` : `LOOP ${String(loop + 1).padStart(2, "0")} INCOMING`, W / 2, top + 149);
+    ctx.restore();
+  }
   function enemySprite(enemy) {
-    const image = enemyAssets?.image(enemy.type);
-    const definition = enemyAssets?.definition(enemy.type);
+    const stage = enemy.type === "boss" ? bossDamageStage(enemy) : 0;
+    const id = stage && enemyAssets?.isReady("bossDamage") ? "bossDamage" : enemy.type;
+    const image = enemyAssets?.image(id);
+    const definition = enemyAssets?.definition(id);
     if (!image || !definition) return false;
     const size = definition.cell.width * definition.displayScale;
     ctx.save();
     ctx.translate(Math.round(enemy.x), Math.round(enemy.y));
-    const stamp = spriteStamp(image,0,0,definition.cell.width,definition.cell.height,size,size,enemy.type !== "boat");
+    const sx = id === "bossDamage" ? ((stage - 1) % 2) * definition.cell.width : 0;
+    const sy = id === "bossDamage" ? Math.floor((stage - 1) / 2) * definition.cell.height : 0;
+    const stamp = spriteStamp(image,sx,sy,definition.cell.width,definition.cell.height,size,size,enemy.type !== "boat");
     if (stamp) ctx.drawImage(stamp, -size/2-32, -size/2-32);
-    else ctx.drawImage(image, -size / 2, -size / 2, size, size);
+    else ctx.drawImage(image, sx, sy, definition.cell.width, definition.cell.height, -size / 2, -size / 2, size, size);
     ctx.restore();
     return true;
+  }
+  function bossEmotion(e, elapsed) {
+    const stage = bossDamageStage(e);
+    if (!stage) return;
+    const reacting = e.hp > 0 && e.damageReactUntil > elapsed;
+    ctx.save(); ctx.translate(e.x, e.y);
+    if (reacting) {
+      // Pause-safe reaction clock; no gameplay random numbers consumed by art.
+      const progress = 1 - (e.damageReactUntil - elapsed) / .8;
+      ctx.strokeStyle = "#153849"; ctx.lineWidth = 1.5;
+      for (const [x, offset] of [[-25, 0], [25, .3], [34, .6]]) {
+        const y = -22 + ((progress + offset) % 1) * 22;
+        ctx.fillStyle = "#8ff2ff";
+        ctx.beginPath(); ctx.moveTo(x, y - 9);
+        ctx.quadraticCurveTo(x - 8, y + 4, x, y + 5);
+        ctx.quadraticCurveTo(x + 8, y + 4, x, y - 9);
+        ctx.fill(); ctx.stroke();
+      }
+      ctx.fillStyle = "#fff0b3"; ctx.font = 'bold 23px monospace';
+      ctx.fillText("!", -5, -41);
+      ctx.strokeStyle = "#ffe2a3";
+      for (const side of [-1, 1]) {
+        ctx.beginPath(); ctx.moveTo(side * 40, -27); ctx.lineTo(side * 49, -35); ctx.stroke();
+      }
+    } else if (stage === 4) {
+      ctx.strokeStyle = "#ff654c"; ctx.lineWidth = 3;
+      // Four bent veins beside the pilot make rage readable at game scale.
+      for (const [x, y, dx, dy] of [[26,-32,1,1],[40,-32,-1,1],[26,-18,1,-1],[40,-18,-1,-1]]) {
+        ctx.beginPath(); ctx.moveTo(x, y + dy * 5);
+        ctx.quadraticCurveTo(x + dx * 5, y + dy * 5, x + dx * 5, y); ctx.stroke();
+      }
+    }
+    ctx.restore();
   }
   function plane(x, y, color, enemy = false, size = 1, type = "small") {
     ctx.save();
@@ -118,6 +204,10 @@ function createRenderer(ctx, W, H, background, clamp, playerAssets = null, enemy
     mode,
     ambient,
     elapsed = 0,
+    score = 0,
+    loop = 1,
+    loopTransition = 0,
+    bossWreck = null,
     enemies,
     drops,
     players,
@@ -133,6 +223,7 @@ function createRenderer(ctx, W, H, background, clamp, playerAssets = null, enemy
       if (!playerSprite({index:1,x:360,y:665}, {state:"normal"})) plane(360, 665, "#8bd2be");
     }
     for (const e of enemies) {
+      chargeCue(e, ambient);
       if (e.type === "boat") {
         ctx.save(); ctx.strokeStyle = "#d3f6eb77"; ctx.lineWidth = 2;
         for (let i=0;i<4;i++) {
@@ -150,13 +241,14 @@ function createRenderer(ctx, W, H, background, clamp, playerAssets = null, enemy
           ctx.fillRect(e.x - 75, e.y - 5, 18, 27);
           ctx.fillRect(e.x + 57, e.y - 5, 18, 27);
         }
+        bossEmotion(e, elapsed);
         ctx.fillStyle = "#14292b";
-        ctx.fillRect(60, 25, 480, 9);
+        ctx.fillRect(60, 96, 480, 9);
         ctx.fillStyle = "#eaaf7e";
-        ctx.fillRect(60, 25, 480 * Math.max(0, e.hp / e.max), 9);
+        ctx.fillRect(60, 96, 480 * Math.max(0, e.hp / e.max), 9);
         ctx.fillStyle = "#f3dfb3";
-        ctx.font = "11px monospace";
-        ctx.fillText("鼠王 / IRON WHISKER", 60, 20);
+        ctx.font = '12px "Cat Arcade", monospace';
+        ctx.fillText("IRON WHISKER", 60, 88);
       } else if (enemySprite(e)) {
         // Sprite already drawn.
       } else if (e.type === "boat") {
@@ -182,10 +274,46 @@ function createRenderer(ctx, W, H, background, clamp, playerAssets = null, enemy
           e.type === "heavy" ? 1.5 : 0.85,
         );
     }
+    if (bossWreck && loopTransition > 0) {
+      ctx.save();
+      ctx.globalAlpha = Math.min(1, loopTransition / .6);
+      if (!enemySprite(bossWreck)) plane(bossWreck.x, bossWreck.y, "#655349", true, 2.8);
+      bossEmotion(bossWreck, elapsed);
+      ctx.restore();
+    }
     for (const d of drops) {
       const color = d.type === "W" ? (d.weapon === "rapid" ? "#ff91cd" : "#efd58d") : d.type === "1UP" ? "#91e3bd" : "#a2d3ed";
       ctx.save();
       ctx.translate(d.x, d.y + Math.sin(ambient * 3 + d.x) * 3);
+      if (d.type === "1UP") {
+        // A minted treasure token: the centre contains only the arcade 1UP mark.
+        ctx.shadowColor = "#96f5cb"; ctx.shadowBlur = 13;
+        ctx.fillStyle = "#183d35"; ctx.strokeStyle = "#f5d994"; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.arc(0, 0, 24, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.shadowBlur = 0;
+        const enamel = ctx.createLinearGradient(0, -21, 0, 21);
+        enamel.addColorStop(0, "#438e69"); enamel.addColorStop(.45, "#245b48"); enamel.addColorStop(1, "#102f2d");
+        ctx.fillStyle = enamel; ctx.strokeStyle = "#9ae1b6"; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.arc(0, 0, 20, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.strokeStyle = "#fff3c3"; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(0, -1, 23, Math.PI * 1.1, Math.PI * 1.7); ctx.stroke();
+        ctx.fillStyle = "#fff4c8";
+        const gleam = .65 + Math.sin(ambient * 4) * .25;
+        ctx.globalAlpha = gleam;
+        for (const [x, y, size] of [[-20, -19, 4], [22, 15, 3]]) {
+          ctx.beginPath(); ctx.moveTo(x, y - size); ctx.lineTo(x + 1, y - 1);
+          ctx.lineTo(x + size, y); ctx.lineTo(x + 1, y + 1); ctx.lineTo(x, y + size);
+          ctx.lineTo(x - 1, y + 1); ctx.lineTo(x - size, y); ctx.lineTo(x - 1, y - 1); ctx.closePath(); ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+        ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.font = '18px "Cat Arcade", monospace';
+        ctx.strokeStyle = "#102d2a"; ctx.lineWidth = 3; ctx.lineJoin = "miter";
+        ctx.strokeText("1UP", 0, 1, 37);
+        ctx.fillStyle = "#fff2b3"; ctx.fillText("1UP", 0, 1, 37);
+        ctx.restore();
+        continue;
+      }
       ctx.shadowColor = color; ctx.shadowBlur = 12;
       ctx.fillStyle = "#0b2536"; ctx.strokeStyle = color; ctx.lineWidth = 3;
       ctx.beginPath(); ctx.arc(0, 0, 21, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
@@ -204,14 +332,10 @@ function createRenderer(ctx, W, H, background, clamp, playerAssets = null, enemy
         ctx.strokeStyle = color; ctx.lineWidth = 2;
         ctx.beginPath(); ctx.moveTo(3, -8); ctx.lineTo(5, -13); ctx.lineTo(10, -11); ctx.stroke();
         ctx.fillStyle = "#fff9dc"; ctx.beginPath(); ctx.arc(-3, -3, 2, 0, Math.PI * 2); ctx.fill();
-      } else {
-        ctx.beginPath(); ctx.moveTo(-11, 1); ctx.lineTo(-11, -13); ctx.lineTo(-5, -8);
-        ctx.lineTo(5, -8); ctx.lineTo(11, -13); ctx.lineTo(11, 1); ctx.closePath(); ctx.fill();
-        ctx.fillStyle = "#0b2536"; ctx.fillRect(-6, -5, 3, 3); ctx.fillRect(3, -5, 3, 3);
       }
       ctx.fillStyle = color; ctx.font = "bold 9px monospace";
       ctx.textAlign = "center";
-      ctx.fillText(d.type === "W" ? (d.weapon === "rapid" ? "RAPID" : "3-WAY") : d.type === "B" ? "BOMB" : "1UP", 0, 15);
+      ctx.fillText(d.type === "W" ? (d.weapon === "rapid" ? "RAPID" : "3-WAY") : "BOMB", 0, 15);
       ctx.restore();
     }
     for (const [index, p] of players.entries())
@@ -249,7 +373,7 @@ function createRenderer(ctx, W, H, background, clamp, playerAssets = null, enemy
       ctx.fillStyle = `rgba(255,239,187,${flash * 2})`;
       ctx.fillRect(0, 0, W, H);
     }
-
+    sortieBanner(mode, score, loop, loopTransition);
   }
 
   return draw;

@@ -19,20 +19,19 @@
           <small>MISSION 01</small>
           <h2>珊瑚海防線</h2>
           <p>海面編隊 → 轟炸機群 → 空中堡壘</p>
-          <span>1–2 PLAYERS · 約 3–5 分鐘</span>
+          <span>1–2 PLAYERS · 每輪約 3–5 分鐘</span>
         </div>
         <div id="pilots"></div>
         <div class="help">
           <b>KEYBOARD</b>
           <p>P1　WASD · F 射擊 · G 炸彈<br>P2　方向鍵 · K 射擊 · L 炸彈<br>Enter 開始 · Esc 暫停</p>
           <b>CONTROLLER</b>
-          <p>搖桿／十字掣移動<br>A 射擊 · B 炸彈 · ＋ 暫停</p>
+          <p>搖桿／十字掣移動<br>半支 Joy-Con：在設定內逐一校準 P1／P2 方向及按鍵</p>
         </div>
       </aside>
       <section class="cabinet">
         <div class="topline">
-          <span>● LIVE SORTIE</span>
-          <span id="score">000000</span>
+          <span class="scoreboard"><span class="hud-label">SCORE</span><span id="score">000000</span></span>
           <span id="status">READY</span>
         </div>
         <div class="screen">
@@ -51,13 +50,13 @@
             </div>
             <details class="instructions">
               <summary>操作介紹 / HOW TO PLAY</summary>
-              <p>守住珊瑚海，擊退老鼠空軍與頭目。<br>觸控：將手指放在戰機後方並按住，戰機會跟住手指移動及自動射擊；放開停止。雙擊畫面使用炸彈。<br>手掣：搖桿／十字掣移動 · A 射擊 · B 炸彈 · ＋ 暫停。<br>P1：WASD / F / G · P2：方向鍵 / K / L。<br>每人三條命；中彈扣一命，下一架由畫面下方飛入，到位後有 3 秒無敵。<br>POWER 升級火力 · BOMB 補充炸彈 · 1UP 加一命（每關一件）。</p>
+              <p>守住珊瑚海，擊退老鼠空軍與頭目。<br>觸控：按住並拖曳，戰機保持在手指前方及自動射擊；放開停止。雙擊畫面使用炸彈。<br>手掣：搖桿／十字掣移動。半支 Joy-Con 請在設定內逐一校準 P1／P2，方向及按鍵由你指定。<br>P1：WASD / F / G · P2：方向鍵 / K / L。<br>每人三條命；中彈扣一命，下一架由畫面下方飛入，到位後有 3 秒無敵。<br>RAPID 二向快射 · 3-WAY 三向散射 · BOMB 補充炸彈 · 1UP 加一命（每輪一件）。<br>留意停下並閃出「!」的敵機，牠會突進你當刻的位置。<br>擊敗頭目後自動開始下一輪，保留分數、生命及裝備；每輪難度稍為增加。<br>雙人：用完生命後等 10 秒，隊友仍生存時按射擊鍵（P1 F／P2 K）或下方 JOIN 重新加入，補回三命；全隊 GAME OVER 後用 RETRY 重開。</p>
             </details>
           </div>
         </div>
         <div class="bottomline">
-          <span id="flight-health">P1 · 🐱🐱🐱</span>
-          <button id="pause">PAUSE II</button>
+          <span id="flight-health">P1 · READY</span>
+          <button id="pause" aria-label="暫停 / PAUSE"><span class="pause-label">PAUSE</span><span class="pause-icon" aria-hidden="true"></span></button>
         </div>
       </section>
       <aside class="right">
@@ -80,16 +79,26 @@
       <p>先喺手掣按一下按鈕，讓瀏覽器識別。<br>按「設定」後，再按你想用嘅實體按鈕。</p>
       <div id="devices"></div>
       <div class="half-controllers">
-        <p>半支 Joy-Con：各自橫握，依指示設定。合併或分開連接均可，需能讀取兩邊的獨立搖桿。</p>
+        <p>半支 Joy-Con：各自橫握，先設定 P1 再設定 P2。放開所有輸入，依指示向右、向上推搖桿，再指定射擊、炸彈及暫停鍵。</p>
         <button id="half-p1">設定半支 P1</button>
         <button id="half-p2">設定半支 P2</button>
         <button id="half-reset">返回整支手掣</button>
         <p id="half-status" role="status">先設定 P1，再設定 P2；設定完成後返回遊戲。</p>
       </div>
-      <p><label for="deadzone">搖桿死區：<output id="deadzone-value" for="deadzone">20%</output></label><br>
-        <input id="deadzone" type="range" min="0" max="50" step="1" value="20">
+      <p><label for="deadzone">搖桿死區：<output id="deadzone-value" for="deadzone">10%</output></label><br>
+        <input id="deadzone" type="range" min="0" max="50" step="1" value="10">
         <br><small>0–50%；搖桿自行漂移時調高，細微移動無反應時調低。</small></p>
       <p id="mapping">支援自訂按鍵及半支 Joy-Con</p>
+      <div class="controller-export">
+        <p>兩位玩家設定正常後，可匯出手掣名稱、搖桿軸、按鍵、死區及 P1／P2 校準資料。請在重新整理或關閉遊戲前匯出。</p>
+        <button id="export-controller">匯出手掣設定 (.json)</button>
+        <button id="copy-controller">複製設定</button>
+        <p id="controller-export-status" role="status">下載後將 JSON 檔附加到對話，或直接貼上複製內容。</p>
+        <details id="controller-export-preview" hidden>
+          <summary>檢視匯出內容</summary>
+          <textarea id="controller-report" aria-label="手掣設定 JSON" rows="10" readonly spellcheck="false"></textarea>
+        </details>
+      </div>
       <button id="close">完成 / 返回</button>
     </dialog>
     <script src="src/world.js"></script>
@@ -100,6 +109,7 @@
     <script src="src/enemies.js"></script>
     <script src="game.js"></script>
     <script src="src/half-controllers.js"></script>
+    <script src="src/controller-export.js"></script>
     <script src="src/controls.js"></script>
   </body>
 </html>

@@ -14,7 +14,10 @@ let mode = "ready",
   drops = [],
   sparks = [],
   wave = 0,
+  loop = 1,
+  loopTransition = 0,
   bossSpawned = false,
+  bossWreck = null,
   nextSupply = 50,
   extraLifeSpawned = false,
   flash = 0,
@@ -25,7 +28,7 @@ const keys = new Set(),
   assignments = [null, null],
   previous = new Map(),
   bindings = {};
-let deadzone = 0.2;
+let deadzone = 0.1;
 let keyboard2 = false,
   capture = null;
 try {
@@ -55,6 +58,7 @@ function pilot(i) {
     x: i ? 365 : 235,
     y: 690,
     lives: 3,
+    rejoinRemaining: 0,
     respawn: 0,
     entering: false,
     bombs: 3,
@@ -69,7 +73,10 @@ function start() {
   players = [pilot(0)];
   if (keyboard2 || assignments[1] !== null) players.push(pilot(1));
   elapsed = score = wave = 0;
+  loop = 1;
+  loopTransition = 0;
   bossSpawned = false;
+  bossWreck = null;
   nextSupply = LEVEL1.pickupInterval;
   extraLifeSpawned = false;
   enemies = [];
@@ -77,10 +84,64 @@ function start() {
   hostile = [];
   drops = [];
   sparks = [];
+  flash = 0;
   mode = "playing";
   $("#overlay").style.display = "none";
   window.flightControls?.sync();
   sfx.playSfx("start");
+}
+function tryRejoin(index) {
+  const p = players[index];
+  if (mode !== "playing" || loopTransition > 0 || $("#settings").open || players.length !== 2 ||
+    !p || p.lives > 0 || p.rejoinRemaining > 0 || !players.some(other => other !== p && other.lives > 0)) return false;
+  // A fresh sortie for this pilot; the teammate and shared score keep going.
+  Object.assign(p, pilot(index), { y: H + 55, entering: true, inv: 3, rapid: false, notice: '', noticeUntil: 0 });
+  if (index === 0) window.flightControls?.reset();
+  sfx.playSfx("playerJoined");
+  updateHUD();
+  return true;
+}
+function loopDifficulty() {
+  // Add a small fraction of the original difficulty each clear, not compounding.
+  return 1 + (loop - 1) * LEVEL1.loopDifficultyStep;
+}
+function completeLoop() {
+  loopTransition = LEVEL1.loopClearDelay;
+  enemies = [];
+  hostile = [];
+  shots = [];
+  drops = [];
+  window.flightControls?.reset();
+  for (const p of players) p.noticeUntil = 0;
+  sfx.playSfx("start");
+  updateHUD();
+}
+function nextLoop() {
+  loop++;
+  loopTransition = 0;
+  elapsed = wave = 0;
+  bossSpawned = false;
+  bossWreck = null;
+  nextSupply = LEVEL1.pickupInterval;
+  extraLifeSpawned = false;
+  enemies = [];
+  hostile = [];
+  shots = [];
+  drops = [];
+  sparks = [];
+  flash = 0;
+  window.flightControls?.reset();
+  for (const p of players) {
+    if (p.lives <= 0) continue;
+    p.x = p.index ? 365 : 235;
+    p.y = H + 55;
+    p.respawn = 0;
+    p.entering = true;
+    p.inv = 3;
+    p.cool = 0;
+    p.noticeUntil = 0;
+  }
+  updateHUD();
 }
 function show(title, message) {
   window.flightControls?.reset();
@@ -88,7 +149,7 @@ function show(title, message) {
   $("#overlay").style.display = "flex";
   $("#overlay h2").innerHTML = title;
   $("#message").textContent = message;
-  $("#start").textContent = mode === "paused" ? "RESUME ▶" : "START ▶";
+  $("#start").textContent = mode === "paused" ? "RESUME ▶" : mode === "over" ? "RETRY ▶" : "START ▶";
   $("#join").style.display =
     mode === "ready" || mode === "over" || mode === "win" ? "block" : "none";
 }
@@ -147,6 +208,8 @@ window.addEventListener("keydown", (e) => {
     }
     if (mode === "playing" && e.code === "KeyG") bomb(players[0]);
     if (mode === "playing" && e.code === "KeyL") bomb(players[1]);
+    if (e.code === "KeyF") tryRejoin(0);
+    if (e.code === "KeyK") tryRejoin(1);
   }
   keys.add(e.code);
 });
@@ -232,6 +295,10 @@ function poll() {
           }
         }
       } else if (assignments.includes(p.index)) {
+        if (edge(c.fire) && mode === "playing" && tryRejoin(assignments.indexOf(p.index))) {
+          previous.set(p.index, pressed);
+          continue;
+        }
         if (edge(c.pause)) {
           if (mode === "playing" || mode === "paused") pause();
           else start();
@@ -285,7 +352,7 @@ function input(i) {
       Number(p.buttons[12]?.pressed || false);
     fire ||= p.buttons[config(p).fire]?.pressed;
   }
-  // Direct touch owns P1 only while held: the fighter follows the finger and fires.
+  // Touch owns P1 while held; controls.js places its target ahead of the finger.
   if (i === 0 && window.flightControls?.active) {
     const target = window.flightControls.target;
     if (target) {
@@ -313,19 +380,29 @@ function explode(x, y, color = "#f5c879", n = 16) {
     });
   sfx.playSfx("explosion");
 }
+function damageEnemy(e, amount) {
+  const before = e.type === "boss" ? bossDamageStage(e) : 0;
+  e.hp -= amount;
+  if (e.type === "boss" && bossDamageStage(e) > before) {
+    e.damageReactUntil = elapsed + .8;
+  }
+}
 function bomb(p) {
-  if (!p || p.lives <= 0 || p.respawn > 0 || p.entering || p.bombs <= 0) return;
+  if (mode !== "playing" || loopTransition > 0 || !p || p.lives <= 0 || p.respawn > 0 || p.entering || p.bombs <= 0) return;
   p.bombs--;
   flash = 0.35;
   hostile = [];
   for (const e of enemies) {
-    e.hp -= e.type === "boss" ? 95 : 100;
+    damageEnemy(e, e.type === "boss" ? 95 : 100);
     if (e.hp <= 0) kill(e, p);
+    if (loopTransition > 0) break;
   }
   enemies = enemies.filter((e) => e.hp > 0);
   sfx.playSfx("bomb");
 }
 function kill(e, p) {
+  if (e.killed) return;
+  e.killed = true;
   score += ENEMY_DEFINITIONS[e.type].score;
   explode(
     e.x,
@@ -334,8 +411,8 @@ function kill(e, p) {
     e.type === "boss" ? 70 : 18,
   );
   if (e.type === "boss") {
-    mode = "win";
-    show("MISSION<br>CLEAR", `珊瑚海守住了！總分 ${score} · 貓貓返航。`);
+    bossWreck = { ...e, hp: 0, damageReactUntil: 0 };
+    completeLoop();
   } else {
     const dropRoll = Math.random();
     if (dropRoll < LEVEL1.dropChance)
@@ -351,11 +428,12 @@ function hurt(p) {
   if (p.inv > 0 || p.lives <= 0 || p.respawn > 0 || p.entering) return;
   p.lives--;
   p.respawn = p.lives > 0 ? 0.8 : 0;
+  if (p.lives === 0 && players.length === 2) p.rejoinRemaining = 10;
   if (p.index === 0) window.flightControls?.reset();
   explode(p.x, p.y, "#b7e2d6", 24);
   if (!players.some((a) => a.lives > 0)) {
     mode = "over";
-    show("SORTIE<br>OVER", `任務失敗 · 得分 ${score} · 再次出擊！`);
+    show("GAME OVER", `第 ${loop} 輪 · 得分 ${score} · 再次出擊！`);
   }
 }
 function spawn() {
@@ -374,12 +452,21 @@ function spawn() {
       phase: rnd(0, 6),
       shoot: rnd(1, 3),
       age: 0,
+      difficulty: loopDifficulty(),
     };
+    enemy.v *= enemy.difficulty;
     if (!heavy && !boat) configureSmallFlight(enemy, wave, i, count);
     enemies.push(enemy);
   }
 }
 function update(dt) {
+  if (mode !== "playing") return;
+  if (loopTransition > 0) {
+    loopTransition = Math.max(0, loopTransition - dt);
+    flash = Math.max(0, flash - dt);
+    if (loopTransition === 0) nextLoop();
+    return;
+  }
   elapsed += dt;
   if (elapsed >= nextSupply && nextSupply < LEVEL1.preBossDuration) {
     const supplyX = rnd(80, 520);
@@ -399,14 +486,17 @@ function update(dt) {
       type: "boss",
       x: 300,
       y: -100,
-      hp: players.length === 2 ? LEVEL1.bossHP2P : LEVEL1.bossHP1P,
-      max: players.length === 2 ? LEVEL1.bossHP2P : LEVEL1.bossHP1P,
+      hp: Math.round((players.length === 2 ? LEVEL1.bossHP2P : LEVEL1.bossHP1P) * loopDifficulty()),
+      max: Math.round((players.length === 2 ? LEVEL1.bossHP2P : LEVEL1.bossHP1P) * loopDifficulty()),
       age: 0,
       shoot: 1,
     });
   }
   for (const p of players) {
-    if (p.lives <= 0) continue;
+    if (p.lives <= 0) {
+      p.rejoinRemaining = Math.max(0, (p.rejoinRemaining || 0) - dt);
+      continue;
+    }
     if (p.respawn > 0) {
       p.respawn = Math.max(0, p.respawn - dt);
       if (p.respawn === 0) {
@@ -426,16 +516,19 @@ function update(dt) {
     p.inv -= dt;
     p.cool -= dt;
     const a = input(p.index);
-    p.x = clamp(p.x + a.x * 260 * dt, 24, W - 24);
-    p.y = clamp(p.y + a.y * 260 * dt, 60, H - 25);
+    const touchTarget = p.index === 0 && window.flightControls?.active && window.flightControls.target;
+    // Stop exactly at a nearby touch target instead of overshooting every frame.
+    const arrived = touchTarget && Math.hypot(touchTarget.x - p.x, touchTarget.y - p.y) <= 260 * dt;
+    p.x = clamp(arrived ? touchTarget.x : p.x + a.x * 260 * dt, 24, W - 24);
+    p.y = clamp(arrived ? touchTarget.y : p.y + a.y * 260 * dt, 60, H - 25);
     if (a.fire && p.cool <= 0) {
-      // Level 2 is the two-way rapid-fire bonus; level 3 keeps the original spread.
+      // Widen only the three-way fan; rapid fire keeps its narrow paired shots.
       p.cool = p.rapid ? 0.06 : 0.12;
       for (let j = 0; j < p.level; j++)
         shots.push({
           x: p.x + (j - (p.level - 1) / 2) * 12,
           y: p.y - 25,
-          vx: (j - (p.level - 1) / 2) * 28,
+          vx: (j - (p.level - 1) / 2) * (p.level === 3 ? LEVEL1.spreadShotSpeed : 28),
           owner: p,
         });
       sfx.playSfx("fire");
@@ -449,9 +542,9 @@ function update(dt) {
     e.age += dt;
     if (e.type === "boss") {
       e.y = Math.min(135, e.y + 50 * dt);
-      e.x = 300 + Math.sin(e.age * 0.55) * 155;
+      e.x = 300 + Math.sin(e.age * 0.55 * loopDifficulty()) * 155;
     } else if (e.type === "small" && e.flight) {
-      moveSmallFlight(e, dt);
+      moveSmallFlight(e, dt, players);
     } else {
       e.y += e.v * dt;
       e.x += Math.sin(e.age * 2 + e.phase) * 25 * dt;
@@ -459,7 +552,7 @@ function update(dt) {
       if (e.type === "boat") e.x = clamp(e.x, 230, 440);
     }
     e.shoot -= dt;
-    if (e.shoot <= 0 && e.y > 0 && (!e.flight ||
+    if (e.chargeState !== "windup" && e.chargeState !== "charging" && e.shoot <= 0 && e.y > 0 && (!e.flight ||
         (e.visibleAge >= .75 && e.x > 20 && e.x < W - 20 && e.y < H - 140))) {
       e.shoot =
         e.type === "boss"
@@ -469,8 +562,9 @@ function update(dt) {
           : e.type === "heavy"
             ? 1.5
             : 3.2;
+      e.shoot /= loopDifficulty();
       const target = players
-        .filter((p) => p.lives > 0 && p.respawn === 0)
+        .filter((p) => p.lives > 0 && p.respawn === 0 && !p.entering)
         .sort((a, b) => Math.abs(a.x - e.x) - Math.abs(b.x - e.x))[0];
       if (target) {
         const base = Math.atan2(target.y - e.y, target.x - e.x);
@@ -481,8 +575,8 @@ function update(dt) {
           hostile.push({
             x: e.x,
             y: e.y + 20,
-            vx: Math.cos(ang) * 150,
-            vy: Math.sin(ang) * 150,
+            vx: Math.cos(ang) * 150 * loopDifficulty(),
+            vy: Math.sin(ang) * 150 * loopDifficulty(),
           });
         }
       }
@@ -495,9 +589,10 @@ function update(dt) {
         Math.abs(s.y - e.y) < ENEMY_DEFINITIONS[e.type].hitHalfHeight
       ) {
         s.dead = true;
-        e.hp--;
+        damageEnemy(e, 1);
         if (e.hp <= 0) {
           kill(e, s.owner);
+          if (loopTransition > 0) return;
           break;
         }
       }
@@ -505,6 +600,7 @@ function update(dt) {
     for (const p of players)
       if (Math.abs(p.x - e.x) < radius + 13 && Math.abs(p.y - e.y) < 35)
         hurt(p, 30);
+    if (mode === "over") return;
   }
   for (const b of hostile) {
     b.x += b.vx * dt;
@@ -514,6 +610,7 @@ function update(dt) {
         hurt(p, 15);
         b.dead = true;
       }
+    if (mode === "over") return;
   }
   for (const d of drops) {
     d.y += 75 * dt;
@@ -531,7 +628,7 @@ function update(dt) {
         }
         if (d.type === "1UP") p.lives++;
         if (d.type === "B") p.bombs = Math.min(5, p.bombs + 1);
-        p.notice = d.type === "1UP" ? "1UP · +1 LIFE" : d.type === "W"
+        p.notice = d.type === "1UP" ? "1UP" : d.type === "W"
           ? d.weapon === "rapid" ? "2-WAY · RAPID FIRE" : d.weapon === "spread" ? "3-WAY · POWER" : `POWER ${p.level}`
           : `BOMB ×${p.bombs}`;
         p.noticeUntil = elapsed + 1.5;
@@ -539,7 +636,7 @@ function update(dt) {
         sfx.playSfx("pickup");
       }
   }
-  shots = shots.filter((s) => !s.dead && s.y > -20);
+  shots = shots.filter((s) => !s.dead && s.y > -20 && s.x > -20 && s.x < W + 20);
   hostile = hostile.filter(
     (b) => !b.dead && b.y < H + 20 && b.x > -20 && b.x < W + 20 && b.y > -100,
   );
@@ -552,6 +649,10 @@ function draw() {
     mode,
     ambient,
     elapsed,
+    loop,
+    loopTransition,
+    bossWreck,
+    score,
     enemies,
     drops,
     players,
@@ -570,9 +671,10 @@ function updateHUD() {
   $("#score").textContent = String(score).padStart(6, "0");
   $("#status").textContent =
     mode === "playing"
-      ? elapsed < LEVEL1.preBossDuration
+      ? loopTransition > 0 ? `LOOP ${loop} CLEAR`
+      : `L${loop} · ` + (elapsed < LEVEL1.preBossDuration
         ? "WAVE " + String(wave).padStart(2, "0")
-        : "BOSS"
+        : "BOSS")
       : mode.toUpperCase();
   $("#pilots").innerHTML = [0, 1]
     .map((i) => {

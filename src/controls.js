@@ -2,7 +2,9 @@
 // Keep the control surface outside the unchanged 600 × 800 simulation.
 (() => {
   const screen = $(".screen"), canvas = $("#game");
-  let pointer = null, target = null, lastTap = null, ignoreDblclickUntil = 0;
+  // Screen pixels keep the finger behind the tail on phones and large displays.
+  const FINGER_CLEARANCE_PX = 72;
+  let pointer = null, target = null, lastTap = null, ignoreDblclickUntil = 0, healthMarkup = null;
   const controls = window.flightControls = {
     active: false, x: 0, y: 0, target: null,
     reset() {
@@ -17,28 +19,41 @@
     sync() {
       document.body.classList.toggle("in-flight", mode !== "ready");
       document.body.dataset.mode = mode;
-      const p = players[0];
-      $("#flight-health").textContent = players.length
-        ? players.map(p => `P${p.index + 1} ${"🐱".repeat(p.lives) || "OUT"} · B ${p.bombs}`).join(" / ") : "P1 · READY";
-      if (mode !== "playing" && controls.active) controls.reset();
+      const health = $("#flight-health");
+      // Counts stay readable as extra lives accumulate over an endless run.
+      const hud = players.length ? players.map(p => {
+        if (p.lives === 0 && players.length === 2 && mode !== 'over') {
+          const seconds = Math.ceil(p.rejoinRemaining || 0);
+          const ready = seconds === 0 && mode === 'playing' && loopTransition <= 0;
+          const hint = seconds ? 'WAIT' : loopTransition > 0 ? 'NEXT LOOP' : `FIRE / ${p.index ? 'K' : 'F'}`;
+          return `<button class="pilot-hud pilot-rejoin p${p.index + 1}" data-rejoin="${p.index}" ${ready ? '' : 'disabled'} aria-label="P${p.index + 1}：${seconds ? `${seconds} 秒後可重新加入` : '按射擊鍵或點此重新加入'}"><span>P${p.index + 1} ${seconds ? String(seconds).padStart(2, '0') : 'JOIN'}</span><span class="pilot-bombs">${hint}</span></button>`;
+        }
+        return `<span class="pilot-hud p${p.index + 1}" aria-label="P${p.index + 1}：生命 ${p.lives}，炸彈 ${p.bombs}"><span class="pilot-lives"><b>P${p.index + 1}</b><svg class="life-icon" viewBox="0 0 16 14" aria-hidden="true"><path fill="currentColor" d="M0 0h3v2h2v2h6V2h2V0h3v11h-2v2H2v-2H0Z"/><path fill="#112b31" d="M3 6h2v2H3zm8 0h2v2h-2zM7 9h2v2H7z"/></svg><span>${p.lives > 0 ? `×${p.lives}` : 'OUT'}</span></span><span class="pilot-bombs">BOMB <b>${p.bombs}</b></span></span>`;
+      }).join('') : '<span class="pilot-ready">P1 · READY</span>';
+      if (healthMarkup !== hud) { health.innerHTML = hud; healthMarkup = hud; }
+      if ((mode !== "playing" || loopTransition > 0) && controls.active) controls.reset();
     },
   };
+  $('#flight-health').addEventListener('click', e => {
+    const button = e.target.closest('[data-rejoin]');
+    if (button && !button.disabled) tryRejoin(Number(button.dataset.rejoin));
+  });
   function setTarget(e) {
     const rect = canvas.getBoundingClientRect();
     target = {
-      x: (e.clientX - rect.left) * 600 / rect.width,
-      y: (e.clientY - rect.top) * 800 / rect.height,
+      x: clamp((e.clientX - rect.left) * W / rect.width, 24, W - 24),
+      y: clamp((e.clientY - rect.top - FINGER_CLEARANCE_PX) * H / rect.height, 60, H - 25),
     };
     controls.target = target;
   }
   function useBomb() {
-    if (mode === "playing" && players[0]?.bombs > 0) {
+    if (mode === "playing" && loopTransition <= 0 && players[0]?.bombs > 0) {
       bomb(players[0]);
       controls.sync();
     }
   }
   screen.addEventListener("pointerdown", e => {
-    if (e.pointerType === "mouse" || mode !== "playing" || !players[0]?.lives || players[0].respawn > 0 || players[0].entering || pointer !== null) return;
+    if (e.pointerType === "mouse" || mode !== "playing" || loopTransition > 0 || !players[0]?.lives || players[0].respawn > 0 || players[0].entering || pointer !== null) return;
     e.preventDefault();
     const now = performance.now();
     if (lastTap && now - lastTap.time < 350 && Math.hypot(e.clientX - lastTap.x, e.clientY - lastTap.y) < 32) {
@@ -48,6 +63,8 @@
     } else {
       lastTap = { time: now, x: e.clientX, y: e.clientY };
     }
+    // A double-tap bomb can defeat the boss and reset controls during this event.
+    if (mode !== "playing" || loopTransition > 0) return;
     pointer = e.pointerId;
     setTarget(e);
     controls.active = true;

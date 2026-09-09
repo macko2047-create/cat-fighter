@@ -19,4 +19,7 @@ const LEVEL1 = Object.freeze({
   bossHP2P: 1050,
   bossFireInterval: 0.9,
   bossHalfHPFireInterval: 0.55,
+  loopClearDelay: 2.6,
+  loopDifficultyStep: 0.05,
+  spreadShotSpeed: 70,
 });

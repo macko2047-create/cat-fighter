@@ -81,6 +81,13 @@
     s.neutral=true; s.baseline=null; prompt();
   }
   window.halfControllers={
+    snapshot() {
+      return JSON.parse(JSON.stringify({
+        profiles,
+        calibration: setup ? {slot:setup.slot,step:setup.step,waitingForNeutral:setup.neutral} : null,
+        releasePending,
+      }));
+    },
     read(raw) {
       calibrate(raw);
       // Suppress gameplay/old menu shortcuts while learning physical buttons.
