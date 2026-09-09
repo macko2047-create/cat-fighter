@@ -26,7 +26,7 @@
           <b>KEYBOARD</b>
           <p>P1　WASD · F 射擊 · G 炸彈<br>P2　方向鍵 · K 射擊 · L 炸彈<br>Enter 開始 · Esc 暫停</p>
           <b>CONTROLLER</b>
-          <p>搖桿／十字掣移動<br>半支 Joy-Con：在設定內逐一校準 P1／P2 方向及按鍵</p>
+          <p>搖桿／十字掣移動<br>Joy-Con 已內置預設，可直接加入；設定內可重新校準</p>
         </div>
       </aside>
       <section class="cabinet">
@@ -41,8 +41,12 @@
             <h2>CAT<br>FIGHTER</h2>
             <p id="message">貓貓飛行隊，準備出擊。</p>
             <button id="start">START ▶</button>
-            <button id="join">加入鍵盤 P2</button>
-            <p class="hint">手掣按任意按鈕加入 · 最多兩位</p>
+            <p id="lobby-status" role="status">0 位已加入 · 按加入或手掣射擊鍵</p>
+            <button id="join-p1">P1 加入</button>
+            <label>P1 飛機 <select id="aircraft-0"><option value="0">GINGER</option><option value="1">MINT</option></select></label>
+            <button id="join">P2 加入</button>
+            <label>P2 飛機 <select id="aircraft-1"><option value="1">MINT</option><option value="0">GINGER</option></select></label>
+            <p class="hint">一位加入＝單人，兩位加入＝雙人。手掣：按鍵加入，炸彈鍵選機，再按射擊開始。觸控雙人：各用左右半邊畫面。</p>
             <div class="menu-options">
               <button id="sound">聲音 OFF</button>
               <button id="test">手掣測試 / 按鍵設定 ↗</button>
@@ -50,7 +54,7 @@
             </div>
             <details class="instructions">
               <summary>操作介紹 / HOW TO PLAY</summary>
-              <p>守住珊瑚海，擊退老鼠空軍與頭目。<br>觸控：按住並拖曳，戰機保持在手指前方及自動射擊；放開停止。雙擊畫面使用炸彈。<br>手掣：搖桿／十字掣移動。半支 Joy-Con 請在設定內逐一校準 P1／P2，方向及按鍵由你指定。<br>P1：WASD / F / G · P2：方向鍵 / K / L。<br>每人三條命；中彈扣一命，下一架由畫面下方飛入，到位後有 3 秒無敵。<br>RAPID 二向快射 · 3-WAY 三向散射 · BOMB 補充炸彈 · 1UP 加一命（每輪一件）。<br>留意停下並閃出「!」的敵機，牠會突進你當刻的位置。<br>擊敗頭目後自動開始下一輪，保留分數、生命及裝備；每輪難度稍為增加。<br>雙人：用完生命後等 10 秒，隊友仍生存時按射擊鍵（P1 F／P2 K）或下方 JOIN 重新加入，補回三命；全隊 GAME OVER 後用 RETRY 重開。</p>
+              <p>守住珊瑚海，擊退老鼠空軍與頭目。<br>觸控：按住並拖曳，戰機保持在手指前方及自動射擊；放開停止。雙擊畫面使用炸彈。<br>手掣：搖桿／十字掣移動。Joy-Con 預設即用，亦可在設定重新校準。<br>P1：WASD / F / G · P2：方向鍵 / K / L。<br>每人三條命；中彈扣一命，下一架由畫面下方飛入，到位後有 3 秒無敵。<br>RAPID 二向快射 · 3-WAY 三向散射 · BOMB 補充炸彈 · 1UP 加一命（每輪一件）。<br>留意停下並閃出「!」的敵機，牠會突進你當刻的位置。<br>擊敗頭目後自動開始下一輪，保留分數、生命及裝備；每輪難度稍為增加。<br>雙人：用完生命後等 10 秒，隊友仍生存時按射擊鍵（P1 F／P2 K）或下方 JOIN 重新加入，補回三命；全隊 GAME OVER 後用 RETRY 重開。</p>
             </details>
           </div>
         </div>
@@ -79,14 +83,15 @@
       <p>先喺手掣按一下按鈕，讓瀏覽器識別。<br>按「設定」後，再按你想用嘅實體按鈕。</p>
       <div id="devices"></div>
       <div class="half-controllers">
-        <p>半支 Joy-Con：各自橫握，先設定 P1 再設定 P2。放開所有輸入，依指示向右、向上推搖桿，再指定射擊、炸彈及暫停鍵。</p>
+        <p>Joy-Con 已有預設；如需修改，可各自橫握並設定 P1／P2。放開所有輸入，依指示向右、向上推搖桿，再指定射擊、炸彈及暫停鍵。</p>
         <button id="half-p1">設定半支 P1</button>
         <button id="half-p2">設定半支 P2</button>
         <button id="half-reset">返回整支手掣</button>
-        <p id="half-status" role="status">先設定 P1，再設定 P2；設定完成後返回遊戲。</p>
+        <button id="half-default">恢復 Joy-Con 預設</button>
+        <p id="half-status" role="status">已內置你的 Joy-Con 合併裝置配置，可直接按鍵加入；亦可手動重新校準。</p>
       </div>
-      <p><label for="deadzone">搖桿死區：<output id="deadzone-value" for="deadzone">10%</output></label><br>
-        <input id="deadzone" type="range" min="0" max="50" step="1" value="10">
+      <p><label for="deadzone">搖桿死區：<output id="deadzone-value" for="deadzone">8%</output></label><br>
+        <input id="deadzone" type="range" min="0" max="50" step="1" value="8">
         <br><small>0–50%；搖桿自行漂移時調高，細微移動無反應時調低。</small></p>
       <p id="mapping">支援自訂按鍵及半支 Joy-Con</p>
       <div class="controller-export">

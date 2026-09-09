@@ -29,7 +29,13 @@ const keys = new Set(),
   assignments = [null, null],
   previous = new Map(),
   bindings = {};
-let deadzone = 0.1;
+let deadzone = 0.08;
+const joined = [false, false], aircraft = [0, 1];
+function joinPilot(slot) {
+  if (mode==="playing" || mode==="paused") return;
+  joined[slot] = !joined[slot];
+  updateHUD();
+}
 let keyboard2 = false,
   capture = null;
 try {
@@ -64,6 +70,7 @@ function pilot(i) {
     entering: false,
     bombs: 3,
     level: 1,
+    rapid: false,
     cool: 0,
     inv: 2,
     index: i,
@@ -71,8 +78,9 @@ function pilot(i) {
 }
 function start() {
   if (mode === "playing") return;
-  players = [pilot(0)];
-  if (keyboard2 || assignments[1] !== null) players.push(pilot(1));
+  if (!joined.some(Boolean)) joined[0] = true;
+  players = joined.flatMap((active, slot) => active ? [{...pilot(0), controlSlot:slot, aircraft:aircraft[slot]}] : []);
+  players.forEach((p,i) => { p.index=i; p.x=players.length===1?300:i?365:235; });
   elapsed = score = wave = 0;
   loop = 1;
   loopTransition = 0;
@@ -169,10 +177,11 @@ function pause(reason = "休息一下，貓貓。") {
 $("#start").onclick = () => (mode === "paused" ? pause() : start());
 $("#pause").onclick = () => pause();
 $("#join").onclick = () => {
-  keyboard2 = !keyboard2;
-  $("#join").textContent = keyboard2 ? "移除鍵盤 P2" : "加入鍵盤 P2";
+  joinPilot(1);
   updateHUD();
 };
+$("#join-p1").onclick = () => joinPilot(0);
+[0,1].forEach(i => { $("#aircraft-"+i).onchange = e => { aircraft[i]=Number(e.target.value); updateHUD(); }; });
 $("#sound").onclick = () => {
   sound = !sound;
   $("#sound").textContent = "聲音 " + (sound ? "ON" : "OFF");
@@ -209,10 +218,17 @@ window.addEventListener("keydown", (e) => {
       if (mode === "paused") pause();
       else if (mode !== "playing") start();
     }
-    if (mode === "playing" && e.code === "KeyG") bomb(players[0]);
-    if (mode === "playing" && e.code === "KeyL") bomb(players[1]);
-    if (e.code === "KeyF") tryRejoin(0);
-    if (e.code === "KeyK") tryRejoin(1);
+    if (mode === "playing" && (e.code === "KeyG" || e.code === "KeyL")) {
+      const p = players.find(p => (p.controlSlot ?? p.index) === (e.code === "KeyL" ? 1 : 0));
+      if (p) bomb(p);
+    }
+    if (e.code === "KeyF" || e.code === "KeyK") {
+      const index = players.findIndex(p => (p.controlSlot ?? p.index) === (e.code === "KeyK" ? 1 : 0));
+      if (index >= 0) tryRejoin(index);
+    }
+    if (mode === "ready" && (e.code === "KeyF" || e.code === "KeyK")) {
+      joined[e.code === "KeyK" ? 1 : 0] = true; updateHUD();
+    }
   }
   keys.add(e.code);
 });
@@ -292,13 +308,23 @@ function poll() {
             mode === "win" ||
             mode === "paused")
         ) {
-          if (mode !== "paused" || players[slot]) {
+          if (mode !== "paused" || players.some(p=>(p.controlSlot ?? p.index)===slot)) {
             assignments[slot] = p.index;
+            joined[slot] = true;
             sfx.playSfx("playerJoined");
           }
         }
       } else if (assignments.includes(p.index)) {
-        if (edge(c.fire) && mode === "playing" && tryRejoin(assignments.indexOf(p.index))) {
+        const slot=assignments.indexOf(p.index);
+        const playerIndex=players.findIndex(p=>(p.controlSlot ?? p.index)===slot);
+        if (mode === "ready" && !joined[slot] && fresh>=0) {
+          joined[slot]=true; previous.set(p.index,pressed); updateHUD(); continue;
+        }
+        if (mode === "ready" && (edge(14)||edge(15)||edge(0))) {
+          aircraft[slot]=1-aircraft[slot]; $("#aircraft-"+slot).value=aircraft[slot];
+          previous.set(p.index,pressed); updateHUD(); continue;
+        }
+        if (edge(c.fire) && mode === "playing" && playerIndex >= 0 && tryRejoin(playerIndex)) {
           previous.set(p.index, pressed);
           continue;
         }
@@ -309,8 +335,8 @@ function poll() {
           if (mode === "paused") pause();
           else start();
         }
-        if (edge(c.bomb) && mode === "playing")
-          bomb(players[assignments.indexOf(p.index)]);
+        if (edge(c.bomb) && mode === "playing" && playerIndex >= 0)
+          bomb(players[playerIndex]);
       }
     }
     previous.set(p.index, pressed);
@@ -336,6 +362,8 @@ function poll() {
   }
 }
 function input(i) {
+  const playerIndex = i;
+  i = players[i]?.controlSlot ?? i;
   const p = pads().find((p) => p.index === assignments[i]);
   const k = i
     ? ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "KeyK"]
@@ -356,11 +384,11 @@ function input(i) {
     fire ||= p.buttons[config(p).fire]?.pressed;
   }
   // Touch owns P1 while held; controls.js places its target ahead of the finger.
-  if (i === 0 && window.flightControls?.active) {
-    const target = window.flightControls.target;
+  if (window.flightControls?.targetFor(playerIndex)) {
+    const target = window.flightControls.targetFor(playerIndex);
     if (target) {
-      x = target.x - players[0].x;
-      y = target.y - players[0].y;
+      x = target.x - players[playerIndex].x;
+      y = target.y - players[playerIndex].y;
     }
     fire = true;
   }
@@ -384,23 +412,25 @@ function explode(x, y, color = "#f5c879", n = 16) {
   sfx.playSfx("explosion");
 }
 function burstBossDebris(e, stage) {
-  const count = 6 + stage * 4;
+  // Large, escalating armour failures: the last threshold becomes a true
+  // screen-filling breakup while staying presentation-only.
+  const count = 22 + stage * 14;
   // Authored variation leaves the gameplay random sequence untouched.
   for (let i = 0; i < count; i++) {
     const angle = i * Math.PI * 2 / count + stage * .71;
-    const speed = 100 + stage * 17 + (i % 4) * 23;
-    const duration = 1.25 + (i % 5) * .13;
+    const speed = 170 + stage * 32 + (i % 5) * 29;
+    const duration = 1.7 + (i % 6) * .16;
     bossDebris.push({
-      x: e.x + Math.cos(angle) * (36 + (i % 3) * 20),
-      y: e.y + Math.sin(angle) * 19 + 5,
-      vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed * .65 - 35,
-      angle, spin: (i % 2 ? -1 : 1) * (4 + i % 5),
-      width: 8 + stage + (i % 3) * 3, height: 4 + i % 4,
+      x: e.x + Math.cos(angle) * (44 + (i % 4) * 24),
+      y: e.y + Math.sin(angle) * 28 + 5,
+      vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed * .72 - 58,
+      angle, spin: (i % 2 ? -1 : 1) * (6 + i % 7),
+      width: 13 + stage * 2 + (i % 4) * 5, height: 6 + stage + i % 5,
       life: duration, duration,
       color: ['#d6b270', '#91a7a7', '#947553', '#c6854b'][i % 4],
     });
   }
-  if (bossDebris.length > 96) bossDebris.splice(0, bossDebris.length - 96);
+  if (bossDebris.length > 240) bossDebris.splice(0, bossDebris.length - 240);
 }
 function updateBossDebris(dt) {
   if (mode !== 'playing') return;
@@ -417,8 +447,18 @@ function updateBossDebris(dt) {
 }
 function damageEnemy(e, amount) {
   const before = e.type === "boss" ? bossDamageStage(e) : 0;
+  if (e.type === "boss" && e.max > 0 && e.hp > 0) {
+    // Split crossing hits so bombs and volleys cannot bypass rage resistance.
+    const normalDamage = Math.min(amount, Math.max(0, e.hp - e.max * .10));
+    amount = normalDamage + (amount - normalDamage) * LEVEL1.bossRageDamageMultiplier;
+  }
   e.hp -= amount;
+  if (e.hp < 1e-9) e.hp = 0;
   if (e.type === "boss" && bossDamageStage(e) > before) {
+    const raging = e.hp > 0 && bossDamageStage(e) === 4;
+    if (!raging) hostile = [];
+    e.revealUntil = raging ? 0 : elapsed + 1.5;
+    e.shoot = raging ? 0 : 0.35 / loopDifficulty();
     e.damageReactUntil = elapsed + .8;
     for (let stage = before + 1; stage <= bossDamageStage(e); stage++) burstBossDebris(e, stage);
   }
@@ -449,15 +489,19 @@ function kill(e, p) {
   if (e.type === "boss") {
     bossWreck = { ...e, hp: 0, damageReactUntil: 0 };
     completeLoop();
-  } else {
-    const dropRoll = Math.random();
-    if (dropRoll < LEVEL1.dropChance)
-      supply(e.x, e.y, Math.random() < 0.5 ? "W" : "B");
-  }
+  } else if (e.reward) supply(e.x, e.y, e.reward.type, e.reward.weapon);
+}
+function rewardCarrier(x, type, weapon) {
+  enemies.push({type:"heavy",x,y:-80,hp:ENEMY_DEFINITIONS.heavy.baseHP,
+    v:ENEMY_DEFINITIONS.heavy.speed*loopDifficulty(),phase:0,shoot:2,age:0,
+    reward:{type,weapon}});
+}
+function rewardActive() {
+  return enemies.some(e => e.reward && !e.killed && e.hp > 0 && e.y < H + 70) ||
+    drops.some(d => !d.dead && d.y < H + 20);
 }
 function supply(x, y, type, weaponType) {
-  if (type !== "1UP" && drops.filter(d => !d.dead && d.type !== "1UP").length >= 2) return;
-  const weapon = type === "W" ? weaponType || (Math.random() < 0.5 ? "rapid" : "spread") : null;
+  const weapon = type === "W" ? weaponType || ["rapid", "double", "spread"][Math.floor(Math.random() * 3)] : null;
   drops.push({ x, y, type, ...(type === "W" ? { weapon } : {}) });
 }
 function hurt(p) {
@@ -492,6 +536,10 @@ function spawn() {
     };
     enemy.v *= enemy.difficulty;
     if (!heavy && !boat) configureSmallFlight(enemy, wave, i, count);
+    // A single BOMB carrier appears only every third heavy formation (waves
+    // 15, 30, ...), so the two-plane medium-boss wave is no longer a bonus farm.
+    if (enemy.type === "heavy" && i === 0 && !rewardActive() && (wave / LEVEL1.heavyWaveCadence) % LEVEL1.heavyBombCadence === 0)
+      enemy.reward={type:"B"};
     enemies.push(enemy);
   }
 }
@@ -504,15 +552,15 @@ function update(dt) {
     return;
   }
   elapsed += dt;
-  if (elapsed >= nextSupply && nextSupply < LEVEL1.preBossDuration) {
+  if (elapsed >= nextSupply && nextSupply < LEVEL1.preBossDuration && !rewardActive()) {
     const supplyX = rnd(80, 520);
-    // Ensure both choices appear each sortie, even with rare enemy drops.
-    supply(supplyX, -20, "W", nextSupply === LEVEL1.pickupInterval ? "rapid" : "spread");
+    // Defer each reward until the previous carrier/drop is gone.
+    rewardCarrier(supplyX, "W", ["rapid", "double", "spread"][Math.round(nextSupply / LEVEL1.pickupInterval) - 1]);
     nextSupply += LEVEL1.pickupInterval;
   }
-  if (!extraLifeSpawned && elapsed >= LEVEL1.extraLifeTime) {
+  if (!extraLifeSpawned && elapsed >= LEVEL1.extraLifeTime && !rewardActive()) {
     extraLifeSpawned = true;
-    supply(300, -20, "1UP");
+    rewardCarrier(300, "1UP");
   }
   flash = Math.max(0, flash - dt);
   if (elapsed < LEVEL1.preBossDuration && elapsed >= wave * LEVEL1.waveInterval) spawn();
@@ -552,26 +600,28 @@ function update(dt) {
     p.inv -= dt;
     p.cool -= dt;
     const a = input(p.index);
-    const touchTarget = p.index === 0 && window.flightControls?.active && window.flightControls.target;
+    const touchTarget = window.flightControls?.targetFor(p.index);
     // Stop exactly at a nearby touch target instead of overshooting every frame.
     const arrived = touchTarget && Math.hypot(touchTarget.x - p.x, touchTarget.y - p.y) <= 260 * dt;
     p.x = clamp(arrived ? touchTarget.x : p.x + a.x * 260 * dt, 24, W - 24);
     p.y = clamp(arrived ? touchTarget.y : p.y + a.y * 260 * dt, 60, H - 25);
     if (a.fire && p.cool <= 0) {
-      // Widen only the three-way fan; rapid fire keeps its narrow paired shots.
       p.cool = p.rapid ? 0.06 : 0.12;
-      for (let j = 0; j < p.level; j++)
+      for (let j = 0; j < p.level; j++) {
+        const angle = p.level === 3 ? (j - 1) * LEVEL1.spreadShotAngle * Math.PI / 180 : 0;
         shots.push({
           x: p.x + (j - (p.level - 1) / 2) * 12,
           y: p.y - 25,
-          vx: (j - (p.level - 1) / 2) * (p.level === 3 ? LEVEL1.spreadShotSpeed : 28),
+          vx: Math.sin(angle) * 550,
+          vy: -Math.cos(angle) * 550,
           owner: p,
         });
+      }
       sfx.playSfx("fire");
     }
   }
   for (const s of shots) {
-    s.y -= 550 * dt;
+    s.y += (s.vy ?? -550) * dt;
     s.x += s.vx * dt;
   }
   for (const e of enemies) {
@@ -587,14 +637,14 @@ function update(dt) {
       // Painted islands occupy the margins; keep the entire hull offshore.
       if (e.type === "boat") e.x = clamp(e.x, 230, 440);
     }
-    e.shoot -= dt;
-    if (e.chargeState !== "windup" && e.chargeState !== "charging" && e.shoot <= 0 && e.y > 0 && (!e.flight ||
+    const revealing = enemies.some(enemy => enemy.type === "boss" && elapsed < (enemy.revealUntil || 0));
+    const bossPhase = e.type === "boss" ? bossDamageStage(e) : 0;
+    if (!revealing) e.shoot -= dt;
+    if (!revealing && e.chargeState !== "windup" && e.chargeState !== "charging" && e.shoot <= 0 && e.y > 0 && (!e.flight ||
         (e.visibleAge >= .75 && e.x > 20 && e.x < W - 20 && e.y < H - 140))) {
       e.shoot =
         e.type === "boss"
-          ? e.hp < e.max / 2
-            ? LEVEL1.bossHalfHPFireInterval
-            : LEVEL1.bossFireInterval
+          ? LEVEL1.bossAttackIntervals[bossPhase]
           : e.type === "heavy"
             ? 1.5
             : 3.2;
@@ -603,16 +653,18 @@ function update(dt) {
         .filter((p) => p.lives > 0 && p.respawn === 0 && !p.entering)
         .sort((a, b) => Math.abs(a.x - e.x) - Math.abs(b.x - e.x))[0];
       if (target) {
-        const base = Math.atan2(target.y - e.y, target.x - e.x);
-        const n = e.type === "boss" ? 9 : e.type === "heavy" ? 3 : 1;
+        const base = Math.atan2(target.y - e.y, target.x - e.x)
+          + (e.type === "boss" && bossPhase === 2 ? Math.sin(e.age * 2) * .3 : 0);
+        const n = e.type === "boss" ? LEVEL1.bossAttackCounts[bossPhase] : e.type === "heavy" ? 3 : 1;
+        const bulletSpeed = e.type === "boss" && bossPhase === 4 ? LEVEL1.bossRageBulletSpeed : 150;
         for (let j = 0; j < n; j++) {
           const ang =
             base + (j - (n - 1) / 2) * (e.type === "boss" ? 0.2 : 0.18);
           hostile.push({
             x: e.x,
             y: e.y + 20,
-            vx: Math.cos(ang) * 150 * loopDifficulty(),
-            vy: Math.sin(ang) * 150 * loopDifficulty(),
+            vx: Math.cos(ang) * bulletSpeed * loopDifficulty(),
+            vy: Math.sin(ang) * bulletSpeed * loopDifficulty(),
           });
         }
       }
@@ -634,7 +686,7 @@ function update(dt) {
       }
     }
     for (const p of players)
-      if (Math.abs(p.x - e.x) < radius + 13 && Math.abs(p.y - e.y) < 35)
+      if (Math.abs(p.x - e.x) < ENEMY_DEFINITIONS[e.type].contactHalfWidth + 13 && Math.abs(p.y - e.y) < 35)
         hurt(p, 30);
     if (mode === "over") return;
   }
@@ -655,8 +707,8 @@ function update(dt) {
         d.dead = true;
         if (d.type === "W") {
           if (d.weapon) {
-            p.level = d.weapon === "rapid" ? 2 : 3;
-            p.rapid = d.weapon === "rapid";
+            if (d.weapon === "rapid") p.rapid = true;
+            else p.level = d.weapon === "double" ? 2 : 3;
           } else {
             // Compatibility for old/manual W drops without a selected weapon type.
             p.level = Math.min(3, p.level + 1);
@@ -665,7 +717,7 @@ function update(dt) {
         if (d.type === "1UP") p.lives++;
         if (d.type === "B") p.bombs = Math.min(5, p.bombs + 1);
         p.notice = d.type === "1UP" ? "1UP" : d.type === "W"
-          ? d.weapon === "rapid" ? "2-WAY · RAPID FIRE" : d.weapon === "spread" ? "3-WAY · POWER" : `POWER ${p.level}`
+          ? d.weapon === "rapid" ? "RAPID FIRE" : d.weapon === "double" ? "2-WAY" : d.weapon === "spread" ? "3-WAY" : `POWER ${p.level}`
           : `BOMB ×${p.bombs}`;
         p.noticeUntil = elapsed + 1.5;
         explode(d.x, d.y, d.type === "1UP" ? "#91e3bd" : "#efd58d", 12);
@@ -698,12 +750,15 @@ function draw() {
     bossDebris,
     flash,
     playerVisuals: players.map((p) => ({
-      id: playerAssetId(p.index),
+      id: playerAssetId(p.aircraft ?? p.index),
       state: selectPlayerVisualState(p, input(p.index)),
     })),
   });
 }
 function updateHUD() {
+  $("#join-p1").textContent = joined[0] ? "P1 已加入 · 點此退出" : "P1 加入";
+  $("#join").textContent = joined[1] ? "P2 已加入 · 點此退出" : "P2 加入";
+  $("#lobby-status").textContent = joined.filter(Boolean).length + " 位已加入 · " + (joined.every(Boolean) ? "雙人" : "單人") + " · 選機後按 START";
   window.flightControls?.sync();
   $("#score").textContent = String(score).padStart(6, "0");
   $("#status").textContent =
@@ -715,9 +770,8 @@ function updateHUD() {
       : mode.toUpperCase();
   $("#pilots").innerHTML = [0, 1]
     .map((i) => {
-      const p = players[i],
-        active = i === 0 || keyboard2 || assignments[1] !== null;
-      return `<div class="pilot ${i ? "p2" : ""}"><b>P${i + 1} · ${i ? "MINT" : "GINGER"}</b><span>${assignments[i] !== null ? "手掣已加入" : active ? "鍵盤就緒" : "等待加入"}</span>${p ? `<span>${p.lives > 0 ? "🐱".repeat(p.lives) : "已擊落"} · 炸彈 ${p.bombs} · 火力 ${p.level}</span>` : ""}</div>`;
+      const p = players.find(p=>(p.controlSlot ?? p.index)===i), active=joined[i];
+      return `<div class="pilot ${i ? "p2" : ""}"><b>P${i + 1} · ${aircraft[i] ? "MINT" : "GINGER"}</b><span>${active ? assignments[i] !== null ? "手掣已加入" : "鍵盤／觸控已加入" : "等待加入"}</span>${p ? `<span>生命 ${p.lives} · 炸彈 ${p.bombs}</span>` : ""}</div>`;
     })
     .join("");
 }

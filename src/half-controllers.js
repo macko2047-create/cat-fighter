@@ -15,7 +15,7 @@
   showDeadzone();
   const profiles = [null, null];
   const steps = ['向右推搖桿並放開', '向上推搖桿並放開', '按射擊鍵', '按炸彈鍵', '按暫停鍵'];
-  let setup = null, releasePending = false;
+  let setup = null, releasePending = false, defaultsEnabled = true;
   const status = text => { $('#half-status').textContent = text; };
   function prompt() {
     status(`P${setup.slot + 1}：${setup.neutral ? '放開所有搖桿及按鍵，稍候。' : steps[setup.step]}`);
@@ -72,9 +72,7 @@
     s.step++;
     if (s.step===steps.length) {
       profiles[s.slot]={id:s.id,index:s.index,axes:s.axes,buttons:s.buttons};
-      assignments[s.slot]=-100-s.slot;
-      previous.delete(assignments[s.slot]);
-      if (s.slot===1 && mode==='paused' && !players[1]) players.push(pilot(1));
+      previous.delete(-100-s.slot);
       status(`P${s.slot+1} 半支手掣設定完成。${profiles[1-s.slot] ? '兩位玩家已就緒。' : `請設定 P${2-s.slot}。`}`);
       releasePending=true; setup=null; return;
     }
@@ -89,6 +87,17 @@
       }));
     },
     read(raw) {
+      if (defaultsEnabled && !setup) {
+        const pad=raw.find(p=>p.id==='Joy-Con (L/R) (STANDARD GAMEPAD)' && p.axes.length>=4);
+        if (pad) {
+          const axes=[[{axis:1,rest:0,sign:1},{axis:0,rest:0,sign:1}],
+            [{axis:3,rest:0,sign:-1},{axis:2,rest:0,sign:-1}]];
+          profiles.forEach((c,i)=>{
+            if (!c) profiles[i]={id:pad.id,index:pad.index,axes:axes[i],buttons:i?[2,0,3]:[13,14,15]};
+            else if(c.id===pad.id) c.index=pad.index;
+          });
+        }
+      }
       calibrate(raw);
       // Suppress gameplay/old menu shortcuts while learning physical buttons.
       if (setup) return [];
@@ -112,14 +121,18 @@
   $('#half-p1').onclick=()=>begin(0);
   $('#half-p2').onclick=()=>begin(1);
   $('#half-reset').onclick=()=>{
-    setup=null; releasePending=false; profiles.fill(null); assignments.fill(null); previous.clear();
+    setup=null; releasePending=false; defaultsEnabled=false; profiles.fill(null); assignments.fill(null); previous.clear();
     status('已返回整支手掣模式。各手掣按一下按鈕重新加入。'); renderDevices();
+  };
+  $('#half-default').onclick=()=>{
+    setup=null; releasePending=true; defaultsEnabled=true; profiles.fill(null); previous.clear();
+    status('已恢復你的 Joy-Con 預設。按射擊加入；炸彈鍵選機；再次射擊開始。');
   };
   $('#settings').addEventListener('close',()=>{setup=null;});
   window.addEventListener('gamepaddisconnected',e=>{
     if (profiles.some(p=>p && p.index===e.gamepad.index && p.id===e.gamepad.id)) {
-      if (mode==='playing') pause('Joy-Con 已斷線；重新連接後請重新設定半支手掣。');
-      status('Joy-Con 已斷線；重新連接後請重新設定半支手掣。');
+      if (mode==='playing') pause('Joy-Con 已斷線；重新連接並按鍵恢復，必要時可重新校準。');
+      status('Joy-Con 已斷線；重新連接並按鍵恢復，必要時可重新校準。');
     }
   });
 })();

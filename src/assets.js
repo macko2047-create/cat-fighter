@@ -40,7 +40,7 @@ function playerDefinition(sheet) {
     cell: Object.freeze({ width: 256, height: 256 }),
     grid: Object.freeze({ columns: 4, rows: 2 }),
     pivot: Object.freeze({ x: 0.5, y: 0.5 }),
-    displayScale: 72 / 256,
+    displayScale: 90 / 256,
     states: playerFrames,
   });
 }
@@ -57,14 +57,14 @@ const ENEMY_ASSETS = Object.freeze({ ...Object.fromEntries(
     Object.freeze({ sheet: `assets/enemies/${id}.png`,
       cell: Object.freeze({ width: 256, height: 256 }),
       grid: Object.freeze({ columns: 1, rows: 1 }),
-      pivot: Object.freeze({ x: 0.5, y: 0.5 }), displayScale: size / 256,
+      pivot: Object.freeze({ x: 0.5, y: 0.5 }), displayScale: size * 1.25 / 256,
     }),
   ]),
 ), bossDamage: Object.freeze({
   sheet: "assets/enemies/boss-damage-sheet.png",
   cell: Object.freeze({ width: 512, height: 512 }),
   grid: Object.freeze({ columns: 2, rows: 2 }),
-  pivot: Object.freeze({ x: .5, y: .5 }), displayScale: 240 / 512,
+  pivot: Object.freeze({ x: .5, y: .5 }), displayScale: 300 / 512,
 }) });
 
 // Four damage appearances in addition to the intact entry sprite.

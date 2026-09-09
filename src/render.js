@@ -3,6 +3,10 @@
 // Classic-script factory keeps file:// startup working without a build step.
 // State is read-only by contract; this module owns only Canvas drawing.
 function createRenderer(ctx, W, H, background, clamp, playerAssets = null, enemyAssets = null) {
+  function rewardSymbol(reward) {
+    return reward.type === "W" ? ({rapid:"ϟ", double:"↑↑", spread:"↖↑↗"}[reward.weapon] || "↑")
+      : reward.type === "B" ? "B" : "1UP";
+  }
   const spriteStamps = new WeakMap(), glowStamps = new Map();
   const canCache = typeof document !== "undefined" && typeof document.createElement === "function";
   // Cache at display resolution, including alpha-correct directional shadows.
@@ -37,10 +41,15 @@ function createRenderer(ctx, W, H, background, clamp, playerAssets = null, enemy
     }
     return glowStamps.get(key);
   }
-  function tracer(x,y,color,length,width) {
+  function tracer(x,y,color,length,width,vx,vy) {
     const stamp=glowStamp(color,length,width);
-    if(stamp) ctx.drawImage(stamp,Math.round(x)-24,Math.round(y)-28);
-    else {ctx.fillStyle=color;ctx.beginPath();ctx.ellipse(x,y,width,length,0,0,7);ctx.fill();}
+    // The stamp points up; rotate its long axis and bright tip along velocity.
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.rotate(Math.atan2(vx,-vy));
+    if(stamp) ctx.drawImage(stamp,-24,-28);
+    else {ctx.fillStyle=color;ctx.beginPath();ctx.ellipse(0,0,width,length,0,0,7);ctx.fill();}
+    ctx.restore();
   }
   function chargeCue(enemy, ambient) {
     if (enemy.chargeState !== "windup" && enemy.chargeState !== "charging") return;
@@ -112,7 +121,7 @@ function createRenderer(ctx, W, H, background, clamp, playerAssets = null, enemy
     const stage = bossDamageStage(e);
     if (!stage) return;
     const reacting = e.hp > 0 && e.damageReactUntil > elapsed;
-    ctx.save(); ctx.translate(e.x, e.y);
+    ctx.save(); ctx.translate(e.x, e.y); ctx.scale(1.25, 1.25);
     if (reacting) {
       // Pause-safe reaction clock; no gameplay random numbers consumed by art.
       const progress = 1 - (e.damageReactUntil - elapsed) / .8;
@@ -144,7 +153,7 @@ function createRenderer(ctx, W, H, background, clamp, playerAssets = null, enemy
   function plane(x, y, color, enemy = false, size = 1, type = "small") {
     ctx.save();
     ctx.translate(Math.round(x), Math.round(y));
-    ctx.scale(size, size);
+    ctx.scale(size * 1.25, size * 1.25);
     if (enemy) ctx.rotate(Math.PI);
     ctx.fillStyle = "#08203088";
     ctx.fillRect(-25 + 8, -7 + 10, 50, 11);
@@ -275,6 +284,16 @@ function createRenderer(ctx, W, H, background, clamp, playerAssets = null, enemy
           e.type === "heavy" ? 1.5 : 0.85,
         );
     }
+    for (const e of enemies) {
+      if (!e.reward) continue;
+      ctx.save(); ctx.translate(e.x,e.y);
+      ctx.strokeStyle="#08212d"; ctx.lineWidth=4; ctx.lineJoin="round";
+      ctx.fillStyle="#ffe08a"; ctx.font='bold 17px sans-serif';
+      ctx.textAlign="center"; ctx.textBaseline="middle";
+      const symbol = rewardSymbol(e.reward);
+      ctx.strokeText(symbol,0,0); ctx.fillText(symbol,0,0);
+      ctx.restore();
+    }
     if (bossWreck && loopTransition > 0) {
       ctx.save();
       ctx.globalAlpha = Math.min(1, loopTransition / .6);
@@ -323,11 +342,8 @@ function createRenderer(ctx, W, H, background, clamp, playerAssets = null, enemy
       ctx.beginPath(); ctx.arc(0, -1, 17, Math.PI, Math.PI * 1.9); ctx.stroke();
       ctx.fillStyle = color;
       if (d.type === "W") {
-        const arrows = d.weapon === "rapid" ? [-6, 6] : [-8, 0, 8];
-        for (const x of arrows) {
-          ctx.beginPath(); ctx.moveTo(x - 3, 6); ctx.lineTo(x - 3, -5);
-          ctx.lineTo(x, -10); ctx.lineTo(x + 3, -5); ctx.lineTo(x + 3, 6); ctx.closePath(); ctx.fill();
-        }
+        ctx.font = 'bold 20px sans-serif'; ctx.textAlign = "center";
+        ctx.fillText(rewardSymbol(d), 0, 4);
       } else if (d.type === "B") {
         ctx.beginPath(); ctx.arc(0, 0, 9, 0, Math.PI * 2); ctx.fill();
         ctx.strokeStyle = color; ctx.lineWidth = 2;
@@ -336,7 +352,7 @@ function createRenderer(ctx, W, H, background, clamp, playerAssets = null, enemy
       }
       ctx.fillStyle = color; ctx.font = "bold 9px monospace";
       ctx.textAlign = "center";
-      ctx.fillText(d.type === "W" ? (d.weapon === "rapid" ? "RAPID" : "3-WAY") : "BOMB", 0, 15);
+      ctx.fillText(d.type === "W" ? (d.weapon === "rapid" ? "RAPID" : d.weapon === "double" ? "2-WAY" : "3-WAY") : "BOMB", 0, 15);
       ctx.restore();
     }
     for (const [index, p] of players.entries())
@@ -349,8 +365,8 @@ function createRenderer(ctx, W, H, background, clamp, playerAssets = null, enemy
       if (p.noticeUntil > elapsed) ctx.fillText(p.notice, clamp(p.x, 85, W - 85), p.y - 45 - (1.5 - (p.noticeUntil - elapsed)) * 12);
     ctx.restore();
     ctx.save();ctx.globalCompositeOperation="lighter";
-    for (const s of shots) tracer(s.x,s.y-2,s.owner?.index ? "#298dff" : "#ffb629",9,2.5);
-    for (const b of hostile) tracer(b.x,b.y,"#ff4825",6,3);
+    for (const s of shots) tracer(s.x,s.y,s.owner?.index ? "#298dff" : "#ffb629",9,2.5,s.vx ?? 0,s.vy ?? -550);
+    for (const b of hostile) tracer(b.x,b.y,"#ff4825",6,3,b.vx ?? 0,b.vy ?? 1);
     ctx.restore();
     // Opaque, tumbling metal panels read differently from the glowing sparks.
     for (const piece of bossDebris) {

@@ -1,12 +1,13 @@
 "use strict";
-// Collision extents are the existing shot-hit thresholds, not visual sizes.
+// Bullet hitboxes follow the 1.25x enemy artwork enlargement.
+// Keep body-contact widths unchanged so aiming assistance does not increase ram danger.
 // Boat HP/speed are intentionally absent: the heavy-wave branch supplies them
 // on overlapping waves (35). Boss HP belongs to Level 1's player-count config.
 const ENEMY_DEFINITIONS = Object.freeze({
-  small: Object.freeze({ baseHP: 3, hitHalfWidth: 20, hitHalfHeight: 25, score: 100 }),
-  heavy: Object.freeze({ baseHP: 18, speed: 48, hitHalfWidth: 33, hitHalfHeight: 25, score: 400 }),
-  boat: Object.freeze({ hitHalfWidth: 20, hitHalfHeight: 25, score: 100 }),
-  boss: Object.freeze({ hitHalfWidth: 85, hitHalfHeight: 48, score: 5000 }),
+  small: Object.freeze({ baseHP: 3, hitHalfWidth: 25, hitHalfHeight: 31.25, contactHalfWidth: 20, score: 100 }),
+  heavy: Object.freeze({ baseHP: 18, speed: 48, hitHalfWidth: 41.25, hitHalfHeight: 31.25, contactHalfWidth: 33, score: 400 }),
+  boat: Object.freeze({ hitHalfWidth: 25, hitHalfHeight: 31.25, contactHalfWidth: 20, score: 100 }),
+  boss: Object.freeze({ hitHalfWidth: 106.25, hitHalfHeight: 60, contactHalfWidth: 85, score: 5000 }),
 });
 
 // Authored wave routes: predictable formations, with a different tempo per wave.

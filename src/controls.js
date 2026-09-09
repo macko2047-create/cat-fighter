@@ -5,10 +5,14 @@
   // Screen pixels keep the finger behind the tail on phones and large displays.
   const FINGER_CLEARANCE_PX = 72;
   let pointer = null, target = null, lastTap = null, ignoreDblclickUntil = 0, healthMarkup = null;
+  let secondPointer=null, secondTarget=null, secondTap=0;
   const controls = window.flightControls = {
     active: false, x: 0, y: 0, target: null,
+    targetFor(i) { return i===0 ? controls.active && controls.target : secondTarget; },
     reset() {
       const held = pointer;
+      const secondHeld=secondPointer; secondPointer=null; secondTarget=null;
+      if(secondHeld!==null && screen.hasPointerCapture(secondHeld)) screen.releasePointerCapture(secondHeld);
       pointer = null;
       target = null;
       controls.target = null;
@@ -25,13 +29,13 @@
         if (p.lives === 0 && players.length === 2 && mode !== 'over') {
           const seconds = Math.ceil(p.rejoinRemaining || 0);
           const ready = seconds === 0 && mode === 'playing' && loopTransition <= 0;
-          const hint = seconds ? 'WAIT' : loopTransition > 0 ? 'NEXT LOOP' : `FIRE / ${p.index ? 'K' : 'F'}`;
-          return `<button class="pilot-hud pilot-rejoin p${p.index + 1}" data-rejoin="${p.index}" ${ready ? '' : 'disabled'} aria-label="P${p.index + 1}：${seconds ? `${seconds} 秒後可重新加入` : '按射擊鍵或點此重新加入'}"><span>P${p.index + 1} ${seconds ? String(seconds).padStart(2, '0') : 'JOIN'}</span><span class="pilot-bombs">${hint}</span></button>`;
+          const hint = seconds ? 'WAIT' : loopTransition > 0 ? 'NEXT LOOP' : `FIRE / ${(p.controlSlot ?? p.index) ? 'K' : 'F'}`;
+          return `<button class="pilot-hud pilot-rejoin p${(p.controlSlot ?? p.index) + 1}" data-rejoin="${p.index}" ${ready ? '' : 'disabled'} aria-label="P${(p.controlSlot ?? p.index) + 1}：${seconds ? `${seconds} 秒後可重新加入` : '按射擊鍵或點此重新加入'}"><span>P${(p.controlSlot ?? p.index) + 1} ${seconds ? String(seconds).padStart(2, '0') : 'JOIN'}</span><span class="pilot-bombs">${hint}</span></button>`;
         }
-        return `<span class="pilot-hud p${p.index + 1}" aria-label="P${p.index + 1}：生命 ${p.lives}，炸彈 ${p.bombs}"><span class="pilot-lives"><b>P${p.index + 1}</b><svg class="life-icon" viewBox="0 0 16 14" aria-hidden="true"><path fill="currentColor" d="M0 0h3v2h2v2h6V2h2V0h3v11h-2v2H2v-2H0Z"/><path fill="#112b31" d="M3 6h2v2H3zm8 0h2v2h-2zM7 9h2v2H7z"/></svg><span>${p.lives > 0 ? `×${p.lives}` : 'OUT'}</span></span><span class="pilot-bombs">BOMB <b>${p.bombs}</b></span></span>`;
+        return `<span class="pilot-hud p${(p.controlSlot ?? p.index) + 1}" aria-label="P${(p.controlSlot ?? p.index) + 1}：生命 ${p.lives}，炸彈 ${p.bombs}"><span class="pilot-lives"><b>P${(p.controlSlot ?? p.index) + 1}</b><svg class="life-icon" viewBox="0 0 16 14" aria-hidden="true"><path fill="currentColor" d="M0 0h3v2h2v2h6V2h2V0h3v11h-2v2H2v-2H0Z"/><path fill="#112b31" d="M3 6h2v2H3zm8 0h2v2h-2zM7 9h2v2H7z"/></svg><span>${p.lives > 0 ? `×${p.lives}` : 'OUT'}</span></span><span class="pilot-bombs">BOMB <b>${p.bombs}</b></span></span>`;
       }).join('') : '<span class="pilot-ready">P1 · READY</span>';
       if (healthMarkup !== hud) { health.innerHTML = hud; healthMarkup = hud; }
-      if ((mode !== "playing" || loopTransition > 0) && controls.active) controls.reset();
+      if ((mode !== "playing" || loopTransition > 0) && (controls.active || secondTarget)) controls.reset();
     },
   };
   $('#flight-health').addEventListener('click', e => {
@@ -53,6 +57,7 @@
     }
   }
   screen.addEventListener("pointerdown", e => {
+    if(players.length===2 && e.clientX>=canvas.getBoundingClientRect().left+canvas.getBoundingClientRect().width/2) return;
     if (e.pointerType === "mouse" || mode !== "playing" || loopTransition > 0 || !players[0]?.lives || players[0].respawn > 0 || players[0].entering || pointer !== null) return;
     e.preventDefault();
     const now = performance.now();
@@ -70,13 +75,33 @@
     controls.active = true;
     screen.setPointerCapture(pointer);
   });
+  function moveSecond(e) {
+    const rect=canvas.getBoundingClientRect();
+    secondTarget={x:clamp((e.clientX-rect.left)*W/rect.width,24,W-24),
+      y:clamp((e.clientY-rect.top-FINGER_CLEARANCE_PX)*H/rect.height,60,H-25)};
+  }
+  screen.addEventListener("pointerdown",e=>{
+    const rect=canvas.getBoundingClientRect(), p=players[1];
+    if(e.pointerType==="mouse" || mode!=="playing" || loopTransition>0 || !p?.lives || p.respawn>0 || p.entering ||
+      secondPointer!==null || e.clientX<rect.left+rect.width/2) return;
+    e.preventDefault();
+    const now=performance.now();
+    if(secondTap && now-secondTap<350) { bomb(p); secondTap=0; } else secondTap=now;
+    if(loopTransition>0) return;
+    secondPointer=e.pointerId; moveSecond(e); screen.setPointerCapture(secondPointer);
+  });
+  screen.addEventListener("pointermove",e=>{if(e.pointerId===secondPointer){e.preventDefault();moveSecond(e);}});
+  for(const name of ["pointerup","pointercancel","lostpointercapture"])
+    screen.addEventListener(name,e=>{if(e.pointerId===secondPointer){secondPointer=null;secondTarget=null;}});
   screen.addEventListener("pointermove", e => {
     if (e.pointerId !== pointer) return;
     e.preventDefault();
     setTarget(e);
   });
   for (const name of ["pointerup", "pointercancel", "lostpointercapture"])
-    screen.addEventListener(name, e => { if (e.pointerId === pointer) controls.reset(); });
+    screen.addEventListener(name, e => { if (e.pointerId === pointer) {
+      pointer=null;target=null;controls.target=null;controls.active=false;
+    } });
   canvas.addEventListener("dblclick", e => {
     if (mode !== "playing") return;
     e.preventDefault();
