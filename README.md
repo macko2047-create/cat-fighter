@@ -125,9 +125,11 @@ START 後收起網站介紹與側欄，維持完整 600×800 戰場比例並最�
 
 ### 街機開機與 Demo
 
-開啟遊戲後先按 BOOT，約 2.8 秒模擬開機後進入 60 秒循環 Demo。Demo 使用遊戲原有 renderer 與素材，依序展示實戰、按住拖動／自動射擊、放開停止、雙擊炸彈，以及 RAPID、2-WAY、3-WAY、BOMB、1UP 和 Boss。它使用獨立示範資料，不改動正式遊戲分數、生命或道具。按 START 直接開單人新局；「選機／雙人」及「Wi-Fi 雙打」可由 Demo 開啟。暫停選單的「返回 DEMO／結束本局」會放棄目前單機局並回到示範；連線期間停用。手掣底層支援保留，主要介面以觸控為主並隱藏手掣設定。
+開啟遊戲後先按 BOOT，約 2.8 秒模擬開機後進入 60 秒循環 Demo。短段實戰穿插拖動、自動射擊、放開停止、雙擊炸彈及五種補給教學，最後展示已受損 Boss 的決戰。Demo 使用獨立狀態，透過 `runGamePreview` 同步執行正式 `update`、`bomb`、拾取判定與 renderer；命中、擊殺、得分、爆炸及 Boss 扣血均由遊戲規則產生，完成後還原正式遊戲狀態。拖動有接觸圈與軌跡，雙擊有兩次按壓波紋，拾取有原有音效、粒子及提示。示範場景的初始編隊與道具位置由教學編排。
 
-驗證：`tests/arcade-browser.cjs` 覆蓋 BOOT、所有循環章節、Demo 狀態隔離、不同尺寸 START、回到 Demo 及本機雙人；`tests/touch-browser.cjs` 和 `tests/lan.test.cjs` 已接上開機流程。畫面紀錄在 `artifacts/arcade-boot/`。
+按 START 直接開單人新局；「選機／雙人」及「Wi-Fi 雙打」可由 Demo 開啟。單機 GAME OVER 閒置 15 秒自動返回 Demo，RETRY 取消倒數，頁面在背景或對話框開啟時暫停倒數；連線遊戲不自動離開房間。暫停選單的「返回 DEMO／結束本局」會放棄目前單機局並回到示範；連線期間停用。主頁僅保留遊戲畫面，沒有外圍操作手冊；手掣底層支援保留，主介面以觸控為主。
+
+驗證：`tests/arcade-browser.cjs` 覆蓋 BOOT、60 秒循環、實際擊殺／拾取／炸彈／Boss 扣血、Demo 狀態隔離及例外還原、不同尺寸手勢與 START、本機雙人、GAME OVER 閒置返回、RETRY 取消及連線保護；`tests/touch-browser.cjs` 和 `tests/lan.test.cjs` 已接上開機流程。畫面紀錄在 `artifacts/arcade-boot/`。
 
 ### 開始連線
 

@@ -30,7 +30,7 @@ const path = require('node:path');
       await page.waitForTimeout(100);
       const boxes = await page.evaluate(() => {
         const rect = s => { const r = document.querySelector(s).getBoundingClientRect(); return {x:r.x,y:r.y,w:r.width,h:r.height,right:r.right,bottom:r.bottom}; };
-        return {game:rect('#game'),bottom:rect('.bottomline'),body:document.documentElement.scrollWidth,header:getComputedStyle(document.querySelector('header')).display};
+        return {game:rect('#game'),bottom:rect('.bottomline'),body:document.documentElement.scrollWidth,header:document.querySelector('header') ? getComputedStyle(document.querySelector('header')).display : 'none'};
       });
       close(boxes.game.w / boxes.game.h, .75, 'fixed battlefield aspect ratio');
       assert.ok(boxes.bottom.y >= boxes.game.bottom - .1);

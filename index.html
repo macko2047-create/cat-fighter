@@ -9,30 +9,7 @@
       <button id="boot">BOOT <span>TOUCH TO POWER ON</span></button>
       <div id="boot-log" hidden role="status"><span>PACIFIC PAWS · ARCADE SYSTEM</span><pre id="boot-text"></pre></div>
     </div>
-    <header>
-      <a class="brand" href="./">✦ CAT FIGHTER</a>
-      <span>PACIFIC PAWS / 1943</span>
-
-    </header>
     <main>
-      <aside>
-        <div class="eyebrow">THE FELINE AIR FORCE</div>
-        <h1>小小貓爪。<br>守住整片天空。</h1>
-        <p>駕駛螺旋槳戰機，穿越海面火網。<br>同你嘅僚機，一齊迎擊老鼠空軍。</p>
-        <div class="mission">
-          <small>MISSION 01</small>
-          <h2>珊瑚海防線</h2>
-          <p>海面編隊 → 轟炸機群 → 空中堡壘</p>
-          <span>1–2 PLAYERS · 每輪約 3–5 分鐘</span>
-        </div>
-        <div id="pilots"></div>
-        <div class="help">
-          <b>KEYBOARD</b>
-          <p>P1　WASD · F 射擊 · G 炸彈<br>P2　方向鍵 · K 射擊 · L 炸彈<br>Enter 開始 · Esc 暫停</p>
-          <b>CONTROLLER</b>
-          <p>搖桿／十字掣移動<br>Joy-Con 已內置預設，可直接加入；設定內可重新校準</p>
-        </div>
-      </aside>
       <section class="cabinet">
         <div class="topline">
           <span class="scoreboard"><span class="hud-label">SCORE</span><span id="score">000000</span></span>
@@ -41,15 +18,18 @@
         <div class="screen">
           <canvas id="game" width="600" height="800"></canvas>
           <div id="attract" hidden>
-            <div class="demo-top"><span>DEMONSTRATION</span><span>TOUCH TO PLAY</span></div>
+            <div class="demo-top"><span>AUTO PLAY</span><span id="demo-counter"></span></div>
             <div class="demo-caption"><small id="demo-chapter"></small><h2 id="demo-title"></h2><p id="demo-copy"></p></div>
-            <div id="demo-finger" aria-hidden="true"><span>☝</span><b id="demo-gesture"></b></div>
+            <div class="demo-progress-track"><div id="demo-progress"></div></div>
+            <div id="demo-feedback" hidden></div>
+            <div id="demo-finger" aria-hidden="true"><svg viewBox="0 0 64 80"><path d="M24 40V9a7 7 0 0 1 14 0v24c3-5 11-3 12 2 5-2 11 1 11 7v17c0 11-8 18-20 18H30c-7 0-12-4-16-10L3 51c-4-6 4-13 9-8l12 12Z"/></svg><b id="demo-gesture"></b></div>
             <div class="demo-menu"><button id="demo-start">START ▶</button><div><button id="demo-lan">Wi-Fi 雙打</button><button id="demo-options">選機／雙人</button><button id="demo-sound">聲音 OFF</button></div></div>
           </div>
           <div id="overlay">
             <div class="eyebrow">PACIFIC PAWS</div>
             <h2>CAT<br>FIGHTER</h2>
             <p id="message">貓貓飛行隊，準備出擊。</p>
+            <p id="demo-return" hidden role="status"></p>
             <button id="start">START ▶</button>
             <p id="lobby-status" role="status">按 START 出擊，或選擇雙人</p>
             <button id="join-p1">P1 加入</button>
@@ -60,14 +40,10 @@
             <div class="menu-options">
               <button id="lan-open">Wi-Fi 雙打</button>
               <button id="sound">聲音 OFF</button>
-              <button id="test">手掣測試 / 按鍵設定 ↗</button>
+              <button id="test" hidden>手掣測試 / 按鍵設定 ↗</button>
               <button id="fullscreen">FULLSCREEN</button>
               <button id="watch-demo">返回 DEMO／結束本局</button>
             </div>
-            <details class="instructions">
-              <summary>操作介紹 / HOW TO PLAY</summary>
-              <p>守住珊瑚海，擊退老鼠空軍與頭目。<br>觸控：按住並拖曳，戰機保持在手指前方及自動射擊；放開停止。雙擊畫面使用炸彈。<br>手掣：搖桿／十字掣移動。Joy-Con 預設即用，亦可在設定重新校準。<br>P1：WASD / F / G · P2：方向鍵 / K / L。<br>每人三條命；中彈扣一命，下一架由畫面下方飛入，到位後有 3 秒無敵。<br>RAPID 二向快射 · 3-WAY 三向散射 · BOMB 補充炸彈 · 1UP 加一命（每輪一件）。<br>留意停下並閃出「!」的敵機，牠會突進你當刻的位置。<br>擊敗頭目後自動開始下一輪，保留分數、生命及裝備；每輪難度稍為增加。<br>雙人：用完生命後等 10 秒，隊友仍生存時按射擊鍵（P1 F／P2 K）或下方 JOIN 重新加入，補回三命；全隊 GAME OVER 後用 RETRY 重開。</p>
-            </details>
           </div>
         </div>
         <div class="bottomline">
@@ -75,20 +51,6 @@
           <button id="pause" aria-label="暫停 / PAUSE"><span class="pause-label">PAUSE</span><span class="pause-icon" aria-hidden="true"></span></button>
         </div>
       </section>
-      <aside class="right">
-        <div class="eyebrow">FIELD MANUAL / 01</div>
-        <h2>一齊出擊。</h2>
-        <div class="badge">🐱</div>
-        <h3>WHISKER SQUADRON</h3>
-        <p>兩架戰機。共同戰線。<br>各自三條命、火力及炸彈。</p>
-        <div class="legend">
-          <p><i class="power">W</i> 火力升級</p>
-          <p><i class="repair">1UP</i> 增加一命</p>
-          <p><i class="bomb">B</i> 炸彈補充</p>
-        </div>
-        <blockquote>「跟住我，<br>　返去食罐罐。」</blockquote>
-        <small>ORIGINAL ARCADE · LOCAL CO-OP</small>
-      </aside>
     </main>
     <dialog id="settings">
       <h2>手掣測試與設定</h2>

@@ -168,6 +168,7 @@ function nextLoop() {
   updateHUD();
 }
 function show(title, message) {
+  if (window.arcade?.simulating) return;
   window.flightControls?.reset();
   window.flightControls?.sync();
   $("#overlay").style.display = "flex";
@@ -382,6 +383,8 @@ function poll() {
   }
 }
 function input(i) {
+  const demoInput = window.arcade?.simulationInput(i);
+  if (demoInput) return demoInput;
   const networkInput = window.lan?.active && window.lan.inputFor(i);
   if (networkInput) return networkInput;
   const playerIndex = i;
@@ -796,6 +799,7 @@ function draw() {
   });
 }
 function updateHUD() {
+  if (window.arcade?.simulating) return;
   $("#join-p1").textContent = joined[0] ? "P1 已加入 · 點此退出" : "P1 加入";
   $("#join").textContent = joined[1] ? "P2 已加入 · 點此退出" : "P2 加入";
   $("#lobby-status").textContent = joined.filter(Boolean).length + " 位已加入 · " + (joined.every(Boolean) ? "雙人" : "單人") + " · 選機後按 START";
@@ -808,14 +812,26 @@ function updateHUD() {
         ? "WAVE " + String(wave).padStart(2, "0")
         : "BOSS")
       : mode.toUpperCase();
-  $("#pilots").innerHTML = [0, 1]
-    .map((i) => {
-      const p = players.find(p=>(p.controlSlot ?? p.index)===i), active=joined[i];
-      return `<div class="pilot ${i ? "p2" : ""}"><b>P${i + 1} · ${aircraft[i] ? "MINT" : "GINGER"}</b><span>${active ? "已加入" : "等待加入"}</span>${p ? `<span>生命 ${p.lives} · 炸彈 ${p.bombs}</span>` : ""}</div>`;
-    })
-    .join("");
 }
 let hudClock = 0;
+// A preview borrows the existing simulation synchronously, then restores the
+// live references even if an update/render fails. It cannot advance a LAN game.
+function runGamePreview(state, callback) {
+  const captureState = () => ({mode,elapsed,score,players,enemies,shots,hostile,drops,sparks,bossDebris,
+    wave,loop,loopTransition,bossSpawned,bossWreck,nextSupply,extraLifeSpawned,recoveryRewardPending,flash,ambient});
+  const loadState = s => ({mode,elapsed,score,players,enemies,shots,hostile,drops,sparks,bossDebris,
+    wave,loop,loopTransition,bossSpawned,bossWreck,nextSupply,extraLifeSpawned,recoveryRewardPending,flash,ambient}=s);
+  const live = captureState();
+  try { loadState(state); callback(); Object.assign(state,captureState()); }
+  finally { loadState(live); }
+}
+function updateEffects(dt) {
+  updateBossDebris(dt);
+  for (const s of sparks) {
+    s.x += s.vx * dt; s.y += s.vy * dt; s.life -= dt;
+  }
+  sparks = sparks.filter(s => s.life > 0);
+}
 function frame(ts) {
   const dt = Math.min((ts - last) / 1000 || 0, 0.035);
   last = ts;
@@ -833,13 +849,7 @@ function frame(ts) {
   ambient += dt;
   poll();
   if (mode === "playing") update(dt);
-  updateBossDebris(dt);
-  for (const s of sparks) {
-    s.x += s.vx * dt;
-    s.y += s.vy * dt;
-    s.life -= dt;
-  }
-  sparks = sparks.filter((s) => s.life > 0);
+  updateEffects(dt);
   draw();
   window.lan?.tick(ts);
   hudClock += dt;

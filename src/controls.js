@@ -10,6 +10,7 @@
     active: false, x: 0, y: 0, target: null,
     targetFor(i) { return i===0 ? controls.active && controls.target : secondTarget; },
     reset() {
+      if (window.arcade?.simulating) return;
       const held = pointer;
       const secondHeld=secondPointer; secondPointer=null; secondTarget=null;
       if(secondHeld!==null && screen.hasPointerCapture(secondHeld)) screen.releasePointerCapture(secondHeld);
@@ -21,6 +22,7 @@
       if (held !== null && screen.hasPointerCapture(held)) screen.releasePointerCapture(held);
     },
     sync() {
+      if (window.arcade?.simulating) return;
       document.body.classList.toggle("in-flight", !!window.arcade || mode !== "ready");
       document.body.dataset.mode = mode;
       const health = $("#flight-health");
