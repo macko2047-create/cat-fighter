@@ -168,7 +168,6 @@
   }
   async function enter(role,kind='lan') {
     if(session||connecting)return;
-    window.arcade?.dismiss();
     if(mode==='playing'||mode==='paused'){status('Finish the current run before creating or joining a room.');return;}
     connecting=true;refreshButtons();
     try {
@@ -177,6 +176,8 @@
       if(kind==='p2p'&&role==='guest'&&!/^\d{6}$/.test(code))throw Error('Enter the six-digit room code');
       const credentials=await (kind==='p2p'?window.CatP2P.request:request)(role==='host'?'create':'join',role==='host'?{}:{code},null);
       if(kind==='p2p'&&(!/^\d{6}$/.test(credentials.code)||! /^[a-f0-9]{48}$/.test(credentials.token)||credentials.role!==role))throw Error('Invalid room response');
+      // Keep the current menu/demo intact when room creation or joining fails.
+      window.arcade?.dismiss();
       connect({...credentials,transport:kind});
     } catch(error){status('Unable to connect: '+error.message+(kind==='lan'?'. Open the game using the Wi-Fi server URL.':''));}
     finally {connecting=false;refreshButtons();if(kind==='lan')await discover();}

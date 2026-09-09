@@ -5,7 +5,7 @@
   async function request(route,data={},session=null,keepalive=false) {
     const response=await fetch('/p2p/'+route,{method:'POST',headers:{'Content-Type':'application/json',...(session?{Authorization:'Bearer '+session.token}:{})},
       body:JSON.stringify({...data,...(session?{code:session.code}:{})}),keepalive,signal:AbortSignal.timeout(12000)});
-    if(!response.headers.get('content-type')?.includes('application/json'))throw Error('P2P service unavailable on this website');
+    if(!response.headers.get('content-type')?.includes('application/json'))throw Error('Room-code multiplayer needs a signaling server on this website. A static website alone cannot create rooms. You can still play on this device.');
     const value=await response.json();
     if(!response.ok)throw Error(value.error||'P2P service unavailable');
     return value;

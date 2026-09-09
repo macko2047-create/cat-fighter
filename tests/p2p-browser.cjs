@@ -38,6 +38,18 @@ const {createP2PServer}=require('../tools/p2p-server.cjs');
     const run=(page,code)=>page.evaluate(code);
     const wait=(page,code)=>page.waitForFunction(code,null,{timeout:15000});
     const click=(page,id)=>page.evaluate(id=>document.querySelector(id).onclick(),id);
+    // Static hosting has no signaling route. A failed Create must leave a
+    // usable demo/menu behind the dialog instead of a frozen READY canvas.
+    await host.route('**/p2p/create',route=>route.fulfill({status:404,contentType:'text/html',body:'Not found'}));
+    await click(host,'#demo-lan');await click(host,'#p2p-create');
+    assert.match(await host.locator('#lan-status').textContent(),/signaling server/);
+    assert.equal(await run(host,'window.lan.active'),false);
+    await click(host,'#lan-close');
+    assert.equal(await run(host,'window.arcade.phase'),'demo');
+    assert.equal(await host.locator('#demo-start').isVisible(),true);
+    await click(host,'#demo-start');await wait(host,"mode==='playing'");
+    await click(host,'#watch-demo');
+    await host.unroute('**/p2p/create');
     await click(host,'#lan-open');await click(host,'#p2p-create');
     const code=await host.inputValue('#p2p-code');assert.match(code,/^\d{6}$/);
     assert.equal(await run(host,'window.lan.canStart()'),false);
