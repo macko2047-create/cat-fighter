@@ -8,7 +8,7 @@
     {id:'rapid',seconds:5,title:'RAPID FIRE',copy:'Collect lightning → Double your fire rate',reward:{type:'W',weapon:'rapid'}},
     {id:'battle',seconds:4,title:'BREAK THROUGH',copy:'Hit, destroy, score!'},
     {id:'double',seconds:5,title:'2-WAY SHOT',copy:'Collect twin arrows → Two firing lanes',reward:{type:'W',weapon:'double'}},
-    {id:'bomb',seconds:6,title:'DOUBLE-TAP ONE SPOT',copy:'Double-tap → Bomb clears enemy fire'},
+    {id:'bomb',seconds:6,title:'Double Tap',copy:'Tap the same spot twice to drop a bomb'},
     {id:'supply',seconds:4,title:'BOMB SUPPLY',copy:'Collect a bomb → Add one to your stock',reward:{type:'B'}},
     {id:'spread',seconds:5,title:'3-WAY SPREAD',copy:'Collect triple arrows → Wider firepower',reward:{type:'W',weapon:'spread'}},
     {id:'life',seconds:4,title:'1UP · ONE MORE CHANCE',copy:'Collect a cat coin → Gain an extra life',reward:{type:'1UP'}},
@@ -97,7 +97,7 @@
     finger.style.top=`calc(${p.y/H*100}% + 72px)`;
     const pressing=c.id==='drag'||(c.id==='bomb'&&((time>=2&&time<2.12)||(time>=2.25&&time<2.37)));
     finger.dataset.pressed=String(pressing);
-    $('#demo-gesture').textContent=c.id==='drag'?'HOLD → DRAG':c.id==='release'?'RELEASE':time<2?'SAME SPOT':time<2.25?'① TAP':'② TAP · BOMB';
+    $('#demo-gesture').textContent=c.id==='drag'?'HOLD → DRAG':c.id==='release'?'RELEASE':'Double Tap';
     if(teaching) {
       const offset=72*H/fieldHeight;
       ctx.save();ctx.strokeStyle='#fff0b5';ctx.lineWidth=3;
