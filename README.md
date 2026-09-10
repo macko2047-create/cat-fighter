@@ -93,7 +93,7 @@ node --test tests/charge.test.cjs
 - `game.js`：組裝、玩法、輸入、碰撞、波次、Boss、DOM 介面及 RAF 時間管理。粒子生成與更新仍在此處，保留原有亂數及暫停行為。
 - `src/render.js`：`createRenderer(ctx, W, H, background, clamp)` 回傳讀取目前狀態的繪圖函式；只修改 Canvas，不修改實體。
 - `src/world.js`：`drawWorld(ctx, W, H, t)` 繪製現有海面、島嶼與雲；時間由 `game.js` 傳入。
-- `src/audio.js`：`createAudio(host, isEnabled)` 回傳 `playSfx(id)`；保留原有 oscillator、靜音及延遲建立 AudioContext 的行為。
+- `src/audio.js`：管理一次性 SFX 預載、buffer 重用、voice 上限、oscillator fallback、音量群組及單一串流音樂播放器。素材規格、事件對應與驗證見 `assets/audio/README.md`。
 - `src/assets.js`：P1/P2 sprite-sheet manifest、八種純視覺狀態選擇器與安全圖片載入器。玩家圖檔放在 `assets/players/p1/` 與 `assets/players/p2/`；圖片尚未提供、載入中或失敗時，renderer 會沿用現有 Canvas 飛機幾何。
 
 ## CF-L1-ASSET-01 玩家圖像接入

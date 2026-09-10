@@ -56,7 +56,10 @@ const clamp = (n, a, b) => Math.max(a, Math.min(b, n)),
 const playerAssets = createPlayerAssetLoader(window);
 const enemyAssets = createPlayerAssetLoader(window, ENEMY_ASSETS);
 const render = createRenderer(ctx, W, H, (t) => drawWorld(ctx, W, H, t), clamp, playerAssets, enemyAssets);
-const sfx = createAudio(window, () => sound);
+const sfx = createAudio(window, () => sound && !window.arcade?.simulating);
+function musicState(state) {
+  if (!window.arcade?.simulating) sfx.setMusicState(state);
+}
 const pads = () => {
   const raw = Array.from(navigator.getGamepads?.() || []).filter(Boolean);
   return window.halfControllers ? window.halfControllers.read(raw) : raw;
@@ -106,6 +109,8 @@ function start() {
   mode = "playing";
   $("#overlay").style.display = "none";
   window.flightControls?.sync();
+  sfx.initAudio();
+  musicState("LEVEL");
   sfx.playSfx("start");
 }
 function tryRejoin(index) {
@@ -129,6 +134,7 @@ function loopDifficulty() {
   return 1 + (loop - 1) * LEVEL1.loopDifficultyStep;
 }
 function completeLoop() {
+  musicState("NONE");
   loopTransition = LEVEL1.loopClearDelay;
   enemies = [];
   hostile = [];
@@ -140,6 +146,7 @@ function completeLoop() {
   updateHUD();
 }
 function nextLoop() {
+  musicState("LEVEL");
   loop++;
   loopTransition = 0;
   elapsed = wave = 0;
@@ -169,6 +176,7 @@ function nextLoop() {
 }
 function show(title, message) {
   if (window.arcade?.simulating) return;
+  musicState("NONE");
   window.flightControls?.reset();
   window.flightControls?.sync();
   $("#overlay").style.display = "flex";
@@ -188,6 +196,8 @@ function pause(reason = "Take a breather, pilot.") {
     show("PAUSED", reason);
   } else if (mode === "paused" && !$("#settings").open) {
     mode = "playing";
+    sfx.initAudio();
+    musicState(loopTransition > 0 ? "NONE" : bossSpawned ? "BOSS" : "LEVEL");
     $("#overlay").style.display = "none";
     window.flightControls?.sync();
   }
@@ -202,6 +212,7 @@ $("#join-p1").onclick = () => joinPilot(0);
 [0,1].forEach(i => { $("#aircraft-"+i).onchange = e => { aircraft[i]=Number(e.target.value); updateHUD(); }; });
 $("#sound").onclick = () => {
   sound = !sound;
+  sfx.setMuted(!sound);
   $("#sound").textContent = "SOUND " + (sound ? "ON" : "OFF");
   sfx.playSfx("soundEnabled");
 };
@@ -424,7 +435,7 @@ function input(i) {
   }
   return { x, y, fire };
 }
-function explode(x, y, color = "#f5c879", n = 16) {
+function explode(x, y, color = "#f5c879", n = 16, audioName = "small_explosion") {
   for (let i = 0; i < n; i++)
     sparks.push({
       x,
@@ -434,7 +445,7 @@ function explode(x, y, color = "#f5c879", n = 16) {
       life: rnd(0.2, 0.7),
       color,
     });
-  sfx.playSfx("explosion");
+  sfx.playSfx(audioName);
 }
 function burstBossDebris(e, stage) {
   // Large, escalating armour failures: the last threshold becomes a true
@@ -477,6 +488,7 @@ function damageEnemy(e, amount) {
     const normalDamage = Math.min(amount, Math.max(0, e.hp - e.max * .10));
     amount = normalDamage + (amount - normalDamage) * LEVEL1.bossRageDamageMultiplier;
   }
+  sfx.playSfx("enemy_hit");
   e.hp -= amount;
   if (e.hp < 1e-9) e.hp = 0;
   if (e.type === "boss" && bossDamageStage(e) > before) {
@@ -514,6 +526,7 @@ function kill(e, p) {
     e.y,
     e.type === "boss" ? "#ffb772" : "#e7b861",
     e.type === "boss" ? 70 : 18,
+    e.type === "small" ? "small_explosion" : "heavy_explosion",
   );
   if (e.type === "boss") {
     bossWreck = { ...e, hp: 0, damageReactUntil: 0 };
@@ -606,6 +619,8 @@ function update(dt) {
   if (elapsed < LEVEL1.preBossDuration && elapsed >= wave * LEVEL1.waveInterval) spawn();
   if (elapsed >= LEVEL1.bossSpawnTime && !bossSpawned) {
     bossSpawned = true;
+    sfx.playSfx("boss_warning");
+    musicState("BOSS");
     enemies.push({
       type: "boss",
       x: 300,
@@ -695,6 +710,7 @@ function update(dt) {
         .filter((p) => p.lives > 0 && p.respawn === 0 && !p.entering)
         .sort((a, b) => Math.abs(a.x - e.x) - Math.abs(b.x - e.x))[0];
       if (target) {
+        sfx.playSfx("enemy_shot");
         const base = Math.atan2(target.y - e.y, target.x - e.x)
           + (e.type === "boss" && bossPhase === 2 ? Math.sin(e.age * 2) * .3 : 0);
         const n = e.type === "boss" ? LEVEL1.bossAttackCounts[bossPhase] : e.type === "heavy" ? 3 : 1;
