@@ -1,0 +1,10 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "cat-fighter-signaling",
+  "main": "signaling-worker.mjs",
+  "compatibility_date": "2026-09-11",
+  "compatibility_flags": ["nodejs_compat"],
+  "vars": { "PUBLIC_ORIGIN": "https://catfighter.armedgaltactical.com" },
+  "durable_objects": { "bindings": [{ "name": "SIGNALING", "class_name": "SignalingRooms" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["SignalingRooms"] }]
+}

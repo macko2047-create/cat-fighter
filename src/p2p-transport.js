@@ -2,8 +2,17 @@
 // Reliable ordered data channel; signaling carries SDP only. No media tracks.
 (() => {
   const MAX=512*1024, CHUNK=8000;
+  // Read once before any session starts; invalid explicit configuration fails closed.
+  const configuredOrigin=document.querySelector('meta[name="cat-fighter-signaling-origin"]')?.content.trim()||'';
+  function signalingBase() {
+    if(!configuredOrigin)return '';
+    const url=new URL(configuredOrigin);
+    if((url.protocol!=='https:'&&!(url.protocol==='http:'&&['localhost','127.0.0.1','[::1]'].includes(url.hostname)))||
+      url.username||url.password||url.pathname!=='/'||url.search||url.hash)throw Error('Invalid public signaling origin configuration');
+    return url.origin;
+  }
   async function request(route,data={},session=null,keepalive=false) {
-    const response=await fetch('/p2p/'+route,{method:'POST',headers:{'Content-Type':'application/json',...(session?{Authorization:'Bearer '+session.token}:{})},
+    const response=await fetch(signalingBase()+'/p2p/'+route,{method:'POST',credentials:'omit',redirect:'error',cache:'no-store',headers:{'Content-Type':'application/json',...(session?{Authorization:'Bearer '+session.token}:{})},
       body:JSON.stringify({...data,...(session?{code:session.code}:{})}),keepalive,signal:AbortSignal.timeout(12000)});
     if(!response.headers.get('content-type')?.includes('application/json'))throw Error('Room-code multiplayer needs a signaling server on this website. A static website alone cannot create rooms. You can still play on this device.');
     const value=await response.json();

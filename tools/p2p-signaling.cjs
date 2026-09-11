@@ -1,9 +1,8 @@
 'use strict';
 // Signaling only: room credentials and bounded SDP exchange, never game state.
 const {randomBytes,randomInt}=require('node:crypto');
-function createSignaling({origin,iceServers=[{urls:'stun:stun.l.google.com:19302'}],now=Date.now,joinTTL=10*60*1000,idleTTL=2*60*1000}={}) {
+function createSignaling({origin,iceServers=[{urls:'stun:stun.l.google.com:19302'}],now=Date.now,joinTTL=10*60*1000,idleTTL=2*60*1000,rooms=new Map(),attempts=new Map()}={}) {
   if(!Array.isArray(iceServers)||iceServers.some(s=>!s||Object.keys(s).some(k=>k!=='urls')||![s.urls].flat().every(u=>typeof u==='string'&&/^stuns?:[^\s]+$/.test(u))))throw Error('Phase 1 requires STUN-only ICE servers');
-  const rooms=new Map(),attempts=new Map();
   const token=()=>randomBytes(24).toString('hex');
   const reply=(res,status,data)=>{res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(JSON.stringify(data));};
   const prune=()=>{for(const [code,r] of rooms)if(now()-r.updated>idleTTL||now()>r.ends)rooms.delete(code);for(const [ip,a]of attempts)if(now()-a.start>60000)attempts.delete(ip);};
