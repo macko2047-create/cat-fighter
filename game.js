@@ -22,6 +22,7 @@ let mode = "ready",
   flash = 0,
   last = 0,
   ambient = 0,
+  adaptiveDifficulty = null,
   sound = false;
 const keys = new Set(),
   assignments = [null, null],
@@ -104,6 +105,7 @@ function start() {
   if (!joined.some(Boolean)) joined[0] = true;
   players = joined.flatMap((active, slot) => active ? [{...pilot(0), controlSlot:slot, aircraft:aircraft[slot]}] : []);
   players.forEach((p,i) => { p.index=i; p.x=players.length===1?300:i?365:235; });
+  adaptiveDifficulty = difficultyTarget();
   elapsed = score = wave = 0;
   loop = 1;
   loopTransition = 0;
@@ -141,6 +143,35 @@ function tryRejoin(index) {
 function loopDifficulty() {
   // Add a small fraction of the original difficulty each clear, not compounding.
   return 1 + (loop - 1) * LEVEL1.loopDifficultyStep;
+}
+function difficultyTarget() {
+  const tuning = LEVEL1.adaptive;
+  // A short respawn/entry animation does not remove a surviving teammate.
+  const active = players.filter(p => p.lives > 0);
+  const count = Math.max(1, active.length);
+  const power = active.reduce((sum, p) => sum +
+    tuning.weaponScores[clamp(p.level, 1, 3)] * (p.rapid ? tuning.rapidWeight : 1), 0);
+  return {
+    count,
+    pressure: clamp(1 + tuning.firepowerWeight * (power / count - 1), 1, tuning.maxPressure),
+  };
+}
+function updateAdaptiveDifficulty(dt) {
+  const target = difficultyTarget(), tuning = LEVEL1.adaptive;
+  const previous = adaptiveDifficulty || target;
+  const approach = (value, goal, upRate, downRate) =>
+    value + clamp(goal - value, -downRate * dt, upRate * dt);
+  // Replace the state so synchronous arcade previews cannot mutate live state.
+  adaptiveDifficulty = {
+    count: approach(previous.count, target.count, 1 / tuning.riseSeconds, 1 / tuning.playerFallSeconds),
+    pressure: approach(previous.pressure, target.pressure,
+      (tuning.maxPressure - 1) / tuning.riseSeconds,
+      (tuning.maxPressure - 1) / tuning.pressureFallSeconds),
+  };
+}
+function adaptiveValue(solo, coop) {
+  const state = adaptiveDifficulty || difficultyTarget();
+  return (solo + (coop - solo) * (state.count - 1)) * state.pressure;
 }
 function completeLoop() {
   musicState("NONE");
@@ -595,7 +626,7 @@ function hurt(p) {
 }
 function spawn() {
   wave++;
-  const count = players.length === 2 ? LEVEL1.formationCount2P : LEVEL1.formationCount1P;
+  const count = Math.round(adaptiveValue(LEVEL1.formationCount1P, LEVEL1.formationCount2P));
   // Keep heavy attributes even when the boat type wins (e.g. wave 35).
   const heavy = wave % LEVEL1.heavyWaveCadence === 0;
   const boat = wave % LEVEL1.boatWaveCadence === 0;
@@ -630,9 +661,11 @@ function update(dt) {
     return;
   }
   elapsed += dt;
+  updateAdaptiveDifficulty(dt);
   flash = Math.max(0, flash - dt);
   if (elapsed < LEVEL1.preBossDuration && elapsed >= wave * LEVEL1.waveInterval) spawn();
   if (elapsed >= LEVEL1.bossSpawnTime && !bossSpawned) {
+    const bossHP = Math.round(adaptiveValue(LEVEL1.bossHP1P, LEVEL1.bossHP2P) * loopDifficulty());
     bossSpawned = true;
     sfx.playSfx("boss_warning");
     musicState("BOSS");
@@ -640,8 +673,8 @@ function update(dt) {
       type: "boss",
       x: 300,
       y: -100,
-      hp: Math.round((players.length === 2 ? LEVEL1.bossHP2P : LEVEL1.bossHP1P) * loopDifficulty()),
-      max: Math.round((players.length === 2 ? LEVEL1.bossHP2P : LEVEL1.bossHP1P) * loopDifficulty()),
+      hp: bossHP,
+      max: bossHP,
       age: 0,
       shoot: 1,
     });
@@ -849,9 +882,9 @@ let hudClock = 0;
 // live references even if an update/render fails. It cannot advance a LAN game.
 function runGamePreview(state, callback) {
   const captureState = () => ({mode,elapsed,score,players,enemies,shots,hostile,drops,sparks,bossDebris,
-    wave,loop,loopTransition,bossSpawned,bossWreck,flash,ambient});
+    wave,loop,loopTransition,bossSpawned,bossWreck,flash,ambient,adaptiveDifficulty});
   const loadState = s => ({mode,elapsed,score,players,enemies,shots,hostile,drops,sparks,bossDebris,
-    wave,loop,loopTransition,bossSpawned,bossWreck,flash,ambient}=s);
+    wave,loop,loopTransition,bossSpawned,bossWreck,flash,ambient,adaptiveDifficulty}=s);
   const live = captureState();
   try { loadState(state); callback(); Object.assign(state,captureState()); }
   finally { loadState(live); }

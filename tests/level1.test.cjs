@@ -102,12 +102,14 @@ module.exports = ({ test, harness, near }) => {
       assert.deepEqual(rewards, [160]);
     }
   });
-  test("level1: dead teammate retains original 2P formation and Boss HP", () => {
+  test("level1: eliminated teammate smoothly reduces formation size and Boss HP", () => {
     const g = harness(true);
     g.run("players[1].lives=0;wave=0;spawn()");
     assert.equal(g.run("enemies.length"), 7);
+    g.run("updateAdaptiveDifficulty(5);enemies=[];wave=0;spawn()");
+    assert.equal(g.run("enemies.length"), 5);
     g.run("enemies=[];elapsed=175;update(0)");
-    assert.deepEqual(g.json("[enemies[0].hp,enemies[0].max]"), [1050,1050]);
+    assert.deepEqual(g.json("[enemies[0].hp,enemies[0].max]"), [650,650]);
   });
   test("enemy data: exact existing HP, speed, score and collision extents", () => {
     const g = harness();

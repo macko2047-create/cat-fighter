@@ -1,11 +1,20 @@
 "use strict";
-// Configuration only. Scheduling, original-player-count selection and spawning
+// Configuration only. Scheduling, adaptive difficulty and spawning
 // remain in game.js. Times are seconds; speed progression uses elapsed time.
 const LEVEL1 = Object.freeze({
   waveInterval: 4.2,
   preBossDuration: 175,
   formationCount1P: 5,
   formationCount2P: 7,
+  adaptive: Object.freeze({
+    weaponScores: Object.freeze([0, 1, 1.7, 2.1]),
+    rapidWeight: 1.5,
+    firepowerWeight: 0.2,
+    maxPressure: 1.35,
+    riseSeconds: 12,
+    playerFallSeconds: 5,
+    pressureFallSeconds: 4,
+  }),
   heavyWaveCadence: 5,
   heavyWaveCount: 2,
   // One mutually exclusive roll for one carrier in each heavy formation.

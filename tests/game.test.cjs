@@ -122,8 +122,8 @@ assert.equal(run("players[0].entering"), false);
 assert.equal(run("players[0].inv"), 3);
 run("wave=999;enemies=[];elapsed=150;update(0)");
 assert.equal(run("enemies.length+drops.length"),0,'no timed reward carriers');
-run("enemies=[];elapsed=175;update(0);enemies[0].y=135;enemies[0].shoot=0;update(0)");
-assert.equal(run("enemies[0].max"), 1103, '2P health scales by 5%, even with one teammate out');
+run("updateAdaptiveDifficulty(12);enemies=[];elapsed=175;update(0);enemies[0].y=135;enemies[0].shoot=0;update(0)");
+assert.equal(run("enemies[0].max"), 833, 'surviving solo three-way firepower and 5% loop scaling set Boss health');
 assert.ok(Math.abs(run("enemies[0].shoot") - 1.1 / 1.05) < 1e-9);
 assert.ok(Math.abs(run("Math.hypot(hostile[0].vx,hostile[0].vy)") - 150 * 1.05) < 1e-9);
 run("enemies[0].hp=1;bomb(players[0]);update(2.6)");
@@ -350,6 +350,57 @@ try {
   }
 } finally {sandbox.Math.random=originalRandom;}
 console.log('PASS: kamikaze Rapid, alternating boat upgrades, exclusive 50% Bomb / 10% 1UP rolls, no legacy supplies, slower final-phase bullets and per-loop scaling.');
+
+// Adaptive difficulty keeps upgrades rewarding and only affects future spawns.
+run("mode='over';joined.fill(true);start();spawn()");
+assert.equal(run('enemies.length'),7);
+assert.equal(run('difficultyTarget().pressure'),1);
+run('players.forEach(p=>Object.assign(p,{level:2}));updateAdaptiveDifficulty(12)');
+assert.ok(Math.abs(run('adaptiveDifficulty.pressure')-1.14)<1e-9);
+run('players.forEach(p=>Object.assign(p,{level:3,rapid:true}));updateAdaptiveDifficulty(1)');
+assert.ok(run('adaptiveDifficulty.pressure < 1.35'),'upgrades do not instantly raise pressure');
+run('updateAdaptiveDifficulty(12);enemies=[];spawn()');
+assert.equal(run('adaptiveDifficulty.pressure'),1.35);
+assert.equal(run('enemies.length'),9,'max-power coop adds two enemies');
+assert.equal(run('enemies[0].hp'),3,'small enemies retain their hit count');
+run('enemies=[];wave=4;spawn()');
+assert.equal(run('enemies.length'),2,'heavy formations retain their authored count');
+run('enemies=[];wave=6;spawn()');
+assert.equal(run('enemies.length'),9);
+assert.equal(run('enemies.filter(e=>e.reward).length'),1,'more boats do not multiply rewards');
+run('players[0].inv=0;hurt(players[0]);updateAdaptiveDifficulty(.8)');
+assert.equal(run('adaptiveDifficulty.count'),2,'respawning player still counts');
+run('players[0].lives=0;players[1].level=1;players[1].rapid=false;updateAdaptiveDifficulty(1)');
+assert.ok(Math.abs(run('adaptiveDifficulty.count')-1.8)<1e-9);
+run('updateAdaptiveDifficulty(4);enemies=[];wave=0;spawn()');
+assert.equal(run('adaptiveDifficulty.count'),1);
+assert.equal(run('adaptiveDifficulty.pressure'),1);
+assert.equal(run('enemies.length'),5,'eliminated teammate no longer forces coop formations');
+run('players[0].rejoinRemaining=0;tryRejoin(0);updateAdaptiveDifficulty(1)');
+assert.ok(run('adaptiveDifficulty.count > 1 && adaptiveDifficulty.count < 2'),'rejoin increases pressure gradually');
+run('updateAdaptiveDifficulty(12)');
+assert.equal(run('adaptiveDifficulty.count'),2);
+run("mode='over';joined[0]=true;joined[1]=false;start();players[0].level=3;players[0].rapid=true;updateAdaptiveDifficulty(12);elapsed=175;wave=999;update(0)");
+assert.equal(run('enemies[0].max'),878,'solo max-power boss has capped bonus HP');
+run('players[0].level=1;players[0].rapid=false;updateAdaptiveDifficulty(12);update(0)');
+assert.equal(run('enemies[0].max'),878,'existing boss HP stays fixed when weapons change');
+run("mode='over';joined.fill(true);start();players[0].lives=0;updateAdaptiveDifficulty(5);elapsed=175;wave=999;update(0)");
+assert.equal(run('enemies[0].max'),650,'boss uses surviving team size');
+run("mode='over';start();players.forEach(p=>{p.level=3;p.rapid=true});updateAdaptiveDifficulty(12)");
+run(`const adaptiveLive = adaptiveDifficulty;
+  const adaptiveScene = {mode,elapsed,score,players:[pilot(0)],enemies:[],shots:[],hostile:[],drops:[],sparks:[],bossDebris:[],
+    wave:0,loop:1,loopTransition:0,bossSpawned:false,bossWreck:null,flash:0,ambient:0};
+  runGamePreview(adaptiveScene,()=>{updateAdaptiveDifficulty(12);spawn()});`);
+assert.equal(run('adaptiveScene.enemies.length'),5,'preview starts with its own team difficulty');
+assert.equal(run('adaptiveDifficulty === adaptiveLive'),true,'preview restores live difficulty');
+run("mode='over';joined[1]=false;start()");
+assert.equal(run('adaptiveDifficulty.pressure'),1,'new game clears prior pressure');
+assert.equal(run('adaptiveDifficulty.count'),1);
+run('players[0].level=3;players[0].rapid=true;mode="paused";update(12)');
+assert.equal(run('adaptiveDifficulty.pressure'),1,'pause freezes adaptation');
+run('mode="playing";loopTransition=2;update(.5)');
+assert.equal(run('adaptiveDifficulty.pressure'),1,'loop transition freezes adaptation');
+console.log('PASS: adaptive team/firepower scaling, smoothing, death/rejoin, fixed Boss HP, rewards and preview isolation.');
 
 // The historical characterization suite remains available without --current.
 // It records superseded gameplay (one-shot victory, old drop rates) and art hashes.
