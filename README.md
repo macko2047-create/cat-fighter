@@ -1,8 +1,74 @@
 # Cat Fighter — Pacific Paws
 
+## 更新快取與 START 修復（2026-09-11）
+
+- 頁面的 JavaScript／CSS URL 使用檔案內容雜湊版本碼，避免新版 `game.js` 與瀏覽器快取的舊 `enemies.js` 混用，造成 `formationReward is not defined` 並中斷第一波動畫。
+- 修改 JavaScript／CSS 後，執行 `node tools/version-assets.cjs`，並同步更新 `index.html`；驗證使用 `node tools/version-assets.cjs --check`。
+- `tests/start-runtime-browser.cjs` 模擬舊快取，重現原本的 START 錯誤，再以版本化資源驗證兩款戰機能在真實 requestAnimationFrame 迴圈中持續遊玩。
+
+
+## Demo 與現行玩法同步（2026-09-11）
+
+- 74 秒示範循環：神風機 RAPID、第一船隊 2-WAY、下一船隊 3-WAY、中 Boss BOMB／1UP，均由實際射擊擊落攜帶者，再掉落與拾取，沒有預先放置浮空獎勵。
+- 中 Boss 章節明確標示掉落示例，說明 50% BOMB、10% 1UP、40% 無獎勵；示例固定展示指定結果，不表示每隊必掉。
+- 船隊和中 Boss 的獎勵判定與正式遊戲共用 `formationReward`。新增第二周目 +5% 示範，使用正式編隊生成與倍率；Boss 章節說明最後階段密集但較慢的彈幕。
+- 保留觸控拖曳、放手停火、雙擊炸彈，並接入現行單人選機流程。短橫向螢幕手勢提示與 START 留有間距。
+- `tests/arcade-browser.cjs` 使用 Playwright 內附 headless Chromium 驗證實際擊落／掉落／拾取、章節循環、正式遊戲狀態隔離、手機／橫向／桌面排版與選機／重試流程。下文舊 60 秒循環描述由本節取代。
+
+
+## 編隊獎勵與周目（2026-09-11 更新）
+
+- 神風機（有蓄力衝刺狀態的小型敵機）必帶 RAPID，擊落後掉落。
+- 每波船隊固定一艘帶火力獎勵：2-WAY → 3-WAY → 2-WAY 循環，按船隊出現次序推進；漏掉或未拾取不會改變順序，每周目重置為 2-WAY。第 35 波重疊編隊按船隊處理。
+- 每波中 Boss 機隊固定第一架作獎勵候選，只抽一次：50% BOMB、10% 1UP、40% 無獎勵，三種結果互斥。
+- 不再生成定時補給、定時 1UP 或重生／重新加入補給；場上既有獎勵不會阻擋下一編隊攜帶獎勵。
+- Final Boss 最後階段基礎彈速由 210 降至 120。每周目保留線性 +5% 難度：敵機移動／衝刺、敵彈速度、射擊頻率及 Boss 血量遞增；神風機預警時間維持不變。
+- 驗證：`node tests/game.test.cjs --current`、`node --test tests/charge.test.cjs tests/net-protocol.test.cjs`。下文舊定時／重生補給描述由本節取代。
+
+
+## 觸控單人與連線選機（2026-09-11）
+
+- 現行介面以每台一人觸控為主：隱藏手掣設定／秘技入口與同機雙人選項，忽略已連接手掣，不顯示遊戲中第二人加入。
+- 單人選機只顯示「YOUR AIRCRAFT」，可選 GINGER 或 MINT，CONFIRM 後 START；兩款都只建立一名玩家。
+- 建房等待期間只顯示自己的選擇；另一台接通後才顯示雙方。各台只能選自己的戰機；主機同步選機與確認狀態，雙方 READY 後由主機開始。選機期間斷線會清除另一方確認，重連後須重新確認。
+- GINGER／MINT 僅外觀不同，共用能力、射擊、碰撞與獎勵規則。難度按玩家數計算：單人普通編隊 5 架、Boss HP 650；雙人 7 架、1050。獎勵按上述編隊規則產生，與選哪款戰機無關。
+- 現行驗證：`tests/aircraft-menu-browser.cjs`、`tests/aircraft-network-browser.cjs`、`tests/coop-menu-browser.cjs`、`tests/net-protocol.test.cjs`、`tests/lan.test.cjs`。後文的手掣、同機雙人及 drop-in 說明／測試保留作舊版記錄，並非現行觸控介面的驗收條件。
+
+
 原創貓鼠二戰戰機直向射擊遊戲，支援本機一至兩人。遊戲執行無套件或網絡依賴，使用 Canvas、內附 PNG 素材與 Web Audio。
 
 大佬損毀階段新增金屬碎片：75%／50%／25%／10% 門檻觸發飛散、翻滾及淡出；詳細行為與驗證見 `docs/BOSS-DAMAGE.md`。
+
+## 遊戲途中加入第二位玩家（2026-09-11）
+
+- 本機單人遊戲中可用 HUD 的 P1／P2 JOIN，再按 CONFIRM JOIN；新手掣可用焦點框選取同一組按鈕。只連接或按首次按鍵不會直接加入。
+- 新玩家使用另一款戰機，帶初始火力、3 命及 3 枚炸彈從底部入場，到位後 3 秒無敵。原玩家物件、進度及已生成敵人維持不變。
+- 暫停、過關間隔及連線局不提供此入口。已存在但死亡的玩家繼續沿用死亡倒數；重新插入手掣不會重設倒數。
+- `tests/drop-in-browser.cjs` 驗證觸控／手掣加入、取消、P2 單人局加入 P1、狀態保留及正常死亡續玩。
+
+## 單邊 Joy-Con 與休眠（2026-09-11）
+
+- 自動模式支援單獨左／右 Joy-Con 的標準瀏覽器輸入，並沿用合併模式的邏輯手掣身分；正在進行的單人遊戲如尚未綁定手掣，按鍵即可接管該玩家。
+- 未參與遊戲的手掣斷線不會暫停。合併裝置轉成單邊時給瀏覽器 500ms 完成重綁；只有仍缺少正在控制存活玩家的手掣才暫停。
+- 單邊實體按鍵轉換依據 [Chromium Nintendo controller mapping](https://chromium.googlesource.com/chromium/src/+/HEAD/device/gamepad/nintendo_controller.cc)，避免把已轉為橫握的標準輸入再當成合併裝置。
+- `tests/controller-single-browser.cjs` 覆蓋左右單支、單人接管、未用半支休眠及使用中手掣斷線。
+
+## 即插即用手掣配對（2026-09-11）
+
+- 已識別的合併 Joy-Con 預設左半支 P1、右半支 P2，不受先按哪邊影響；裝置名稱使用左／右半支，玩家標籤顯示實際配對。
+- 在 `joypad` 設定頁移動／按鍵可亮起裝置卡。按 PAIR CONTROLLER TO P1／P2 後，放開並按目標手掣任意鍵即可配對；必要時交換兩位玩家的手掣，CANCEL 可取消。進行中的遊戲／連線局不允許改配對。
+- 校準及可辨認的配對記在此瀏覽器；重連時對唯一相同型號裝置重新綁定瀏覽器索引。同名整支手掣無法可靠辨認時仍依加入順序。
+- 技術讀值、按鍵映射及手動校準收進 Advanced；測試按鍵不會直接關閉設定。Restore Joy-Con defaults 同時清除半支自訂玩家配對。
+- `tests/controller-setup-browser.cjs` 使用使用者匯出檔所示的硬體配置驗證。
+
+## 選機及雙人面板（2026-09-11）
+
+- 開始畫面按 START 進入選機；P1／P2 各有觸控操作區及實際戰機圖格。先加入，再預選及 CONFIRM；先確認者佔用該款，另一人只能確認剩餘戰機。
+- CANCEL CHOICE 只解除鎖定；獨立 LEAVE / SOLO 隨時退出（包括已 READY），手掣可保持連接。所有仍參與的玩家確認後，START 閃動。確認與開始是分開的操作。
+- 搖桿／十字掣依固定按鈕列上下左右移動 P1／P2 焦點框；推動一次後回中才進行下一次移動，避免斜推抖動連跳。再移動焦點框，再用畫面標示的選取鍵執行該按鈕；加入、戰機、CONFIRM、CANCEL CHOICE、LEAVE 及 START 都以畫面按鈕操作，不使用炸彈／暫停鍵作選單捷徑。鍵盤用 P1 A/D/F/G、P2 左右/K/L，Enter 開始。
+- TWO-PLAYER 可選 SAME SCREEN、CREATE ROOM（P1）或 JOIN ROOM（P2）。房間碼可用觸控數字鍵盤或搖桿導航輸入；連線後明確標示身分及等待／就緒狀態，僅房主可 START／RESUME。原有 Wi-Fi LAN 操作保留在展開區。
+- 在開始／選機畫面輸入 `joypad` 開啟隱藏手掣設定。
+- 驗證：`tests/aircraft-menu-browser.cjs`、`tests/coop-menu-browser.cjs`；使用 Playwright 內附 headless Chromium。連線面板測試以記憶體 transport 驅動實際 LAN 協調器，不連接外部服務。
 
 ## 街機介面與雙人續玩（2026-09-09）
 
@@ -42,9 +108,9 @@ python3 -m http.server 8765 --bind 127.0.0.1
 
 1. 先在 macOS 藍牙連接兩個手掣。
 2. 在遊戲開始畫面，各自按一下非開始用的按鈕，登記為 P1、P2。
-3. 開啟頂部「手掣測試 / 按鍵設定」，確認兩個裝置、Axes 及 Buttons 各自有反應。
+3. 在開始／選機畫面輸入 `joypad` 開啟設定，確認兩個裝置、Axes 及 Buttons 各自有反應。
 4. 如射擊、炸彈或暫停位置有誤，使用對應「設定」按鈕重新指定實體按鈕。設定依裝置名稱保存在本機；同款手掣共用按鍵設定。
-5. 關閉設定，按 A 或 ＋ 開始。
+5. 關閉設定，用搖桿移動焦點框，按畫面標示的選取鍵執行選機及 CONFIRM；全員 READY 後選中 START 再執行。
 
 預設採 Switch Pro 標準映射：A = button 1，B = button 0，＋ = button 9。搖桿死區預設 10%，在「手掣測試 / 按鍵設定」可調 0–50%，即時套用到整支與半支手掣並儲存在瀏覽器。十字掣不受死區影響。
 

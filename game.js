@@ -19,9 +19,6 @@ let mode = "ready",
   loopTransition = 0,
   bossSpawned = false,
   bossWreck = null,
-  nextSupply = 50,
-  extraLifeSpawned = false,
-  recoveryRewardPending = false,
   flash = 0,
   last = 0,
   ambient = 0,
@@ -60,10 +57,24 @@ const sfx = createAudio(window, () => sound && !window.arcade?.simulating);
 function musicState(state) {
   if (!window.arcade?.simulating) sfx.setMusicState(state);
 }
+const touchOnly = () => document.body?.dataset?.inputMode === "touch";
 const pads = () => {
-  const raw = Array.from(navigator.getGamepads?.() || []).filter(Boolean);
+  if (touchOnly()) return [];
+  const raw = Array.from(navigator.getGamepads?.() || []).filter(p => p && p.connected !== false);
   return window.halfControllers ? window.halfControllers.read(raw) : raw;
 };
+// A split controller carries a preferred player; whole pads use first free slot.
+function availableControllerSlot(p) {
+  if (mode === 'playing' || mode === 'paused') {
+    const player = players.find(player => player.lives > 0 && assignments[player.controlSlot ?? player.index] === null)
+      || players.find(player => assignments[player.controlSlot ?? player.index] === null);
+    return player ? player.controlSlot ?? player.index : -1;
+  }
+  const preferred = window.controllerSetup?.preferredSlot(p) ?? p.preferredSlot;
+  if (Number.isInteger(preferred) && assignments[preferred] === null) return preferred;
+  return assignments.indexOf(null);
+}
+function controllerName(p) { return p.displayName || p.id; }
 const config = (p) => bindings[p.id] || { fire: 1, bomb: 0, pause: 9 };
 function pilot(i) {
   return {
@@ -82,12 +93,14 @@ function pilot(i) {
   };
 }
 function start() {
+  if (window.aircraftMenu && !window.aircraftMenu.beforeStart()) return;
   if (window.arcade && !window.arcade.beforeStart()) return;
   if (window.lan?.active) {
     if (!window.lan.canStart()) return;
     joined.fill(true);
   }
   if (mode === "playing") return;
+  if (touchOnly() && !window.lan?.active) { joined[0] = true; joined[1] = false; }
   if (!joined.some(Boolean)) joined[0] = true;
   players = joined.flatMap((active, slot) => active ? [{...pilot(0), controlSlot:slot, aircraft:aircraft[slot]}] : []);
   players.forEach((p,i) => { p.index=i; p.x=players.length===1?300:i?365:235; });
@@ -96,9 +109,6 @@ function start() {
   loopTransition = 0;
   bossSpawned = false;
   bossWreck = null;
-  nextSupply = LEVEL1.pickupInterval;
-  extraLifeSpawned = false;
-  recoveryRewardPending = false;
   enemies = [];
   shots = [];
   hostile = [];
@@ -123,7 +133,6 @@ function tryRejoin(index) {
     !p || p.lives > 0 || p.rejoinRemaining > 0 || !players.some(other => other !== p && other.lives > 0)) return false;
   // A fresh sortie for this pilot; the teammate and shared score keep going.
   Object.assign(p, pilot(index), { y: H + 55, entering: true, inv: 3, rapid: false, notice: '', noticeUntil: 0 });
-  recoveryRewardPending = true;
   if (index === 0) window.flightControls?.reset();
   sfx.playSfx("playerJoined");
   updateHUD();
@@ -152,8 +161,6 @@ function nextLoop() {
   elapsed = wave = 0;
   bossSpawned = false;
   bossWreck = null;
-  nextSupply = LEVEL1.pickupInterval;
-  extraLifeSpawned = false;
   enemies = [];
   hostile = [];
   shots = [];
@@ -176,6 +183,7 @@ function nextLoop() {
 }
 function show(title, message) {
   if (window.arcade?.simulating) return;
+  if (window.lan?.active) window.aircraftMenu?.reset();
   musicState("NONE");
   window.flightControls?.reset();
   window.flightControls?.sync();
@@ -225,7 +233,27 @@ $("#close").onclick = () => $("#settings").close();
 $("#settings").addEventListener("close", () => {
   capture = null;
 });
+let controllerSecret = "";
 window.addEventListener("keydown", (e) => {
+  const onStartMenu = mode === "ready" && (!window.arcade || ["demo", "game"].includes(window.arcade.phase));
+  if (touchOnly() || !onStartMenu || $("#settings").open || $("#lan-dialog").open ||
+      /^(INPUT|TEXTAREA|SELECT)$/.test(e.target?.tagName) || e.target?.isContentEditable ||
+      e.ctrlKey || e.metaKey || e.altKey || e.isComposing) {
+    controllerSecret = "";
+  } else if (!e.repeat) {
+    const letter = (e.key || (/^Key[A-Z]$/.test(e.code) ? e.code.slice(3) : "")).toLowerCase();
+    controllerSecret += letter.length === 1 ? letter : " ";
+    while (controllerSecret && !"joypad".startsWith(controllerSecret)) controllerSecret = controllerSecret.slice(1);
+    if (controllerSecret === "joypad") {
+      controllerSecret = "";
+      keys.clear();
+      e.preventDefault();
+      $("#test").onclick();
+      return;
+    }
+  }
+  if (window.coopMenu?.key(e)) return;
+  if (window.aircraftMenu?.key(e)) return;
   if (window.arcade?.key(e)) return;
   if (window.lan?.key(e)) return;
   if (
@@ -265,14 +293,18 @@ window.addEventListener("keydown", (e) => {
 });
 window.addEventListener("keyup", (e) => keys.delete(e.code));
 window.addEventListener("blur", () => {
+  controllerSecret = "";
   keys.clear();
   if (mode === "playing") pause("Window lost focus. Game paused.");
 });
 document.addEventListener("visibilitychange", () => {
   if (document.hidden && mode === "playing") pause("Game paused.");
 });
+function controllerInUse(index) {
+  return players.some(p => p.lives > 0 && assignments[p.controlSlot ?? p.index] === index);
+}
 window.addEventListener("gamepaddisconnected", (e) => {
-  if (assignments.includes(e.gamepad.index) && mode === "playing")
+  if (controllerInUse(e.gamepad.index) && mode === "playing")
     pause("Controller disconnected. Reconnect or use the keyboard to continue.");
   for (let i = 0; i < 2; i++)
     if (assignments[i] === e.gamepad.index) assignments[i] = null;
@@ -280,18 +312,19 @@ window.addEventListener("gamepaddisconnected", (e) => {
   renderDevices();
 });
 function renderDevices() {
-  const list = pads();
+  const playerOrder = p => assignments.indexOf(p.index) < 0 ? 2 : assignments.indexOf(p.index);
+  const list = pads().sort((a,b) => playerOrder(a)-playerOrder(b));
   $("#devices").innerHTML = list.length
     ? list
         .map(
           (p) =>
-            `<div class="device" data-pad="${p.index}"><b></b><pre></pre><button data-action="fire">Map Fire</button><button data-action="bomb">Map Bomb</button><button data-action="pause">Map Pause</button></div>`,
+            `<div class="device" data-pad="${p.index}"><b></b><p class="device-feedback">Move the stick or press a button to identify this controller.</p><details><summary>Advanced button mapping / input values</summary><pre></pre><button data-action="fire">Map Select / Fire</button><button data-action="bomb">Map Bomb</button><button data-action="pause">Map Pause</button></details></div>`,
         )
         .join("")
     : "<p>No controller detected. Press a button on a connected controller.</p>";
   list.forEach((p) => {
     $(`[data-pad="${p.index}"] b`).textContent =
-      `${assignments.indexOf(p.index) >= 0 ? "P" + (assignments.indexOf(p.index) + 1) : "Not joined"} · ${p.id}`;
+      `${assignments.indexOf(p.index) >= 0 ? "P" + (assignments.indexOf(p.index) + 1) : "Not joined"} · ${controllerName(p)}`;
   });
   $("#devices")
     .querySelectorAll("button")
@@ -299,7 +332,7 @@ function renderDevices() {
       (b) =>
         (b.onclick = () => {
           capture = {
-            index: Number(b.parentElement.dataset.pad),
+            index: Number(b.closest("[data-pad]").dataset.pad),
             action: b.dataset.action,
           };
           $("#mapping").textContent =
@@ -309,6 +342,11 @@ function renderDevices() {
 }
 let deviceSignature = "";
 function poll() {
+  window.dropIn?.sync();
+  if (window.controllerSetup?.poll()) return;
+  if (window.coopMenu?.poll()) return;
+  if ($("#lan-dialog").open) return;
+  if (window.aircraftMenu?.poll()) return;
   if (window.lan?.active) { window.lan.poll(); return; }
   for (const p of pads()) {
     const c = config(p),
@@ -316,6 +354,7 @@ function poll() {
       pressed = p.buttons.map((b) => b.pressed),
       edge = (i) => pressed[i] && !prev[i];
     const fresh = pressed.findIndex((v, i) => v && !prev[i]);
+    if (window.dropIn?.handlePad(p, pressed, prev)) { previous.set(p.index,pressed); continue; }
     if (capture && capture.index === p.index && fresh >= 0) {
       const next = { ...c };
       for (const action of ["fire", "bomb", "pause"])
@@ -328,14 +367,13 @@ function poll() {
       } catch {}
       capture = null;
       $("#mapping").textContent = "Button mappings saved.";
-    } else if ($("#settings").open && edge(c.bomb)) {
-      $("#settings").close();
     } else if (!$("#settings").open) {
       if (!assignments.includes(p.index) && fresh >= 0) {
-        const slot = assignments.indexOf(null);
+        const slot = availableControllerSlot(p);
         if (
           slot >= 0 &&
           (mode === "ready" ||
+            mode === "playing" ||
             mode === "over" ||
             mode === "win" ||
             mode === "paused")
@@ -533,15 +571,6 @@ function kill(e, p) {
     completeLoop();
   } else if (e.reward) supply(e.x, e.y, e.reward.type, e.reward.weapon);
 }
-function rewardCarrier(x, type, weapon) {
-  enemies.push({type:"heavy",x,y:-80,hp:ENEMY_DEFINITIONS.heavy.baseHP,
-    v:ENEMY_DEFINITIONS.heavy.speed*loopDifficulty(),phase:0,shoot:2,age:0,
-    reward:{type,weapon}});
-}
-function rewardActive() {
-  return enemies.some(e => e.reward && !e.killed && e.hp > 0 && e.y < H + 70) ||
-    drops.some(d => !d.dead && d.y < H + 20);
-}
 function supply(x, y, type, weaponType) {
   const weapon = type === "W" ? weaponType || ["rapid", "double", "spread"][Math.floor(Math.random() * 3)] : null;
   drops.push({ x, y, type, ...(type === "W" ? { weapon } : {}) });
@@ -584,10 +613,11 @@ function spawn() {
     };
     enemy.v *= enemy.difficulty;
     if (!heavy && !boat) configureSmallFlight(enemy, wave, i, count);
-    // A single BOMB carrier appears only every third heavy formation (waves
-    // 15, 30, ...), so the two-plane medium-boss wave is no longer a bonus farm.
-    if (enemy.type === "heavy" && i === 0 && !rewardActive() && (wave / LEVEL1.heavyWaveCadence) % LEVEL1.heavyBombCadence === 0)
-      enemy.reward={type:"B"};
+    // Rewards belong to a formation, independent of uncollected drops.
+    if (i === 0) {
+      const reward = formationReward(enemy.type, wave);
+      if (reward) enemy.reward = reward;
+    }
     enemies.push(enemy);
   }
 }
@@ -600,21 +630,6 @@ function update(dt) {
     return;
   }
   elapsed += dt;
-  // Queue one recovery carrier; existing rewards must leave the field first.
-  if (recoveryRewardPending && !rewardActive()) {
-    rewardCarrier(rnd(80, 520), "W", ["rapid", "double", "spread"][Math.floor(Math.random() * 3)]);
-    recoveryRewardPending = false;
-  }
-  if (elapsed >= nextSupply && nextSupply < LEVEL1.preBossDuration && !rewardActive()) {
-    const supplyX = rnd(80, 520);
-    // Defer each reward until the previous carrier/drop is gone.
-    rewardCarrier(supplyX, "W", ["rapid", "double", "spread"][Math.round(nextSupply / LEVEL1.pickupInterval) - 1]);
-    nextSupply += LEVEL1.pickupInterval;
-  }
-  if (!extraLifeSpawned && elapsed >= LEVEL1.extraLifeTime && !rewardActive()) {
-    extraLifeSpawned = true;
-    rewardCarrier(300, "1UP");
-  }
   flash = Math.max(0, flash - dt);
   if (elapsed < LEVEL1.preBossDuration && elapsed >= wave * LEVEL1.waveInterval) spawn();
   if (elapsed >= LEVEL1.bossSpawnTime && !bossSpawned) {
@@ -642,7 +657,6 @@ function update(dt) {
         p.x = p.index ? 365 : 235;
         p.y = H + 55;
         p.entering = true;
-        recoveryRewardPending = true;
         p.inv = 3;
         p.cool = 0;
       }
@@ -835,9 +849,9 @@ let hudClock = 0;
 // live references even if an update/render fails. It cannot advance a LAN game.
 function runGamePreview(state, callback) {
   const captureState = () => ({mode,elapsed,score,players,enemies,shots,hostile,drops,sparks,bossDebris,
-    wave,loop,loopTransition,bossSpawned,bossWreck,nextSupply,extraLifeSpawned,recoveryRewardPending,flash,ambient});
+    wave,loop,loopTransition,bossSpawned,bossWreck,flash,ambient});
   const loadState = s => ({mode,elapsed,score,players,enemies,shots,hostile,drops,sparks,bossDebris,
-    wave,loop,loopTransition,bossSpawned,bossWreck,nextSupply,extraLifeSpawned,recoveryRewardPending,flash,ambient}=s);
+    wave,loop,loopTransition,bossSpawned,bossWreck,flash,ambient}=s);
   const live = captureState();
   try { loadState(state); callback(); Object.assign(state,captureState()); }
   finally { loadState(live); }
@@ -853,6 +867,8 @@ function frame(ts) {
   const dt = Math.min((ts - last) / 1000 || 0, 0.035);
   last = ts;
   if (window.arcade?.frame(dt)) {
+    // The attract screen also owns the start menu and controller settings.
+    if (window.arcade.phase === "demo") poll();
     requestAnimationFrame(frame);
     return;
   }

@@ -100,7 +100,7 @@ function createLanServer({handleRequest}={}) {
           send(room.host,'input',{
             x:axis(body.input?.x),y:axis(body.input?.y),fire:body.input?.fire===true,
             target:target && Number.isFinite(target.x)&&Number.isFinite(target.y) ? {x:Math.max(24,Math.min(576,target.x)),y:Math.max(60,Math.min(775,target.y))} : null,
-            actions:Array.isArray(body.actions)?body.actions.filter(a=>['bomb','rejoin','pause'].includes(a)).slice(0,8):[]
+            actions:Array.isArray(body.actions)?body.actions.filter(a=>['bomb','rejoin','pause','aircraft-0','aircraft-1','confirm-aircraft','cancel-aircraft'].includes(a)).slice(0,8):[]
           });
           return reply(res,200,{});
         }

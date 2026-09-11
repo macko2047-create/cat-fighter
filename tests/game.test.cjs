@@ -79,7 +79,7 @@ run("for(let i=0;i<3;i++){players[0].inv=0;hurt(players[0]);if(i<2){update(.8);u
 assert.equal(run("mode"), "playing");
 run("for(let i=0;i<3;i++){players[1].inv=0;hurt(players[1]);if(i<2){update(.8);update(.8)}}");
 assert.equal(run("mode"), "over");
-run("start();nextSupply=999;extraLifeSpawned=true;elapsed=175;update(.016)");
+run("start();elapsed=175;update(.016)");
 assert.equal(run("enemies.filter(e=>e.type==='boss').length"), 1);
 run("enemies[0].hp=1;bomb(players[0])");
 assert.equal(run("mode"), "playing");
@@ -91,7 +91,7 @@ assert.equal(run("elapsed"), 0);
 // A killing shot wins the encounter before same-frame contact/hostile damage.
 run(`mode='over';joined.fill(true);start();
   Object.assign(players[0], {lives:2,level:3,bombs:4,inv:0,x:300,y:135});
-  players[1].lives=0;score=1234;nextSupply=999;extraLifeSpawned=true;elapsed=175;update(0);
+  players[1].lives=0;score=1234;elapsed=175;update(0);
   const clearedBoss=enemies.find(e=>e.type==='boss');
   clearedBoss.y=135;clearedBoss.hp=.2;
   shots=[{x:300,y:135,vx:0,owner:players[0]}];
@@ -120,16 +120,8 @@ assert.ok(Math.abs(run("enemies[0].v") - 85 * 1.05) < 1e-9);
 run("update(.8)");
 assert.equal(run("players[0].entering"), false);
 assert.equal(run("players[0].inv"), 3);
-run("wave=999;enemies=[];elapsed=60;update(0)");
-assert.equal(run("enemies.find(d=>d.reward?.type==='W').reward.weapon"), 'rapid');
-run("elapsed=100;update(0)");
-assert.equal(run("enemies.filter(e=>e.reward).length"), 1, 'reward carriers never overlap');
-run("enemies=[];drops=[];update(0)");
-assert.equal(run("enemies.find(e=>e.reward).reward.weapon"), 'double');
-run("enemies=[];update(0)");
-assert.equal(run("enemies.filter(e=>e.reward?.type==='1UP').length"), 1);
-run("enemies=[];elapsed=150;update(0)");
-assert.equal(run("enemies.find(e=>e.reward).reward.weapon"), 'spread');
+run("wave=999;enemies=[];elapsed=150;update(0)");
+assert.equal(run("enemies.length+drops.length"),0,'no timed reward carriers');
 run("enemies=[];elapsed=175;update(0);enemies[0].y=135;enemies[0].shoot=0;update(0)");
 assert.equal(run("enemies[0].max"), 1103, '2P health scales by 5%, even with one teammate out');
 assert.ok(Math.abs(run("enemies[0].shoot") - 1.1 / 1.05) < 1e-9);
@@ -142,7 +134,7 @@ assert.equal(run("loopDifficulty()"), 1.1, 'difficulty grows linearly');
 run("players[0].entering=false;players[0].respawn=0;players[0].lives=1;players[0].inv=0;hurt(players[0])");
 assert.equal(run("mode"), 'over');
 assert.equal(elements.get('#overlay h2').innerHTML, 'GAME OVER');
-run("joined[0]=true;joined[1]=false;start();elapsed=175;enemies=[];nextSupply=999;extraLifeSpawned=true;update(0)");
+run("joined[0]=true;joined[1]=false;start();elapsed=175;enemies=[];update(0)");
 assert.equal(run("loop"), 1);
 assert.equal(run("score"), 0);
 assert.equal(run("enemies[0].max"), 650, 'retry resets difficulty and 1P boss health');
@@ -205,7 +197,7 @@ assert.equal(run('hostile.length'),1);
 run('update(0)');
 assert.equal(run('hostile.length'),12);
 assert.equal(run('enemies[0].shoot'),.32);
-assert.ok(Math.abs(run('Math.hypot(hostile[1].vx,hostile[1].vy)')-210)<1e-8);
+assert.ok(Math.abs(run('Math.hypot(hostile[1].vx,hostile[1].vy)')-120)<1e-8);
 
 for (const max of [650,1050,1102]) {
   run(`var rageProbe={type:'boss',x:300,y:135,hp:${max}*.1+5,max:${max}};
@@ -218,12 +210,12 @@ for (const max of [650,1050,1102]) {
 
 // Simulate rage volleys travelling to a stationary player, without invulnerability.
 run(`mode='over';joined[0]=true;joined[1]=false;start();elapsed=180;wave=999;bossSpawned=true;
-  nextSupply=999;extraLifeSpawned=true;keys.clear();
+  keys.clear();
   Object.assign(players[0],{entering:false,respawn:0,inv:0,x:300,y:690});
   enemies=[{type:'boss',x:300,y:135,hp:65,max:650,age:0,shoot:0}];
-  for(var tick=0;tick<240;tick++)update(1/60);`);
+  for(var tick=0;tick<420;tick++)update(1/60);`);
 assert.ok(run('players[0].lives')<3,'rage bullets reach and hurt a stationary player');
-console.log('PASS: rage resistance, crossing bombs, immediate fire, faster bullets and stationary-player danger.');
+console.log('PASS: rage resistance, crossing bombs, immediate fire, slower bullets and stationary-player danger.');
 
 // Check call arguments, since bomb/tryRejoin also tolerate missing players internally.
 run(`var savedBomb = bomb, savedRejoin = tryRejoin, inputCalls = [];
@@ -258,7 +250,6 @@ for (const [type, width, height, contact] of [
   for (const [dx,dy,hit] of [[width-.01,0,true],[0,height-.01,true],
     [width,0,false],[0,height,false]]) {
     run(`mode='over';joined.fill(false);joined[0]=true;start();wave=999;
-      nextSupply=999;extraLifeSpawned=true;
       enemies=[{type:'${type}',x:300,y:135,hp:3,v:0,phase:0,age:0,shoot:999}];
       shots=[{x:300+${dx},y:135+${dy},vx:0,owner:players[0]}];update(0);`);
     assert.equal(run('enemies[0].hp'),hit?2:3, `${type} hitbox at ${dx},${dy}`);
@@ -278,8 +269,7 @@ gamepads = [];
 for (const level of [1, 2, 3]) {
   for (const rapid of [false, true]) {
     for (const weapon of ['rapid', 'double', 'spread', null]) {
-      run(`mode='over';joined.fill(true);start();wave=999;nextSupply=999;
-        extraLifeSpawned=true;enemies=[];keys.clear();
+      run(`mode='over';joined.fill(true);start();wave=999;enemies=[];keys.clear();
         players[0].level=${level};players[0].rapid=${rapid};
         players[1].level=2;players[1].rapid=true;
         supply(players[0].x,players[0].y,'W','double');
@@ -297,25 +287,69 @@ for (const level of [1, 2, 3]) {
 }
 console.log('PASS: 24 reward combinations, pattern-change speed reset, same-pattern retention, Rapid reacquisition and actual firing cadence.');
 
-// Recovery supplies defer behind active rewards and work during the Boss fight.
-run(`mode='over';joined.fill(true);start();wave=999;nextSupply=999;
-  extraLifeSpawned=true;elapsed=180;bossSpawned=true;
-  players.forEach(p=>{p.inv=0;hurt(p)});update(.8);`);
-assert.equal(run('recoveryRewardPending'), true);
-run("supply(300,300,'B');update(0)");
-assert.equal(run('enemies.filter(e=>e.reward).length'), 0, 'existing drop defers recovery');
-assert.equal(run('recoveryRewardPending'), true);
-run('drops=[];update(0);update(0)');
-assert.equal(run('enemies.filter(e=>e.reward).length'), 1, 'simultaneous respawns share one carrier');
-assert.equal(run('enemies[0].reward.type'), 'W');
-assert.equal(run('nextSupply'), 999, 'recovery does not consume scheduled supplies');
-run('kill(enemies[0],players[0])');
-assert.equal(run('drops[0].type'), 'W', 'carrier drops a collectible weapon');
-run(`enemies=[];drops=[];Object.assign(players[0],{lives:0,rejoinRemaining:0});tryRejoin(0);update(0)`);
-assert.equal(run('enemies.filter(e=>e.reward).length'), 1, 'co-op rejoin also triggers a reward');
-run("recoveryRewardPending=true;mode='over';start()");
-assert.equal(run('recoveryRewardPending'), false, 'new game clears pending recovery');
-console.log('PASS: death resets firepower; recovery and rejoin queue one weapon carrier, including during Boss fights.');
+// No bonus carriers are injected by timers, death or co-op rejoin.
+run(`mode='over';joined.fill(true);start();wave=999;elapsed=180;bossSpawned=true;
+  players.forEach(p=>{p.inv=0;hurt(p)});update(.8);update(0);`);
+assert.equal(run('enemies.length'),0);
+run(`Object.assign(players[0],{lives:0,rejoinRemaining:0});tryRejoin(0);update(0)`);
+assert.equal(run('enemies.length'),0);
+for (const time of [50,100,150]) {
+  run(`elapsed=${time};update(0)`);
+  assert.equal(run('enemies.length+drops.length'),0,'no legacy timed supplies');
+}
+
+// Formation rewards use actual spawning, killing and deterministic rolls.
+const originalRandom = sandbox.Math.random;
+try {
+  for (const two of [false,true]) {
+    run(`mode='over';joined[0]=true;joined[1]=${two};start()`);
+    // Existing uncollected rewards must never suppress the next carrier.
+    run("supply(300,300,'B')");
+    for (const n of [7,14,21,28,35,42]) {
+      run(`enemies=[];wave=${n-1};spawn()`);
+      const weapon = (n/7)%2 ? 'double' : 'spread';
+      assert.equal(run('enemies.filter(e=>e.reward).length'),1);
+      assert.equal(run('enemies[0].type'),'boat');
+      assert.equal(run('enemies[0].reward.weapon'),weapon);
+      run('kill(enemies[0],players[0]);kill(enemies[0],players[0])');
+      assert.equal(run('drops.at(-1).weapon'),weapon);
+    }
+    run('nextLoop();enemies=[];wave=6;spawn()');
+    assert.equal(run('enemies[0].reward.weapon'),'double','boat cycle restarts each loop');
+    for (const [roll,type] of [[0,'B'],[.499999,'B'],[.5,'1UP'],[.599999,'1UP'],[.6,null],[.999999,null]]) {
+      sandbox.Math.random=()=>roll;
+      for (const n of [5,10,15,20,30,40]) {
+        run(`enemies=[];wave=${n-1};spawn()`);
+        assert.equal(run('enemies.filter(e=>e.reward).length'),type ? 1 : 0);
+        if (type) {
+          assert.equal(run('enemies[0].reward.type'),type);
+          const before=run('drops.length');
+          run('kill(enemies[0],players[0]);kill(enemies[0],players[0])');
+          assert.equal(run('drops.length'),before+1,'carrier drops only once');
+          assert.equal(run('drops.at(-1).type'),type);
+        }
+      }
+    }
+    sandbox.Math.random=()=>.1;
+    for (const n of [4,6,8,12]) {
+      run(`enemies=[];wave=${n-1};spawn()`);
+      assert.equal(run('enemies.filter(e=>e.chargeState).length'),1);
+      assert.equal(run('JSON.stringify(enemies.find(e=>e.chargeState).reward)'),'{"type":"W","weapon":"rapid"}');
+      run('kill(enemies.find(e=>e.chargeState),players[0])');
+      assert.equal(run('drops.at(-1).weapon'),'rapid');
+    }
+  }
+  for (const cycle of [1,2,3,5]) {
+    run(`mode='over';joined[0]=true;joined[1]=false;start();loop=${cycle};spawn()`);
+    const factor=1+(cycle-1)*.05;
+    assert.ok(Math.abs(run('enemies[0].v')-85*factor)<1e-8);
+    run('enemies=[];elapsed=175;wave=999;update(0);enemies[0].y=135;enemies[0].hp=1;enemies[0].shoot=0;update(0)');
+    assert.equal(run('enemies[0].max'),Math.round(650*factor));
+    assert.ok(Math.abs(run('Math.hypot(hostile[0].vx,hostile[0].vy)')-120*factor)<1e-8);
+    assert.ok(Math.abs(run('enemies[0].shoot')-.32/factor)<1e-8);
+  }
+} finally {sandbox.Math.random=originalRandom;}
+console.log('PASS: kamikaze Rapid, alternating boat upgrades, exclusive 50% Bomb / 10% 1UP rolls, no legacy supplies, slower final-phase bullets and per-loop scaling.');
 
 // The historical characterization suite remains available without --current.
 // It records superseded gameplay (one-shot victory, old drop rates) and art hashes.

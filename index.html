@@ -3,8 +3,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>CAT FIGHTER • Pacific Paws</title>
-  <link rel="stylesheet" href="style.css">
-  <body class="arcade-shell" data-arcade="off">
+  <link rel="stylesheet" href="style.css?v=9615f1e4937e">
+  <body class="arcade-shell" data-arcade="off" data-input-mode="touch">
     <div id="boot-screen">
       <button id="boot">BOOT <span>TOUCH TO POWER ON</span></button>
       <div id="boot-log" hidden role="status"><span>PACIFIC PAWS · ARCADE SYSTEM</span><pre id="boot-text"></pre></div>
@@ -23,7 +23,7 @@
             <div class="demo-progress-track"><div id="demo-progress"></div></div>
             <div id="demo-feedback" hidden></div>
             <div id="demo-finger" aria-hidden="true"><svg viewBox="0 0 64 80"><path d="M24 40V9a7 7 0 0 1 14 0v24c3-5 11-3 12 2 5-2 11 1 11 7v17c0 11-8 18-20 18H30c-7 0-12-4-16-10L3 51c-4-6 4-13 9-8l12 12Z"/></svg><b id="demo-gesture"></b></div>
-            <div class="demo-menu"><button id="demo-start">START ▶</button><div><button id="demo-lan">TWO-PLAYER</button><button id="demo-options">PILOTS / CO-OP</button><button id="demo-sound">SOUND OFF</button></div></div>
+            <div class="demo-menu"><button id="demo-start">START ▶</button><div><button id="demo-lan">TWO-PLAYER</button><button id="demo-options">CHOOSE AIRCRAFT</button><button id="demo-sound">SOUND OFF</button></div></div>
           </div>
           <div id="overlay">
             <div class="eyebrow">PACIFIC PAWS</div>
@@ -36,7 +36,7 @@
             <label>P1 AIRCRAFT <select id="aircraft-0"><option value="0">GINGER</option><option value="1">MINT</option></select></label>
             <button id="join">P2 JOIN</button>
             <label>P2 AIRCRAFT <select id="aircraft-1"><option value="1">MINT</option><option value="0">GINGER</option></select></label>
-            <p class="hint">Join solo or as a duo. Two-player touch controls: use one half of the screen each.</p>
+            <p class="hint">Hold and drag to move and fire. Double-tap to use a bomb.</p>
             <div class="menu-options">
               <button id="lan-open">TWO-PLAYER</button>
               <button id="sound">SOUND OFF</button>
@@ -54,22 +54,28 @@
     </main>
     <dialog id="settings">
       <h2>Controller settings</h2>
-      <p>Press a controller button so the browser can detect it.<br>Select a mapping button, then press the physical button you want to use.</p>
+      <p>Connect your controller and press a button. Recognized Joy-Con pairs work automatically: left half → P1, right half → P2.</p>
+      <div class="controller-pairing">
+        <button id="controller-pair-0">PAIR CONTROLLER TO P1</button>
+        <button id="controller-pair-1">PAIR CONTROLLER TO P2</button>
+        <button id="controller-pair-cancel" hidden>CANCEL PAIRING</button>
+        <p id="controller-pair-status" role="status">Move a stick or press a button: its card lights up. Use pairing only to change which player it controls.</p>
+      </div>
       <div id="devices"></div>
-      <div class="half-controllers">
-        <p>Joy-Con presets are included. To customize them, hold each controller sideways and set up P1 and P2. Release all inputs, follow the right/up stick prompts, then assign fire, bomb and pause.</p>
-        <button id="half-p1">Set up P1 half-controller</button>
-        <button id="half-p2">Set up P2 half-controller</button>
+      <details class="half-controllers"><summary>Advanced · controller mode / stick calibration</summary>
+        <p>Only calibrate if movement or buttons are incorrect. Hold the half-controller sideways. Calibration is saved on this browser.</p>
+        <button id="half-p1">Calibrate left / first half</button>
+        <button id="half-p2">Calibrate right / second half</button>
         <button id="half-reset">Use full controllers</button>
         <button id="half-default">Restore Joy-Con defaults</button>
         <p id="half-status" role="status">A combined Joy-Con preset is included. Press a button to join, or recalibrate manually.</p>
-      </div>
+      </details>
       <p><label for="deadzone">Stick deadzone: <output id="deadzone-value" for="deadzone">8%</output></label><br>
         <input id="deadzone" type="range" min="0" max="50" step="1" value="8">
         <br><small>0–50%. Increase to reduce drift; decrease if small movements are ignored.</small></p>
       <p id="mapping">Custom button mappings and individual Joy-Con supported</p>
       <div class="controller-export">
-        <p>Once both players are configured, export controller names, stick axes, buttons, deadzone and P1/P2 calibration. Export before refreshing or closing the game.</p>
+        <p>Calibration and player pairing are saved in this browser. If you need help, export a report showing your controllers and actual P1/P2 assignments.</p>
         <button id="export-controller">Export controller settings (.json)</button>
         <button id="copy-controller">Copy settings</button>
         <p id="controller-export-status" role="status">Attach the downloaded JSON file to the conversation, or paste the copied settings.</p>
@@ -82,14 +88,32 @@
     </dialog>
     <button id="lan-bar" hidden aria-label="Connection status and settings"></button>
     <dialog id="lan-dialog">
-      <h2>Two-player co-op</h2>
-      <p>Open this page on both devices. P1 creates a game; P2 joins with the six-digit code.</p>
-      <button id="p2p-create">Create Game</button>
-      <label for="p2p-code">6-digit room code</label>
-      <input id="p2p-code" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="000000" autocomplete="off" spellcheck="false">
-      <button id="p2p-join">Join Game</button>
-      <button id="p2p-reconnect" hidden>Reconnect</button>
-      <p>Once connected, P1 closes this window and presses START. If the connection drops, reconnect, then P1 presses RESUME.</p>
+      <h2>TWO-PLAYER</h2>
+      <p id="coop-step" role="status">1 · Choose how to play</p>
+      <div id="coop-options" class="coop-options">
+        <button id="coop-local" hidden><strong>SAME SCREEN</strong><span>P1 + P2 · Share this device</span></button>
+        <button id="coop-host"><strong>CREATE ROOM · P1</strong><span>Two devices · Invite a friend</span></button>
+        <button id="coop-guest"><strong>JOIN ROOM · P2</strong><span>Two devices · Enter your friend's code</span></button>
+      </div>
+      <section id="coop-host-panel" hidden>
+        <h3>P1 · HOST</h3><p>Create a room, share its code, then wait for P2.</p>
+        <button id="p2p-create">CONFIRM · CREATE ROOM</button>
+      </section>
+      <section id="coop-guest-panel" hidden>
+        <h3>P2 · JOIN</h3>
+        <label for="p2p-code">Enter P1's 6-digit room code</label>
+        <input id="p2p-code" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="000000" autocomplete="off" spellcheck="false">
+        <div id="coop-keypad" aria-label="Room code keypad"></div>
+        <button id="p2p-join">CONFIRM · JOIN ROOM</button>
+      </section>
+      <section id="coop-connected" hidden>
+        <h3 id="coop-role"></h3><p id="coop-room-code"></p><p id="coop-next" role="status"></p>
+        <p>Hold &amp; drag to move/fire · Double-tap for bomb.</p>
+        <button id="coop-start" hidden>START ▶</button>
+        <button id="p2p-reconnect" hidden>RECONNECT</button>
+      </section>
+      <button id="coop-back" hidden>CANCEL · BACK</button>
+      <p id="coop-controls">Touch a button to choose. Each player uses their own device.</p>
       <details>
       <summary>Existing Wi-Fi LAN mode</summary>
       <p>Connect both devices to the same Wi-Fi and open the game URL provided by the computer.</p>
@@ -112,22 +136,27 @@
       </details>
       <p id="lan-status" role="status">Not connected</p>
       <button id="lan-leave" hidden>Leave room</button>
-      <button id="lan-close">Back to game</button>
+      <button id="lan-close">BACK TO GAME</button>
     </dialog>
-    <script src="src/world.js"></script>
-    <script src="src/assets.js"></script>
-    <script src="src/render.js"></script>
-    <script src="src/audio.js"></script>
-    <script src="src/levels/level1.js"></script>
-    <script src="src/enemies.js"></script>
-    <script src="game.js"></script>
-    <script src="src/half-controllers.js"></script>
-    <script src="src/controller-export.js"></script>
-    <script src="src/controls.js"></script>
-    <script src="src/net-protocol.js"></script>
-    <script src="src/p2p-transport.js"></script>
-    <script src="src/presentation.js"></script>
-    <script src="src/lan.js"></script>
-    <script src="src/arcade.js"></script>
+    <script src="src/world.js?v=5c520ff0b9f9"></script>
+    <script src="src/assets.js?v=4680be27ef9d"></script>
+    <script src="src/render.js?v=16fd342cabd2"></script>
+    <script src="src/audio.js?v=a8283164bacd"></script>
+    <script src="src/levels/level1.js?v=c5eb02edb4d2"></script>
+    <script src="src/enemies.js?v=678ab88195f6"></script>
+    <script src="game.js?v=f639e2e2aa23"></script>
+    <script src="src/half-controllers.js?v=8685c95c3a1f"></script>
+    <script src="src/controller-export.js?v=292690d70bb7"></script>
+    <script src="src/controller-setup.js?v=6cc70d91bdc9"></script>
+    <script src="src/controls.js?v=b595d7dc7768"></script>
+    <script src="src/net-protocol.js?v=200a284e45bb"></script>
+    <script src="src/p2p-transport.js?v=371166aec7b5"></script>
+    <script src="src/presentation.js?v=cd01682aab8c"></script>
+    <script src="src/lan.js?v=67b28dddf7fb"></script>
+    <script src="src/arcade.js?v=0f3a05a5e237"></script>
+    <script src="src/menu-navigation.js?v=63b201a2f6e8"></script>
+    <script src="src/aircraft-menu.js?v=d2fec78b1169"></script>
+    <script src="src/coop-menu.js?v=6cc6b99b3975"></script>
+    <script src="src/drop-in.js?v=b26eb8fd710a"></script>
   </body>
 </html>

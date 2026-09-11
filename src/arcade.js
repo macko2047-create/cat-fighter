@@ -5,22 +5,23 @@
     {id:'title',seconds:6,title:'CAT FIGHTER',copy:'Cat squadron · Coral Sea sortie'},
     {id:'drag',seconds:7,title:'HOLD & DRAG',copy:'Fly ahead of your finger · Hold to fire'},
     {id:'release',seconds:3,title:'RELEASE TO STOP',copy:'Movement and fire stop · Battle continues'},
-    {id:'rapid',seconds:5,title:'RAPID FIRE',copy:'Collect lightning → Double your fire rate',reward:{type:'W',weapon:'rapid'}},
+    {id:'rapid',seconds:6,title:'KAMIKAZE → RAPID',copy:'Every kamikaze carries RAPID · Shoot it down, then collect',carrier:'small'},
     {id:'battle',seconds:4,title:'BREAK THROUGH',copy:'Hit, destroy, score!'},
-    {id:'double',seconds:5,title:'2-WAY SHOT',copy:'Collect twin arrows → Two firing lanes',reward:{type:'W',weapon:'double'}},
+    {id:'double',seconds:6,title:'FIRST FLEET → 2-WAY',copy:'One boat carries 2-WAY · Sink it, then collect',carrier:'boat',wave:LEVEL1.boatWaveCadence},
     {id:'bomb',seconds:6,title:'Double Tap',copy:'Tap the same spot twice to drop a bomb'},
-    {id:'supply',seconds:4,title:'BOMB SUPPLY',copy:'Collect a bomb → Add one to your stock',reward:{type:'B'}},
-    {id:'spread',seconds:5,title:'3-WAY SPREAD',copy:'Collect triple arrows → Wider firepower',reward:{type:'W',weapon:'spread'}},
-    {id:'life',seconds:4,title:'1UP · ONE MORE CHANCE',copy:'Collect a cat coin → Gain an extra life',reward:{type:'1UP'}},
-    {id:'boss',seconds:11,title:'FLYING FORTRESS',copy:'Boss damaged · Dodge its fire and finish it'},
+    {id:'supply',seconds:6,title:'MID-BOSS · BOMB 50%',copy:'Drop example · 10% 1UP · 40% no reward',carrier:'heavy',roll:0},
+    {id:'spread',seconds:6,title:'NEXT FLEET → 3-WAY',copy:'One boat carries 3-WAY · Then 2-WAY / 3-WAY repeat',carrier:'boat',wave:LEVEL1.boatWaveCadence*2},
+    {id:'life',seconds:6,title:'MID-BOSS · 1UP 10%',copy:'Rare drop example · Defeat the carrier → Collect +1 life',carrier:'heavy',roll:LEVEL1.heavyBombChance},
+    {id:'boss',seconds:11,title:'FLYING FORTRESS',copy:'Final phase: dense fire, slower bullets · Dodge and finish it'},
+    {id:'loop',seconds:7,title:`NEXT LOOP · +${Math.round(LEVEL1.loopDifficultyStep*100)}%`,copy:'Each loop: faster enemies & fire · More Boss HP'},
   ];
   let phase='off', clock=0, index=0, time=0, scene=null, simulating=false;
   let steering={x:0,y:0,fire:false}, trail=[], bombUsed=false, overTime=0;
   let lastScore=0, feedback='', feedbackUntil=0, lastFieldHeight=0;
   const body=document.body, neutral=()=>({x:0,y:0,fire:false});
   const setPhase=value=>{phase=value;body.dataset.arcade=value;};
-  const planeY=()=>Math.min(540,Math.max(200,H*.78-155*H/canvas.getBoundingClientRect().height));
-  const enemy=(x,y,type='small')=>({type,x,y,hp:ENEMY_DEFINITIONS[type].baseHP,
+  const planeY=()=>Math.min(540,Math.max(200,H*.78-180*H/canvas.getBoundingClientRect().height));
+  const enemy=(x,y,type='small')=>({type,x,y,hp:ENEMY_DEFINITIONS[type].baseHP ?? ENEMY_DEFINITIONS.small.baseHP,
     v:type==='heavy'?ENEMY_DEFINITIONS.heavy.speed:LEVEL1.enemySpeedBase,phase:0,shoot:2.5,age:0});
   function inScene(callback) {
     simulating=true;
@@ -28,12 +29,35 @@
   }
   function beginChapter() {
     const c=chapters[index], p={...pilot(0),x:300,y:planeY(),aircraft:0,inv:0};
+    $('#attract').dataset.chapter=c.id;
+    $('#demo-title').textContent=c.title; $('#demo-copy').textContent=c.copy;
+    if(c.carrier) {
+      const rect=canvas.getBoundingClientRect();
+      p.y=clamp(($('#demo-start').getBoundingClientRect().top-rect.top-40)*H/rect.height,200,H-60);
+    }
     if(c.id==='spread')p.level=2;
     if(c.id==='boss'){p.level=3;p.rapid=true;}
     scene={mode:'playing',elapsed:0,score:0,players:[p],enemies:[],shots:[],hostile:[],drops:[],sparks:[],bossDebris:[],
-      wave:999,loop:1,loopTransition:0,bossSpawned:true,bossWreck:null,nextSupply:Infinity,
-      extraLifeSpawned:true,recoveryRewardPending:false,flash:0,ambient:clock};
-    if(c.reward)scene.drops.push({...c.reward,x:300,y:p.y-115});
+      wave:999,loop:1,loopTransition:0,bossSpawned:true,bossWreck:null,
+      flash:0,ambient:clock};
+    if(c.carrier) {
+      const rect=canvas.getBoundingClientRect();
+      const belowCaption=($('.demo-caption').getBoundingClientRect().bottom-rect.top+25)*H/rect.height;
+      const carrierY=Math.max(belowCaption,p.y-200);
+      const carrier=enemy(300,carrierY,c.carrier);
+      if(c.carrier==='small') {
+        configureSmallFlight(carrier,4,4,5);
+        carrier.x=carrier.startX=300;carrier.y=carrier.startY=carrierY;
+      } else {
+        carrier.reward=formationReward(c.carrier,c.wave || LEVEL1.heavyWaveCadence,c.roll);
+      }
+      scene.enemies.push(carrier);
+      if(c.carrier!=='small')scene.enemies.push(enemy(430,carrier.y-70,c.carrier));
+    }
+    else if(c.id==='loop') {
+      // Show the next loop with the real formation speed/HP/firing multiplier.
+      scene.loop=2;scene.wave=0;inScene(()=>spawn());
+    }
     else if(c.id==='boss')scene.enemies.push({type:'boss',x:300,y:100,hp:LEVEL1.bossHP1P*.3,max:LEVEL1.bossHP1P,age:0,shoot:.8});
     else if(c.id==='bomb') {
       scene.enemies=[enemy(170,160,'heavy'),enemy(430,170,'heavy')];
@@ -41,7 +65,7 @@
     } else if(c.id!=='release') scene.enemies=[enemy(300,120),enemy(170,70),enemy(430,30)];
     trail=[];bombUsed=false;steering=neutral();lastScore=0;feedback='';feedbackUntil=0;
     $('#attract').dataset.chapter=c.id;
-    $('#demo-chapter').textContent=c.reward?'SUPPLY': ['drag','release','bomb'].includes(c.id)?'HOW TO PLAY':'PACIFIC PAWS / 1943';
+    $('#demo-chapter').textContent=c.carrier==='heavy'?'DROP EXAMPLE · NOT GUARANTEED':c.carrier?'SHOOT → DROP → COLLECT':c.id==='loop'?'LOOP 2 · EXAMPLE': ['drag','release','bomb'].includes(c.id)?'HOW TO PLAY':'PACIFIC PAWS / 1943';
     $('#demo-title').textContent=c.title; $('#demo-copy').textContent=c.copy;
     $('#demo-counter').textContent=`${String(index+1).padStart(2,'0')} / ${chapters.length}`;
   }
@@ -52,6 +76,7 @@
   }
   function attract() {
     if(window.lan?.active)return;
+    window.aircraftMenu?.reset();
     mode='ready';joined.fill(false);players=[];enemies=[];shots=[];hostile=[];drops=[];sparks=[];
     bossDebris=[];score=elapsed=0;loop=1;loopTransition=0;bossWreck=null;flash=0;
     clock=time=index=overTime=0;keys.clear();setPhase('demo');
@@ -63,13 +88,13 @@
     const c=chapters[index];
     inScene(()=>{
       const p=players[0];
-      let targetX=p.x,targetY=planeY();
+      let targetX=p.x,targetY=c.carrier ? p.y : planeY();
       if(c.id==='drag')targetX=300+Math.sin(time*.9)*120;
-      else if(c.id==='title'||c.id==='battle'||c.id==='boss') {
-        targetX=(drops[0]||enemies.find(e=>e.y>0)||{x:300}).x;
+      else if(c.carrier || ['title','battle','boss','loop'].includes(c.id)) {
+        targetX=(drops[0]||enemies.find(e=>e.reward && e.y>0)||(!c.carrier && enemies.find(e=>e.y>0))||{x:p.x}).x;
         // Move away from approaching bullets instead of ignoring damage.
         const threat=hostile.find(b=>b.y<p.y&&p.y-b.y<110&&Math.abs(b.x-p.x)<48);
-        if(threat)targetX=clamp(p.x+(threat.x>=p.x?-100:100),60,540);
+        if(threat && !drops.length)targetX=clamp(p.x+(threat.x>=p.x?-100:100),60,540);
       }
       if(c.id==='release')targetY=p.y;
       let x=targetX-p.x,y=targetY-p.y;

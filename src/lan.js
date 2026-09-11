@@ -63,6 +63,7 @@
   }
   function lost(message) {
     peerConnected=false;actions=[];
+    window.aircraftMenu?.peerLost();
     if(session?.role==='host') pauseHost(message);
     else {stopMotion();if(mode==='playing'){mode='paused';show('Connection lost',message);}}
     status(message);
@@ -98,7 +99,7 @@
   const visualIds=new WeakMap();let visualSerial=0;
   const identify=o=>{if(!visualIds.has(o))visualIds.set(o,++visualSerial);return {...o,netId:visualIds.get(o)};};
   function snapshot() {
-    return {mode,elapsed,score,players:players.map(identify),enemies:enemies.map(identify),shots:shots.map(s=>({...identify(s),owner:{index:s.owner?.index||0}})),hostile:hostile.map(identify),drops:drops.map(identify),sparks:sparks.map(identify),bossDebris:bossDebris.map(identify),wave,loop,loopTransition,bossSpawned,bossWreck,flash,ambient,aircraft:[...aircraft]};
+    return {mode,elapsed,score,players:players.map(identify),enemies:enemies.map(identify),shots:shots.map(s=>({...identify(s),owner:{index:s.owner?.index||0}})),hostile:hostile.map(identify),drops:drops.map(identify),sparks:sparks.map(identify),bossDebris:bossDebris.map(identify),wave,loop,loopTransition,bossSpawned,bossWreck,flash,ambient,aircraft:[...aircraft],aircraftReady:window.aircraftMenu?.snapshot() || [false,false]};
   }
   function acceptState(s) {
     const oldMode=mode;
@@ -110,12 +111,14 @@
       if(mode==='playing') $('#overlay').style.display='none';
       else show(mode==='paused'?'PAUSED':mode==='over'?'GAME OVER':'Wi-Fi CO-OP',mode==='over'?'Waiting for the host to restart.':'Waiting for the host to start or resume.');
     }
+    window.aircraftMenu?.acceptNetwork(s.aircraftReady);
     updateHUD();
   }
   function acceptInput(data) {
     remote=data;received();
     applying=true;
     try {for(const action of remote.actions||[]){
+      window.aircraftMenu?.remoteAction(action);
       if(action==='bomb')bomb(players[1]);
       if(action==='rejoin')tryRejoin(1);
       if(action==='pause'&&mode==='playing')pause('P2 paused the game. Host: press RESUME to continue.');
@@ -130,12 +133,14 @@
     $('#join-p1').disabled=active;$('#join').disabled=active;
     $('#aircraft-1').disabled=active;$('#aircraft-0').disabled=session?.role==='guest';
     $('#start').disabled=active&&(session.role==='guest'||!peerConnected);
+    if (active && mode === 'ready') window.aircraftMenu?.open();
     $('#lan-open-host').disabled=active||connecting;
     for(const button of $('#lan-rooms').querySelectorAll('button'))button.disabled=active||connecting;
   }
   function connect(credentials) {
     session=credentials;lastReceived=performance.now();lastSend=0;peerConnected=false;presenceReady=false;actions=[];padPrevious=[];
-    stopMotion();joined.fill(true);mode='ready';players=[];$('#overlay').style.display='flex';
+    window.aircraftMenu?.reset();
+    stopMotion();joined[0]=true;joined[1]=false;mode='ready';players=[];$('#overlay').style.display='flex';
     show(session.transport==='p2p'?'P2P CO-OP':'Wi-Fi CO-OP',session.role==='host'?'Wait for P2 to join, then press START.':'You control P2. Wait for the host to start.');
     $('#lan-code').value=session.code;
     status(`Room ${session.code} · You are ${session.role==='host'?'P1 Host':'P2'}`);
@@ -192,6 +197,7 @@
     const old=session;session=null;transport?.close(notify);transport=null;if(watchdog)clearInterval(watchdog);watchdog=null;stream?.close();stream=null;peerConnected=false;actions=[];
     if(notify&&old&&old.transport!=='p2p')request('leave',{},old).catch(()=>{});
     stopMotion();mode='ready';players=[];enemies=[];shots=[];hostile=[];drops=[];sparks=[];bossDebris=[];bossWreck=null;loopTransition=0;score=0;joined.fill(false);
+    window.aircraftMenu?.reset();
     show('CAT FIGHTER','You left the room.');refreshButtons();updateHUD();status('Not connected');
   }
   function checkTimeout(now) {
@@ -205,12 +211,13 @@
     }
   }
   const lan=window.lan={
+    get menuState(){return {active:!!session,guest:session?.role==='guest',ready:peerConnected,connecting,code:session?.code||'',transport:session?.transport};},
     get active(){return !!session;},get guest(){return session?.role==='guest';},get applying(){return applying;},
     get ready(){return peerConnected;},
     command,
     diagnostics(){return {snapshotTimes:[...snapshotTimes],bufferedAmount:transport?.bufferedAmount??null};},
     present(state){const result=presentation?presentation.render(state,performance.now(),localInput(),peerConnected&&!document.hidden):state;lan.lastVisual=result;return result;},
-    canStart(){return session?.role==='host'&&peerConnected;},
+    canStart(){return session?.role==='host'&&peerConnected && (mode==='paused' || !window.aircraftMenu || window.aircraftMenu.canStart());},
     owns(i){return !session||applying||i===(session.role==='host'?0:1);},
     targetFor(i){return session?.role==='host'&&i===1?remote.target:null;},
     inputFor(i){

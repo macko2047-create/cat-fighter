@@ -15,3 +15,13 @@ test('snapshot whitelist, finite numbers, list limits, player identity and compl
   for(const invalid of [{...good,elapsed:Infinity},{...good,players:{}},{...good,hostile:Array(4097).fill({})},{...good,mode:'playing'},{...good,bossWreck:{}},{...good,aircraft:[3,1]}])assert.throws(()=>protocol.state(invalid));
   assert.throws(()=>protocol.state({players:[]}));
 });
+
+test('aircraft lobby readiness and guest choice commands survive the wire boundary',()=>{
+  const state={...empty(),aircraftReady:[true,false]};
+  assert.deepEqual(protocol.state(state).aircraftReady,[true,false]);
+  for(const value of [[true], [true,false,true], [1,false], 'ready'])
+    assert.throws(()=>protocol.state({...state,aircraftReady:value}));
+  const actions=['aircraft-0','aircraft-1','confirm-aircraft','cancel-aircraft'];
+  assert.deepEqual(protocol.input({x:0,y:0,fire:false,target:null,actions}).actions,actions);
+  assert.throws(()=>protocol.input({x:0,y:0,fire:false,target:null,actions:['aircraft-2']}));
+});

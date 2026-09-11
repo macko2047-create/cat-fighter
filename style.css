@@ -497,3 +497,87 @@ body.in-flight { overflow: hidden; height: var(--play-height, 100dvh); }
 [data-chapter="bomb"] #demo-finger svg { width: 44px; height: 54px; transform-origin: 50% 10%; transform: translateY(-18px) scale(1.08); transition: transform .07s ease-out; }
 [data-chapter="bomb"] #demo-finger[data-pressed="true"] svg { transform: translateY(0) scale(.9); fill: #fff6cc; }
 button:disabled { opacity: .5; cursor: default; }
+
+/* Shared-screen aircraft selection; art is the actual normal-flight sprite. */
+#overlay.selecting-aircraft { justify-content: flex-start; }
+#overlay.selecting-aircraft > h2 { font-size: clamp(18px, 5cqi, 30px); letter-spacing: 0; line-height: 1.2; margin: 6px 0; }
+#overlay.selecting-aircraft > #message { font: 13px/1.4 monospace; }
+.selecting-aircraft > :is(#join, #join-p1, label, .hint, #lobby-status, .eyebrow) { display: none !important; }
+#aircraft-menu { width: min(100%, 530px); display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-family: monospace; }
+.pilot-choice { min-width: 0; padding: 6px; border: 2px solid var(--pilot); border-radius: 8px; background: #0b2029; --pilot: #ffcf7c; }
+.pilot-choice.p2 { --pilot: #8be0d1; }
+.pilot-choice h3 { color: var(--pilot); font-size: 13px; line-height: 1.4; min-height: 36px; margin: 4px 0; }
+.aircraft-cards { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 5px; }
+#overlay .aircraft-cards button { display: grid; place-items: center; min-width: 0; width: 100%; margin: 0; padding: 4px; background: #122f39; border: 2px solid #567079; border-radius: 5px; font: 12px monospace; }
+#overlay .aircraft-cards button[aria-pressed="true"] { border-color: var(--pilot); box-shadow: inset 0 0 0 1px var(--pilot); }
+.aircraft-art { display: block; width: clamp(44px, 16cqi, 80px); max-width: 100%; aspect-ratio: 1; background-size: 400% 200%; background-position: left top; }
+.model-0 { background-image: url('assets/players/p1/sheet.png'); }
+.model-1 { background-image: url('assets/players/p2/sheet.png'); }
+.aircraft-owner { display: block; min-height: 36px; font-size: 10px; line-height: 1.4; padding: 3px 0; }
+#overlay .pilot-actions button { width: 100%; min-width: 0; min-height: 44px; margin: 5px 0 0; padding: 6px 3px; font: bold 12px monospace; }
+#overlay .pilot-help { font: 11px/1.4 monospace; text-wrap: pretty; }
+#selection-status { grid-column: 1 / -1; font: bold 13px/1.4 monospace; }
+#overlay.selecting-aircraft #start { position: sticky; bottom: 0; z-index: 2; min-height: 48px; flex-shrink: 0; box-shadow: 0 0 0 6px #10252b; }
+#aircraft-menu { flex-shrink: 0; }
+#overlay .aircraft-cards button[aria-pressed="true"] { opacity: 1; }
+.start-ready { animation: ready-pulse 1s ease-in-out infinite; }
+@keyframes ready-pulse { 50% { box-shadow: 0 0 22px #ffe49b; background: #ffe49b; color: #10252b; } }
+@media (prefers-reduced-motion: reduce) { .start-ready { animation: none; outline: 3px solid #ffe49b; } }
+
+#lan-dialog { font-family: monospace; padding: 18px; border-radius: 12px; }
+#lan-dialog h2 { font-size: 24px; margin: 0 0 12px; }
+#coop-step { color: #ffdf93; font-weight: bold; }
+.coop-options { display: grid; gap: 10px; }
+#lan-dialog button { min-height: 44px; min-width: 0; padding: 10px; font: bold 13px monospace; }
+.coop-options button { display: grid; gap: 8px; text-align: left; margin: 0; }
+.coop-options span { font-weight: normal; font-size: 12px; }
+#coop-host, #coop-host-panel, #coop-role { color: #ffcf7c; }
+#coop-guest, #coop-guest-panel { color: #8be0d1; }
+#p2p-code, #coop-room-code { font-size: 25px; letter-spacing: 4px; }
+#coop-keypad { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; margin: 10px 0; }
+#coop-keypad button { margin: 0; }
+#coop-controls { font-size: 12px; color: #b9d6d1; }
+#lan-dialog :focus-visible { outline: 3px solid #ffdf93; outline-offset: 2px; }
+#coop-start { width: 100%; }
+#lan-dialog details { margin: 15px 0; padding: 10px; border: 1px solid #476368; }
+#lan-status { padding: 10px; background: #0a2028; overflow-wrap: anywhere; }
+
+/* Controller cursor is distinct from the aircraft ownership/selection border. */
+#overlay .pad-focus-0, #overlay .pad-focus-1, #lan-dialog .menu-focus {
+  outline: 3px solid #fff4ba; outline-offset: 3px; position: relative;
+  box-shadow: 0 0 0 6px #10252b !important;
+}
+#overlay .pad-focus-0::after, #overlay .pad-focus-1::after {
+  position: absolute; right: 0; top: -12px; z-index: 4; padding: 2px 5px;
+  background: #ffcf7c; color: #10252b; font: bold 11px monospace; content: 'P1 ▼';
+}
+#overlay .pad-focus-1::after { background: #8be0d1; content: 'P2 ▼'; }
+#overlay .pad-focus-0.pad-focus-1::after { content: 'P1 + P2 ▼'; }
+
+#settings { max-height: 90dvh; overflow-y: auto; border-radius: 12px; }
+#settings button, #settings summary { min-height: 44px; padding: 10px; }
+.controller-pairing { padding: 12px; border: 1px solid #7faaa4; border-radius: 8px; }
+#controller-pair-0 { color: #ffcf7c; }
+#controller-pair-1 { color: #8be0d1; }
+#settings .device { border: 2px solid #42656a; border-radius: 8px; padding: 12px; margin: 10px 0; }
+#settings .device.controller-active { border-color: #ffe39e; background: #28463d; }
+.device-feedback { font: 12px/1.5 monospace; }
+#settings details { margin-block: 12px; }
+
+#drop-in { display: flex; gap: 4px; align-items: center; font: 10px monospace; }
+#drop-in button { min-width: 0; min-height: 44px; margin: 0; padding: 6px; font: bold 11px monospace; }
+#drop-in-confirmation { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+#drop-in-label { width: 100%; }
+#drop-in .drop-in-focus { outline: 3px solid #ffdf93; outline-offset: 1px; }
+.bottomline:has(#drop-in:not([hidden])) { flex-wrap: wrap; gap: 6px; }
+body:has(#drop-in:not([hidden])) { --deck-height: 128px; }
+.bottomline:has(#drop-in:not([hidden])) { display: grid; grid-template-columns: minmax(0,1fr) auto; align-content: center; }
+#drop-in { grid-column: 1 / -1; }
+.pilot-exit-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+#overlay .pilot-exit-actions button { font-size: 10px; min-height: 48px; }
+
+/* One touch pilot per device; the second choice appears after a peer connects. */
+#aircraft-menu.solo { grid-template-columns: minmax(0, 1fr); max-width: 400px; }
+#aircraft-menu.solo .aircraft-art { width: clamp(80px, 25cqi, 130px); }
+[data-input-mode="touch"] :is(#test, #coop-local, #drop-in, #join, #join-p1, #aircraft-0, #aircraft-1) { display: none !important; }
+[data-input-mode="touch"] #overlay > label { display: none; }

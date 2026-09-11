@@ -42,6 +42,10 @@
     out.bossWreck=v.bossWreck===null?null:enemyValue(v.bossWreck);
     out.aircraft=array(v.aircraft,2,a=>{if(a!==0&&a!==1)throw Error('Invalid aircraft');return a;});
     if(out.aircraft.length!==2)throw Error('Invalid aircraft');
+    if (Object.hasOwn(v,'aircraftReady')) {
+      out.aircraftReady=array(v.aircraftReady,2,b=>{if(!bool(b))throw Error('Invalid aircraft readiness');return b;});
+      if(out.aircraftReady.length!==2)throw Error('Invalid aircraft readiness');
+    }
     return out;
   }
   function input(v) {
@@ -49,7 +53,7 @@
     out.x=Math.max(-1,Math.min(1,out.x));out.y=Math.max(-1,Math.min(1,out.y));
     out.target=null;
     if(v.target!==null){out.target=object(v.target,numbers('x y'),['x','y']);out.target.x=Math.max(24,Math.min(576,out.target.x));out.target.y=Math.max(60,Math.min(775,out.target.y));}
-    out.actions=array(v.actions,8,a=>{if(!['bomb','rejoin','pause'].includes(a))throw Error('Invalid action');return a;});
+    out.actions=array(v.actions,8,a=>{if(!['bomb','rejoin','pause','aircraft-0','aircraft-1','confirm-aircraft','cancel-aircraft'].includes(a))throw Error('Invalid action');return a;});
     return out;
   }
   root.CatNetProtocol={state,input,MAX_BYTES:512*1024};

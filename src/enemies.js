@@ -10,6 +10,16 @@ const ENEMY_DEFINITIONS = Object.freeze({
   boss: Object.freeze({ hitHalfWidth: 106.25, hitHalfHeight: 60, contactHalfWidth: 85, score: 5000 }),
 });
 
+// Gameplay and authored demo examples share the same carrier rules.
+function formationReward(type, wave, roll) {
+  if (type === 'boat') return {type:'W',weapon:(wave / LEVEL1.boatWaveCadence) % 2 === 1 ? 'double' : 'spread'};
+  if (type !== 'heavy') return null;
+  roll ??= Math.random();
+  if (roll < LEVEL1.heavyBombChance) return {type:'B'};
+  if (roll < LEVEL1.heavyBombChance + LEVEL1.heavyLifeChance) return {type:'1UP'};
+  return null;
+}
+
 // Authored wave routes: predictable formations, with a different tempo per wave.
 function configureSmallFlight(e, wave, i, count) {
   const route = (wave - 1) % 8;
@@ -35,6 +45,7 @@ function configureSmallFlight(e, wave, i, count) {
   // One candidate per wave, with a 40% chance from its existing random phase.
   // Opening/recovery waves keep their original route and never charge.
   if (wave >= 4 && i === wave % count && e.phase < 2.4) {
+    e.reward = {type:"W",weapon:"rapid"};
     e.chargeState = "ready";
     e.chargeDuration = .65;
   }

@@ -87,6 +87,11 @@ function runtime(){
     await wait(()=>host.run('window.lan.ready')&&guest.run('window.lan.ready'));
     assert.equal((await post('join',{code})).status,409,'third player rejected');
     assert.equal((await post('state',{code,state:{players:[]}},'invalid')).status,403);
+    host.run("window.choiceCommands=[];window.aircraftMenu={remoteAction:a=>window.choiceCommands.push(a),canStart:()=>true,snapshot:()=>[false,false],poll:()=>false,open(){},peerLost(){},reset(){},beforeStart:()=>true}");
+    guest.run("['aircraft-1','confirm-aircraft','cancel-aircraft'].forEach(a=>window.lan.command(a))");
+    await wait(()=>host.run('window.choiceCommands.length')===3);
+    assert.equal(host.run('JSON.stringify(window.choiceCommands)'),JSON.stringify(['aircraft-1','confirm-aircraft','cancel-aircraft']),'Wi-Fi relay preserves ordered selection commands');
+    host.run('delete window.aircraftMenu');
     host.run("start();wave=999;nextSupply=999;extraLifeSpawned=true;players.forEach(p=>p.inv=99)");
     await wait(()=>guest.run("mode==='playing'&&players.length===2"));
     assert.equal(guest.el('#start').disabled,true,'guest cannot restart host');
@@ -114,7 +119,7 @@ function runtime(){
     await wait(()=>guest.run('players[1].lives')===2);
     assert.equal(guest.run('players[1].level'),1);assert.equal(guest.run('players[1].rapid'),false);
     await wait(()=>host.run('players[1].entering'));
-    assert.ok(host.run('recoveryRewardPending||enemies.some(e=>e.reward?.type==="W")'));
+    assert.equal(host.run('enemies.some(e=>e.reward)'),false,'respawn no longer injects a reward carrier');
     await wait(()=>!host.run('players[1].entering'));
     host.run('players[1].lives=0;players[1].rejoinRemaining=0');
     await wait(()=>guest.run('players[1].lives')===0);guest.key('KeyF');guest.key('KeyF',true);
