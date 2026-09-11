@@ -1,7 +1,7 @@
 "use strict";
 
 // Visual metadata only. Gameplay coordinates and collision dimensions never
-// appear here. Source cell size is independent of the 72px display size.
+// appear here. Source cell size is independent of the 108px display size.
 const PLAYER_VISUAL_STATES = Object.freeze([
   "normal",
   "left",
@@ -40,7 +40,7 @@ function playerDefinition(sheet) {
     cell: Object.freeze({ width: 256, height: 256 }),
     grid: Object.freeze({ columns: 4, rows: 2 }),
     pivot: Object.freeze({ x: 0.5, y: 0.5 }),
-    displayScale: 90 / 256,
+    displayScale: 108 / 256,
     states: playerFrames,
   });
 }

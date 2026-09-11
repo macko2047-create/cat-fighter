@@ -124,7 +124,7 @@ run("wave=999;enemies=[];elapsed=150;update(0)");
 assert.equal(run("enemies.length+drops.length"),0,'no timed reward carriers');
 run("updateAdaptiveDifficulty(12);enemies=[];elapsed=175;update(0);enemies[0].y=135;enemies[0].shoot=0;update(0)");
 assert.equal(run("enemies[0].max"), 833, 'surviving solo three-way firepower and 5% loop scaling set Boss health');
-assert.ok(Math.abs(run("enemies[0].shoot") - 1.1 / 1.05) < 1e-9);
+assert.ok(Math.abs(run("enemies[0].shoot") - 1.5 / 1.05) < 1e-9);
 assert.ok(Math.abs(run("Math.hypot(hostile[0].vx,hostile[0].vy)") - 150 * 1.05) < 1e-9);
 run("enemies[0].hp=1;bomb(players[0]);update(2.6)");
 assert.equal(run("loop"), 3);
@@ -172,7 +172,7 @@ console.log(
   "PASS: co-op, firing, bombs, defeat, boss clear/next loop, independent controllers, reconnect, 200-second simulation.",
 );
 
-for (const [hp, count] of [[100,3],[75,5],[50,7],[25,11],[10,11]]) {
+for (const [hp, count] of [[100,3],[75,3],[50,5],[25,7],[10,7]]) {
   run("start();elapsed=180;wave=999;bossSpawned=true;players[0].entering=false;players[0].respawn=0;players[0].inv=99;shots=[];hostile=[]");
   run(`enemies=[{type:'boss',x:300,y:135,hp:${hp},max:100,age:0,shoot:0}];update(0)`);
   assert.equal(run("hostile.length"),count);
@@ -185,7 +185,7 @@ for (const hp of [75,50,25]) {
   run("update(.9)");
   assert.ok(run("hostile.length")>0,"Boss resumes after reveal");
 }
-assert.equal(run("PLAYER_ASSETS['player.p1'].displayScale * 256"),90);
+assert.equal(run("PLAYER_ASSETS['player.p1'].displayScale * 256"),108);
 assert.equal(run("ENEMY_ASSETS.boss.displayScale * 256"),300);
 console.log("PASS: Boss attack patterns, three bullet clears and reveal pauses, enlarged sprites.");
 
@@ -195,8 +195,8 @@ run(`enemies[0].hp=11;enemies[0].revealUntil=elapsed+1.5;
 assert.equal(run('enemies[0].hp'),10);
 assert.equal(run('hostile.length'),1);
 run('update(0)');
-assert.equal(run('hostile.length'),12);
-assert.equal(run('enemies[0].shoot'),.32);
+assert.equal(run('hostile.length'),8);
+assert.equal(run('enemies[0].shoot'),1.2);
 assert.ok(Math.abs(run('Math.hypot(hostile[1].vx,hostile[1].vy)')-120)<1e-8);
 
 for (const max of [650,1050,1102]) {
@@ -254,15 +254,15 @@ for (const [type, width, height, contact] of [
       shots=[{x:300+${dx},y:135+${dy},vx:0,owner:players[0]}];update(0);`);
     assert.equal(run('enemies[0].hp'),hit?2:3, `${type} hitbox at ${dx},${dy}`);
   }
-  run(`players[0].inv=0;players[0].x=300+${contact}+13;players[0].y=135;
+  run(`players[0].inv=0;players[0].x=300+${contact}+15.600001;players[0].y=135;
     shots=[];update(0);`);
-  assert.equal(run('players[0].lives'),3, `${type} body-contact boundary stays unchanged`);
+  assert.equal(run('players[0].lives'),3, `${type} body-contact boundary includes enlarged player`);
 }
 run(`enemies=[{type:'small',x:300,y:135,hp:3,v:0,phase:0,age:0,shoot:999}];
   players[0].y=690;
   shots=Array.from({length:3},()=>({x:324,y:135,vx:0,owner:players[0]}));update(0);`);
 assert.equal(run('enemies.length'),0,'small enemy still takes three one-damage hits');
-console.log('PASS: 1.25x enemy bullet hitboxes, exact boundaries, unchanged contact range and three-hit small enemies.');
+console.log('PASS: 1.25x enemy bullet hitboxes, exact boundaries, enlarged player contact range and three-hit small enemies.');
 
 // Collect real drops and fire to verify both the bonus and resulting cooldown.
 gamepads = [];
@@ -346,7 +346,7 @@ try {
     run('enemies=[];elapsed=175;wave=999;update(0);enemies[0].y=135;enemies[0].hp=1;enemies[0].shoot=0;update(0)');
     assert.equal(run('enemies[0].max'),Math.round(650*factor));
     assert.ok(Math.abs(run('Math.hypot(hostile[0].vx,hostile[0].vy)')-120*factor)<1e-8);
-    assert.ok(Math.abs(run('enemies[0].shoot')-.32/factor)<1e-8);
+    assert.ok(Math.abs(run('enemies[0].shoot')-1.2/factor)<1e-8);
   }
 } finally {sandbox.Math.random=originalRandom;}
 console.log('PASS: kamikaze Rapid, alternating boat upgrades, exclusive 50% Bomb / 10% 1UP rolls, no legacy supplies, slower final-phase bullets and per-loop scaling.');
@@ -405,3 +405,30 @@ console.log('PASS: adaptive team/firepower scaling, smoothing, death/rejoin, fix
 // The historical characterization suite remains available without --current.
 // It records superseded gameplay (one-shot victory, old drop rates) and art hashes.
 if (!process.argv.includes("--current")) require("./baseline.test.cjs");
+
+// Enlarged aircraft: both pilots share the display size and damage boundary.
+for (const index of [0, 1]) {
+  assert.equal(run(`PLAYER_ASSETS[playerAssetId(${index})].displayScale * 256`), 108);
+  for (const distance of [16.799, 16.8]) {
+    run(`mode='over';joined.fill(true);start();wave=999;enemies=[];
+      players[${index}].inv=0;hostile=[{x:players[${index}].x+${distance},y:players[${index}].y,vx:0,vy:0}];update(0)`);
+    assert.equal(run(`players[${index}].lives`), distance < 16.8 ? 2 : 3);
+  }
+}
+// Every enemy class and Boss phase has a bounded volley and recovery interval.
+for (const [type, ratio, interval, count] of [
+  ['small',1,4.2,1], ['boat',1,4.8,1], ['heavy',1,2.4,3],
+  ['boss',1,1.5,3], ['boss',.75,1.4,3], ['boss',.5,1.3,5],
+  ['boss',.25,1.2,7], ['boss',.1,1.2,7],
+]) {
+  run(`mode='over';joined.fill(true);start();wave=999;elapsed=180;bossSpawned=true;
+    enemies=[{type:'${type}',x:300,y:135,hp:${1050*ratio},max:1050,v:0,age:0,phase:0,shoot:0}];hostile=[];update(0)`);
+  assert.equal(run('hostile.length'), count);
+  assert.equal(run('enemies[0].shoot'), interval);
+  if(count > 1) {
+    assert.ok(Math.abs(run('Math.atan2(hostile[1].vy,hostile[1].vx)-Math.atan2(hostile[0].vy,hostile[0].vx)')-.26)<1e-9);
+  }
+  run(`hostile.forEach(b=>{b.vx=0;b.vy=0});update(${interval-.01})`);
+  assert.equal(run('hostile.length'), count, 'no extra volley during recovery');
+}
+console.log('PASS: enlarged player hitbox and all enemy firing profiles');

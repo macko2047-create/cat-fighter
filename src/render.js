@@ -153,7 +153,7 @@ function createRenderer(ctx, W, H, background, clamp, playerAssets = null, enemy
   function plane(x, y, color, enemy = false, size = 1, type = "small") {
     ctx.save();
     ctx.translate(Math.round(x), Math.round(y));
-    ctx.scale(size * 1.25, size * 1.25);
+    ctx.scale(size * 1.25 * (enemy ? 1 : 1.2), size * 1.25 * (enemy ? 1 : 1.2));
     if (enemy) ctx.rotate(Math.PI);
     ctx.fillStyle = "#08203088";
     ctx.fillRect(-25 + 8, -7 + 10, 50, 11);

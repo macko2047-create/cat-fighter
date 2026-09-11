@@ -750,8 +750,8 @@ function update(dt) {
         e.type === "boss"
           ? LEVEL1.bossAttackIntervals[bossPhase]
           : e.type === "heavy"
-            ? 1.5
-            : 3.2;
+            ? LEVEL1.heavyFireInterval
+            : e.type === "boat" ? LEVEL1.boatFireInterval : LEVEL1.smallFireInterval;
       e.shoot /= loopDifficulty();
       const target = players
         .filter((p) => p.lives > 0 && p.respawn === 0 && !p.entering)
@@ -764,7 +764,7 @@ function update(dt) {
         const bulletSpeed = e.type === "boss" && bossPhase === 4 ? LEVEL1.bossRageBulletSpeed : 150;
         for (let j = 0; j < n; j++) {
           const ang =
-            base + (j - (n - 1) / 2) * (e.type === "boss" ? 0.2 : 0.18);
+            base + (j - (n - 1) / 2) * (e.type === "boss" ? LEVEL1.bossSpreadAngle : LEVEL1.heavySpreadAngle);
           hostile.push({
             x: e.x,
             y: e.y + 20,
@@ -791,7 +791,7 @@ function update(dt) {
       }
     }
     for (const p of players)
-      if (Math.abs(p.x - e.x) < ENEMY_DEFINITIONS[e.type].contactHalfWidth + 13 && Math.abs(p.y - e.y) < 35)
+      if (Math.abs(p.x - e.x) < ENEMY_DEFINITIONS[e.type].contactHalfWidth + 15.6 && Math.abs(p.y - e.y) < 42)
         hurt(p, 30);
     if (mode === "over") return;
   }
@@ -799,7 +799,7 @@ function update(dt) {
     b.x += b.vx * dt;
     b.y += b.vy * dt;
     for (const p of players)
-      if (!b.dead && Math.hypot(p.x - b.x, p.y - b.y) < 14 && p.lives > 0 && p.respawn === 0) {
+      if (!b.dead && Math.hypot(p.x - b.x, p.y - b.y) < 16.8 && p.lives > 0 && p.respawn === 0) {
         hurt(p, 15);
         b.dead = true;
       }
