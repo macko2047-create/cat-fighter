@@ -30,12 +30,12 @@ function fixture(failure) {
 }
 test('preload once, reuse buffers, bounded voices and release on end',async()=>{
   const f=fixture(); f.api.initAudio(); await f.api.preloadAudio();
-  assert.equal(f.requests.length,18); assert.equal(f.decodes,18);
+  assert.equal(f.requests.length,4); assert.equal(f.decodes,4);
   for(let i=0;i<100;i++) f.api.playSfx('player_shot');
   assert.equal(f.nodes.length,5);
   assert.ok(f.nodes.every(n=>n.buffer && n.playbackRate.value>=.98 && n.playbackRate.value<=1.02));
   f.nodes[0].onended(); f.api.playSfx('player_shot'); assert.equal(f.nodes.length,6);
-  await f.api.preloadAudio(); assert.equal(f.requests.length,18);
+  await f.api.preloadAudio(); assert.equal(f.requests.length,4);
 });
 test('missing/decode failure falls back with category caps; unknown sounds harmless',async()=>{
   for(const failure of ['missing','decode']) {
@@ -55,7 +55,7 @@ test('mute, volume, rejected autoplay and music switches reuse infrastructure',a
   for(let i=0;i<50;i++){ f.api.setMuted(true); assert.equal(f.media[0].volume,0); f.api.setMuted(false); }
   f.api.setMusicState('BOSS'); assert.equal(f.media.length,1); assert.match(f.media[0].src,/music_boss.mp3/);
   f.media[0].onerror(); f.api.stopMusic(); f.api.setMusicState('BOSS');
-  assert.equal(f.contexts,1); assert.equal(f.requests.length,18);
+  assert.equal(f.contexts,1); assert.equal(f.requests.length,4);
 });
 
 test('initialization/unmute never retries failed or stopped music',async()=>{

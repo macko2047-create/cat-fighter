@@ -82,8 +82,8 @@ function wav() {
   }
   assert.deepEqual(errors,[]);assert.ok(!messages.some(m=>/AudioContext|uncaught/i.test(m)));
   if(!fixture)assert.ok(Object.values(requests).every(n=>n===1),JSON.stringify(requests));
-  assert.equal(Object.keys(requests).filter(p=>p.endsWith('.wav')).length,18);
-  assert.equal(stats.decodes,fixture?18:0);
+  assert.equal(Object.keys(requests).filter(p=>p.endsWith('.wav')).length,4);
+  assert.equal(stats.decodes,fixture?4:0);
   console.log(JSON.stringify({fixture,passed:true,stats,requests,console:{count:messages.length,unique:[...new Set(messages)]},pageErrors:errors}));
   await page.close();
  }}finally{await browser.close();}

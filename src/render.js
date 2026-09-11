@@ -232,7 +232,9 @@ function createRenderer(ctx, W, H, background, clamp, playerAssets = null, enemy
       if (!playerSprite({index:0,x:245,y:590}, {state:"normal"})) plane(245, 590, "#dec67e");
       if (!playerSprite({index:1,x:360,y:665}, {state:"normal"})) plane(360, 665, "#8bd2be");
     }
-    for (const e of enemies) {
+    // Surface vessels stay below aircraft regardless of spawn/array order.
+    const layeredEnemies = enemies.filter(e => e.type === "boat").concat(enemies.filter(e => e.type !== "boat"));
+    for (const e of layeredEnemies) {
       chargeCue(e, ambient);
       if (e.type === "boat") {
         ctx.save(); ctx.strokeStyle = "#d3f6eb77"; ctx.lineWidth = 2;

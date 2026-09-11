@@ -16,9 +16,22 @@
   const profiles = [null, null];
   const steps = ['Move the stick right, then release', 'Move the stick up, then release', 'Press the fire button', 'Press the bomb button', 'Press the pause button'];
   let setup = null, releasePending = false, defaultsEnabled = true;
+  const storageKey = 'catfighter-half-controllers-v1';
+  const valid = c => c === null || (typeof c.id === 'string' && c.axes?.length === 2 && c.buttons?.length === 3 &&
+    c.axes.every(a => Number.isInteger(a.axis) && a.axis >= 0 && Number.isFinite(a.rest) && [-1,1].includes(a.sign)) &&
+    c.buttons.every(b => Number.isInteger(b) && b >= 0));
+  try {
+    const saved = JSON.parse(localStorage.getItem(storageKey) || 'null');
+    if (saved?.profiles?.length === 2 && saved.profiles.every(valid)) {
+      profiles.splice(0,2,...saved.profiles); defaultsEnabled = saved.defaultsEnabled !== false;
+    }
+  } catch {}
+  function save() {
+    try { localStorage.setItem(storageKey, JSON.stringify({profiles,defaultsEnabled})); } catch {}
+  }
   const status = text => { $('#half-status').textContent = text; };
   function prompt() {
-    status(`P${setup.slot + 1}: ${setup.neutral ? 'Release all sticks and buttons, then wait.' : steps[setup.step]}`);
+    status(`${setup.slot === 0 ? 'First / left half' : 'Second / right half'}: ${setup.neutral ? 'Release all sticks and buttons, then wait.' : steps[setup.step]}`);
   }
   function begin(slot) {
     capture = null;
@@ -72,28 +85,46 @@
     s.step++;
     if (s.step===steps.length) {
       profiles[s.slot]={id:s.id,index:s.index,axes:s.axes,buttons:s.buttons};
+      save();
       previous.delete(-100-s.slot);
-      status(`P${s.slot+1} half-controller configured. ${profiles[1-s.slot] ? 'Both players are ready.' : `Set up P${2-s.slot} next.`}`);
+      status(`Half-controller calibration saved. ${profiles[1-s.slot] ? 'Both halves are ready.' : 'Calibrate the other half if needed.'} Use the pairing buttons above to choose its player.`);
       releasePending=true; setup=null; return;
     }
     s.neutral=true; s.baseline=null; prompt();
   }
+  // Chrome remaps a standalone Joy-Con for horizontal use. Preserve the
+  // physical buttons used by the combined preset and the same logical identity.
+  // Source: chromium device/gamepad/nintendo_controller.cc UpdateButtonFor*Side.
+  function singleSlot(p) {
+    if (p.mapping !== 'standard' || p.axes.length < 2) return -1;
+    if (/^Joy-Con \(L\)(?: |$)/.test(p.id)) return 0;
+    if (/^Joy-Con \(R\)(?: |$)/.test(p.id)) return 1;
+    return -1;
+  }
+  const pendingDisconnects = new Map();
   window.halfControllers={
     snapshot() {
       return JSON.parse(JSON.stringify({
         profiles,
         calibration: setup ? {slot:setup.slot,step:setup.step,waitingForNeutral:setup.neutral} : null,
         releasePending,
+        defaultsEnabled,
       }));
     },
     read(raw) {
+      // Browser indices may change after reconnect/reload; only rebind a unique match.
+      for (const c of profiles) {
+        if (!c || raw.some(p=>p.id===c.id && p.index===c.index)) continue;
+        const matches=raw.filter(p=>p.id===c.id);
+        if (matches.length===1) c.index=matches[0].index;
+      }
       if (defaultsEnabled && !setup) {
         const pad=raw.find(p=>p.id==='Joy-Con (L/R) (STANDARD GAMEPAD)' && p.axes.length>=4);
         if (pad) {
           const axes=[[{axis:1,rest:0,sign:1},{axis:0,rest:0,sign:1}],
             [{axis:3,rest:0,sign:-1},{axis:2,rest:0,sign:-1}]];
           profiles.forEach((c,i)=>{
-            if (!c) profiles[i]={id:pad.id,index:pad.index,axes:axes[i],buttons:i?[2,0,3]:[13,14,15]};
+            if (!c) profiles[i]={id:pad.id,index:pad.index,axes:axes[i],buttons:i?[2,0,3]:[13,14,15],side:i?'right':'left'};
             else if(c.id===pad.id) c.index=pad.index;
           });
         }
@@ -105,16 +136,30 @@
         if (raw.some(p=>profiles.some(c=>c && c.id===p.id && c.index===p.index && c.buttons.some(i=>p.buttons[i]?.pressed)))) return [];
         releasePending=false;
       }
-      const result=raw.filter(p=>!profiles.some(c=>c && c.id===p.id && c.index===p.index));
+      const singles = defaultsEnabled ? raw.filter(p=>singleSlot(p)>=0 && !profiles.some(c=>c && c.id===p.id && c.index===p.index)) : [];
+      const result=raw.filter(p=>!singles.includes(p) && !profiles.some(c=>c && c.id===p.id && c.index===p.index));
+      for (const p of singles) {
+        const slot=singleSlot(p), physical=slot ? [3,2,1] : [1,0,3];
+        const buttons=Array.from({length:16},()=>({pressed:false,value:0}));
+        [1,0,9].forEach((logical,i)=>{buttons[logical]=p.buttons[physical[i]] || {pressed:false,value:0};});
+        result.push({id:`Half Joy-Con P${slot+1}`,displayName:`Joy-Con · ${slot ? 'Right' : 'Left'} half (single)`,preferredSlot:slot,index:-100-slot,axes:[p.axes[0],p.axes[1]],buttons,mapping:'standard'});
+      }
       profiles.forEach((c,slot)=>{
-        if (!c) return;
+        if (!c || result.some(p=>p.index===-100-slot)) return;
         const p=raw.find(p=>p.id===c.id && p.index===c.index);
         if (!p) return;
         const axes=c.axes.map(a=>clamp(((p.axes[a.axis] ?? a.rest)-a.rest)*a.sign,-1,1));
         const buttons=Array.from({length:16},()=>({pressed:false,value:0}));
         [1,0,9].forEach((mapped,i)=>{buttons[mapped]=p.buttons[c.buttons[i]] || {pressed:false,value:0};});
-        result.push({id:`Half Joy-Con P${slot+1}`,index:-100-slot,axes:[axes[0],-axes[1]],buttons,mapping:'standard'});
+        result.push({id:`Half Joy-Con P${slot+1}`,displayName:c.side ? `Joy-Con · ${c.side === 'left' ? 'Left' : 'Right'} half` : `Calibrated half-controller ${slot+1}`,preferredSlot:slot,index:-100-slot,axes:[axes[0],-axes[1]],buttons,mapping:'standard'});
       });
+      for (const [index,deadline] of pendingDisconnects) {
+        if (result.some(p=>p.index===index)) pendingDisconnects.delete(index);
+        else if (performance.now()>=deadline) {
+          pendingDisconnects.delete(index);
+          if (mode==='playing' && controllerInUse(index)) pause('Your active controller disconnected. Reconnect it or use the keyboard to resume.');
+        }
+      }
       return result;
     },
   };
@@ -122,17 +167,23 @@
   $('#half-p2').onclick=()=>begin(1);
   $('#half-reset').onclick=()=>{
     setup=null; releasePending=false; defaultsEnabled=false; profiles.fill(null); assignments.fill(null); previous.clear();
+    save();
     status('Full-controller mode restored. Press a button on each controller to rejoin.'); renderDevices();
   };
   $('#half-default').onclick=()=>{
-    setup=null; releasePending=true; defaultsEnabled=true; profiles.fill(null); previous.clear();
-    status('Joy-Con defaults restored. Press fire to join, bomb to choose an aircraft, then fire again to start.');
+    window.controllerSetup?.resetHalfPreferences();
+    setup=null; releasePending=true; defaultsEnabled=true; profiles.fill(null); assignments.fill(null); previous.clear(); save();
+    status('Automatic Joy-Con mode restored. Left half: P1 · Right half: P2. Select a fighter to join.');
   };
   $('#settings').addEventListener('close',()=>{setup=null;});
   window.addEventListener('gamepaddisconnected',e=>{
-    if (profiles.some(p=>p && p.index===e.gamepad.index && p.id===e.gamepad.id)) {
-      if (mode==='playing') pause('Joy-Con disconnected. Reconnect and press a button to recover, or recalibrate if needed.');
-      status('Joy-Con disconnected. Reconnect and press a button to recover, or recalibrate if needed.');
+    const affected = profiles.flatMap((p,slot)=>p && p.index===e.gamepad.index && p.id===e.gamepad.id ? [-100-slot] : []);
+    const slot=singleSlot(e.gamepad);
+    if (defaultsEnabled && slot>=0) affected.push(-100-slot);
+    for (const index of new Set(affected)) {
+      previous.delete(index);
+      // Allow Chrome's combined↔single handover without interrupting a run.
+      if (controllerInUse(index)) pendingDisconnects.set(index,performance.now()+500);
     }
   });
 })();

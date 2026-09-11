@@ -3,6 +3,7 @@
 function createAudio(host, isEnabled = () => true) {
   const limits = { player_shot: 5, enemy_shot: 4, enemy_hit: 6, small_explosion: 4, heavy_explosion: 3, bomb: 2, boss: 3, ui: 2 };
   const groups = { player_shot: 4, enemy_shot: 3, enemy_hit: 3, small_explosion: 3, heavy_explosion: 3, bomb_blast: 1, boss_warning: 1 };
+  const installedGroups = { player_shot: 4 };
   const aliases = { fire: 'player_shot', explosion: 'small_explosion', bomb: 'bomb_blast' };
   const tones = { player_shot: [750,.025], enemy_shot: [300,.04], enemy_hit: [180,.04], small_explosion: [90,.12], heavy_explosion: [90,.12], bomb_blast: [60,.4], boss_warning: [300,.2], start: [600,.08], soundEnabled: [550,.08], playerJoined: [500,.08], pickup: [1100,.1] };
   const buffers = new Map(), voices = new Map();
@@ -38,7 +39,7 @@ function createAudio(host, isEnabled = () => true) {
   function preloadAudio() {
     if (loading) return loading;
     if (!context || !host.fetch) return Promise.resolve();
-    loading = Promise.all(Object.entries(groups).flatMap(([name, count]) =>
+    loading = Promise.all(Object.entries(installedGroups).flatMap(([name, count]) =>
       Array.from({length: count}, (_, i) => {
         const asset = count === 1 ? name : `${name}_${String(i+1).padStart(2,'0')}`;
         return Promise.resolve().then(() => host.fetch(`assets/audio/sfx/${asset}.wav`))
