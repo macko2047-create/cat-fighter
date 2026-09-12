@@ -28,8 +28,9 @@
     if(!Array.isArray(v)||v.length>limit)throw Error('Invalid network list');
     return v.map(copy);
   }
+  const revision = v => Number.isSafeInteger(v) && v >= 0;
   function state(v) {
-    const out=object(v,{mode:choice(['ready','playing','paused','over']),...numbers('elapsed score wave loop loopTransition flash ambient'),bossSpawned:bool},
+    const out=object(v,{mode:choice(['ready','playing','paused','over']),...numbers('elapsed score wave loop loopTransition flash ambient'),bossSpawned:bool,inputEpoch:v=>Number.isSafeInteger(v)&&v>=0,lastProcessedInput:v=>Number.isSafeInteger(v)&&v>=0},
       ['mode','elapsed','score','wave','loop','loopTransition','flash','ambient','bossSpawned']);
     out.players=array(v.players,2,p=>object(p,player,['x','y','lives','respawn','entering','bombs','level','rapid','cool','inv','index']));
     if(out.players.some((p,i)=>p.index!==i||![1,2,3].includes(p.level))||(out.mode!=='ready'&&out.players.length!==2))throw Error('Invalid players');
@@ -46,14 +47,26 @@
       out.aircraftReady=array(v.aircraftReady,2,b=>{if(!bool(b))throw Error('Invalid aircraft readiness');return b;});
       if(out.aircraftReady.length!==2)throw Error('Invalid aircraft readiness');
     }
+    if (v.aircraftSelection !== undefined) {
+      const revisions=array(v.aircraftSelection.revisions,2,r=>{if(!revision(r))throw Error('Invalid selection revision');return r;});
+      if(revisions.length!==2)throw Error('Invalid selection revisions');
+      out.aircraftSelection={revisions};
+    }
     return out;
   }
   function input(v) {
     const out=object(v,{x:number,y:number,fire:bool},['x','y','fire']);
     out.x=Math.max(-1,Math.min(1,out.x));out.y=Math.max(-1,Math.min(1,out.y));
+    if(v.selection!==undefined)out.selection=object(v.selection,{model:choice([0,1]),ready:bool,revision},['model','ready','revision']);
     out.target=null;
     if(v.target!==null){out.target=object(v.target,numbers('x y'),['x','y']);out.target.x=Math.max(24,Math.min(576,out.target.x));out.target.y=Math.max(60,Math.min(775,out.target.y));}
     out.actions=array(v.actions,8,a=>{if(!['bomb','rejoin','pause','aircraft-0','aircraft-1','confirm-aircraft','cancel-aircraft'].includes(a))throw Error('Invalid action');return a;});
+    if(v.inputEpoch!==undefined){
+      if(v.inputEpoch!==null&&(!Number.isSafeInteger(v.inputEpoch)||v.inputEpoch<0))throw Error('Invalid input epoch');
+      out.inputEpoch=v.inputEpoch;
+      out.moves=array(v.moves,180,c=>object(c,{seq:v=>Number.isSafeInteger(v)&&v>0,dt:v=>number(v)&&v>0&&v<=.035,x:v=>number(v)&&Math.abs(v)<=1,y:v=>number(v)&&Math.abs(v)<=1},['seq','dt','x','y']));
+      out.moves.forEach((c,i)=>{const t=v.moves[i].target;c.target=t==null?null:object(t,{x:v=>number(v)&&v>=24&&v<=576,y:v=>number(v)&&v>=60&&v<=775},['x','y']);});
+    }
     return out;
   }
   root.CatNetProtocol={state,input,MAX_BYTES:512*1024};

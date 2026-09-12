@@ -1,8 +1,7 @@
 'use strict';
-// P1 simulates; P2 sends controls and renders authoritative snapshots at 20 Hz.
+// P1 simulates; P2 predicts sequenced movement. Existing 20 Hz snapshots carry ACKs.
 (() => {
   let session=null, stream=null, busy=false, connecting=false, peerConnected=false, presenceReady=false, resumeAfterDialog=false, lastSend=0, lastReceived=0;
-  let transport=null, watchdog=null;
   let remote={x:0,y:0,fire:false,target:null}, actions=[], padPrevious=[], applying=false;
   const neutral=()=>({x:0,y:0,fire:false,target:null});
   const status=text=>{ $('#lan-status').textContent=text; $('#lan-bar').textContent=text+' · Connection settings'; };
@@ -48,21 +47,27 @@
     }
   }
   async function request(route, data={}, credentials=session) {
-    const res=await fetch('/lan/'+route, {method:'POST',headers:{'Content-Type':'application/json',...(credentials?{Authorization:'Bearer '+credentials.token}:{})},
-      body:JSON.stringify({...data,...(credentials?{code:credentials.code}:{})}),signal:timeoutSignal(3000)});
+    const body=JSON.stringify({...data,...(credentials?{code:credentials.code}:{})});
+    const pending=fetch('/lan/'+route, {method:'POST',headers:{'Content-Type':'application/json',...(credentials?{Authorization:'Bearer '+credentials.token}:{})},
+      body,signal:timeoutSignal(3000)});
+    bandwidth.record(route,body); // Submitted POST body, including the existing LAN envelope.
+    const res=await pending;
     const result=await jsonResponse(res);
     if(!res.ok) throw new Error(result.error||'Connection failed');
     return result;
   }
+  const bandwidth=window.CatBandwidth.create();
+  const replication=window.CatInputReplication.create();
+  let epochSerial=0, visualDt=0, replicationMode=null;
   const snapshotTimes=[];
   const presentation=window.CatPresentation?.create();
-  function stopMotion() {presentation?.reset();remote=neutral();keys.clear();window.flightControls?.reset();}
+  function stopMotion() {if(session?.role==='host')replication.reset(++epochSerial);presentation?.reset();remote=neutral();keys.clear();window.flightControls?.reset();}
   function pauseHost(message) {
     stopMotion();
     if(mode==='playing') { applying=true;try{pause(message);}finally{applying=false;} }
   }
   function lost(message) {
-    peerConnected=false;actions=[];
+    peerConnected=false;actions=[];replication.reset(session?.role==='host'?++epochSerial:null);
     window.aircraftMenu?.peerLost();
     if(session?.role==='host') pauseHost(message);
     else {stopMotion();if(mode==='playing'){mode='paused';show('Connection lost',message);}}
@@ -98,27 +103,33 @@
   }
   const visualIds=new WeakMap();let visualSerial=0;
   const identify=o=>{if(!visualIds.has(o))visualIds.set(o,++visualSerial);return {...o,netId:visualIds.get(o)};};
+  function syncInputMode(){if(session?.role==='host'&&replicationMode!==mode){replicationMode=mode;replication.reset(++epochSerial);}}
   function snapshot() {
-    return {mode,elapsed,score,players:players.map(identify),enemies:enemies.map(identify),shots:shots.map(s=>({...identify(s),owner:{index:s.owner?.index||0}})),hostile:hostile.map(identify),drops:drops.map(identify),sparks:sparks.map(identify),bossDebris:bossDebris.map(identify),wave,loop,loopTransition,bossSpawned,bossWreck,flash,ambient,aircraft:[...aircraft],aircraftReady:window.aircraftMenu?.snapshot() || [false,false]};
+    syncInputMode();
+    return {inputEpoch:replication.epoch,lastProcessedInput:replication.diagnostics().lastProcessedInput,mode,elapsed,score,players:players.map(identify),enemies:enemies.map(identify),shots:shots.map(s=>({...identify(s),owner:{index:s.owner?.index||0}})),hostile:hostile.map(identify),drops:drops.map(identify),sparks:sparks.map(identify),bossDebris:bossDebris.map(identify),wave,loop,loopTransition,bossSpawned,bossWreck,flash,ambient,aircraft:[...aircraft],aircraftReady:window.aircraftMenu?.snapshot() || [false,false],aircraftSelection:window.aircraftMenu?.networkState()};
   }
   function acceptState(s) {
     const oldMode=mode;
     const arrival=performance.now();snapshotTimes.push(arrival);if(snapshotTimes.length>240)snapshotTimes.shift();
+    replication.reconcile(s);
     presentation?.accept(s,arrival);
     ({mode,elapsed,score,players,enemies,shots,hostile,drops,sparks,bossDebris,wave,loop,loopTransition,bossSpawned,bossWreck,flash,ambient}=s);
-    aircraft.splice(0,2,...s.aircraft);joined.fill(true);
+    if (!['ready','over','win'].includes(mode)) aircraft.splice(0,2,...s.aircraft);
+    joined.fill(true);
     if(oldMode!==mode){
       if(mode==='playing') $('#overlay').style.display='none';
       else show(mode==='paused'?'PAUSED':mode==='over'?'GAME OVER':'Wi-Fi CO-OP',mode==='over'?'Waiting for the host to restart.':'Waiting for the host to start or resume.');
     }
-    window.aircraftMenu?.acceptNetwork(s.aircraftReady);
+    window.aircraftMenu?.acceptNetwork(s.aircraftReady,s.aircraft,s.aircraftSelection);
     updateHUD();
   }
   function acceptInput(data) {
+    replication.receive(data);
     remote=data;received();
+    window.aircraftMenu?.acceptRemote(data.selection);
     applying=true;
     try {for(const action of remote.actions||[]){
-      window.aircraftMenu?.remoteAction(action);
+      if (!data.selection) window.aircraftMenu?.remoteAction(action);
       if(action==='bomb')bomb(players[1]);
       if(action==='rejoin')tryRejoin(1);
       if(action==='pause'&&mode==='playing')pause('P2 paused the game. Host: press RESUME to continue.');
@@ -127,40 +138,23 @@
   function refreshButtons() {
     const active=!!session;
     $('#lan-create').disabled=active||connecting;$('#lan-join').disabled=active||connecting;
-    for(const id of ['#p2p-create','#p2p-join'])if($(id))$(id).disabled=active||connecting;
-    if($('#p2p-reconnect'))$('#p2p-reconnect').hidden=session?.transport!=='p2p';
     $('#lan-leave').hidden=!active;$('#lan-bar').hidden=!active;
     $('#join-p1').disabled=active;$('#join').disabled=active;
     $('#aircraft-1').disabled=active;$('#aircraft-0').disabled=session?.role==='guest';
-    $('#start').disabled=active&&(session.role==='guest'||!peerConnected);
-    if (active && mode === 'ready') window.aircraftMenu?.open();
+    if (active && mode === 'ready' && window.aircraftMenu) window.aircraftMenu.open();
+    else $('#start').disabled=active&&(session.role==='guest'||!peerConnected);
     $('#lan-open-host').disabled=active||connecting;
     for(const button of $('#lan-rooms').querySelectorAll('button'))button.disabled=active||connecting;
   }
   function connect(credentials) {
+    bandwidth.reset();replication.reset();replicationMode=null;
     session=credentials;lastReceived=performance.now();lastSend=0;peerConnected=false;presenceReady=false;actions=[];padPrevious=[];
     window.aircraftMenu?.reset();
+    window.aircraftMenu?.resetNetwork();
     stopMotion();joined[0]=true;joined[1]=false;mode='ready';players=[];$('#overlay').style.display='flex';
-    show(session.transport==='p2p'?'P2P CO-OP':'Wi-Fi CO-OP',session.role==='host'?'Wait for P2 to join, then press START.':'You control P2. Wait for the host to start.');
+    show('WI-FI CO-OP',session.role==='host'?'Wait for P2 to join, then press START.':'You control P2. Wait for the host to start.');
     $('#lan-code').value=session.code;
     status(`Room ${session.code} · You are ${session.role==='host'?'P1 Host':'P2'}`);
-    if(session.transport==='p2p') {
-      $('#p2p-code').value=session.code;
-      const current=session;
-      transport=window.CatP2P.create(session,{
-        ready(){if(session!==current)return;presenceReady=peerConnected=true;lastReceived=performance.now();status(`Room ${session.code} · Direct connection ready. Host: press START / RESUME`);refreshButtons();},
-        lost(message){if(session!==current)return;presenceReady=false;lost(message);refreshButtons();},
-        message(kind,data){
-          if(session!==current)return;
-          if(kind==='input')acceptInput(window.CatNetProtocol.input(data));
-          else {const state=window.CatNetProtocol.state(data);received();acceptState(state);}
-        },
-        ended(){if(session===current){leave(false);status('The other player left the game. Create or join a new game.');}}
-      });
-      // RAF may stop in background tabs. Detect stalled traffic independently.
-      watchdog=setInterval(()=>checkTimeout(performance.now()),100);
-      refreshButtons();updateHUD();return;
-    }
     stream=new EventSource(`/lan/events?code=${session.code}&token=${session.token}`);
     stream.addEventListener('presence',e=>{
       const p=JSON.parse(e.data);presenceReady=p.host&&p.guest;peerConnected=presenceReady;lastReceived=performance.now();
@@ -170,42 +164,40 @@
     });
     stream.addEventListener('input',e=>{
       if(session?.role!=='host')return;
+      bandwidth.record('input',e.data);
       acceptInput(JSON.parse(e.data));
     });
-    stream.addEventListener('state',e=>{if(session?.role==='guest'){received();acceptState(JSON.parse(e.data));}});
+    stream.addEventListener('state',e=>{if(session?.role==='guest'){bandwidth.record('state',e.data);received();acceptState(JSON.parse(e.data));}});
     stream.addEventListener('ended',()=>{leave(false);status('The host closed the room. Please join again.');});
     stream.onerror=()=>{if(session){lost('Connection lost. Reconnecting; the host can resume once connected.');refreshButtons();}};
     refreshButtons();updateHUD();
   }
-  async function enter(role,kind='lan') {
+  async function enter(role) {
     if(session||connecting)return;
     if(mode==='playing'||mode==='paused'){status('Finish the current run before creating or joining a room.');return;}
     connecting=true;refreshButtons();
     try {
-      if(kind==='p2p'&&!window.RTCPeerConnection)throw Error('This browser does not support WebRTC data channels');
-      const code=$(kind==='p2p'?'#p2p-code':'#lan-code').value.trim().toUpperCase();
-      if(kind==='p2p'&&role==='guest'&&!/^\d{6}$/.test(code))throw Error('Enter the six-digit room code');
-      const credentials=await (kind==='p2p'?window.CatP2P.request:request)(role==='host'?'create':'join',role==='host'?{}:{code},null);
-      if(kind==='p2p'&&(!/^\d{6}$/.test(credentials.code)||! /^[a-f0-9]{48}$/.test(credentials.token)||credentials.role!==role))throw Error('Invalid room response');
+      const code=$('#lan-code').value.trim();
+      if(role==='guest'&&!/^\d{6}$/.test(code))throw Error('Enter the six-digit room code');
+      const credentials=await request(role==='host'?'create':'join',role==='host'?{}:{code},null);
       // Keep the current menu/demo intact when room creation or joining fails.
       window.arcade?.dismiss();
-      connect({...credentials,transport:kind});
-    } catch(error){status('Unable to connect: '+error.message+(kind==='lan'?'. Open the game using the Wi-Fi server URL.':''));}
-    finally {connecting=false;refreshButtons();if(kind==='lan')await discover();}
+      connect({...credentials,transport:'lan'});
+    } catch(error){status('Unable to connect: '+error.message+'. Wi-Fi Co-op requires both devices to be on the same local network and connected to the local Cat Fighter server.');}
+    finally {connecting=false;refreshButtons();await discover();}
   }
   function leave(notify=true) {
-    const old=session;session=null;transport?.close(notify);transport=null;if(watchdog)clearInterval(watchdog);watchdog=null;stream?.close();stream=null;peerConnected=false;actions=[];
-    if(notify&&old&&old.transport!=='p2p')request('leave',{},old).catch(()=>{});
+    const old=session;session=null;stream?.close();stream=null;peerConnected=false;actions=[];
+    if(notify&&old&&old.transport==='lan')request('leave',{},old).catch(()=>{});
     stopMotion();mode='ready';players=[];enemies=[];shots=[];hostile=[];drops=[];sparks=[];bossDebris=[];bossWreck=null;loopTransition=0;score=0;joined.fill(false);
     window.aircraftMenu?.reset();
     show('CAT FIGHTER','You left the room.');refreshButtons();updateHUD();status('Not connected');
   }
   function checkTimeout(now) {
-    if(session&&peerConnected&&now-lastReceived>2000&&(mode==='playing'||transport)){
+    if(session&&peerConnected&&now-lastReceived>2000&&mode==='playing'){
       // Close the stale channel: P1's existing close/input watchdog pauses it.
       // A queued pause can be erased by lost() or blocked behind backpressure.
       // Reconnection preserves the paused host state and requires host RESUME.
-      if(lan.guest&&transport){transport.disconnect();return;}
       if(lan.guest)command('pause');
       lost('Connection timed out. Game paused; check both devices are still connected.');refreshButtons();
     }
@@ -215,8 +207,11 @@
     get active(){return !!session;},get guest(){return session?.role==='guest';},get applying(){return applying;},
     get ready(){return peerConnected;},
     command,
-    diagnostics(){return {snapshotTimes:[...snapshotTimes],bufferedAmount:transport?.bufferedAmount??null};},
-    present(state){const result=presentation?presentation.render(state,performance.now(),localInput(),peerConnected&&!document.hidden):state;lan.lastVisual=result;return result;},
+    resetPresentationDiagnostics(){presentation?.resetDiagnostics();},
+    diagnostics(){return {inputReplication:replication.diagnostics(),presentation:presentation?.diagnostics(),bandwidth:bandwidth.diagnostics(),snapshotTimes:[...snapshotTimes]};},
+    predict(dt){visualDt=dt;if(peerConnected&&performance.now()-lastReceived<=250&&mode==='playing'&&!document.hidden&&loopTransition===0)replication.capture(localInput(),dt);},
+    processMovement(dt,allowed){syncInputMode();if(session?.role==='host'&&peerConnected)replication.process(players[1],dt,allowed);},
+    present(state){let result=presentation?presentation.render(state,performance.now(),localInput(),peerConnected&&!document.hidden):state;if(peerConnected&&performance.now()-lastReceived<=250&&state.mode==='playing'){const p=replication.visual(visualDt);if(p){if(result===state)result={...state,players:[...state.players]};result.players[1]=p;}}lan.lastVisual=result;return result;},
     canStart(){return session?.role==='host'&&peerConnected && (mode==='paused' || !window.aircraftMenu || window.aircraftMenu.canStart());},
     owns(i){return !session||applying||i===(session.role==='host'?0:1);},
     targetFor(i){return session?.role==='host'&&i===1?remote.target:null;},
@@ -259,14 +254,8 @@
       if(!session)return;
       checkTimeout(now);
       if(busy||now-lastSend<50)return;
-      if(transport){
-        lastSend=now;
-        const data=lan.guest?{...(mode==='playing'&&!document.hidden?localInput():neutral()),actions:[...actions]}:snapshot();
-        if(transport.send(lan.guest?'input':'state',data)&&lan.guest)actions=[];
-        return;
-      }
       busy=true;lastSend=now;const current=session;
-      const data=lan.guest?{input:mode==='playing'&&!document.hidden?localInput():neutral(),actions:actions.splice(0)}:{state:snapshot()};
+      const data=lan.guest?{input:{...(mode==='playing'&&!document.hidden?localInput():neutral()),...replication.packet(),selection:window.aircraftMenu?.localSelection()},actions:actions.splice(0)}:{state:snapshot()};
       request(lan.guest?'input':'state',data,current).catch(()=>{if(session===current){lost('Connection failed. Check Wi-Fi or rejoin the room.');refreshButtons();}}).finally(()=>{busy=false;});
     }
   };
@@ -293,16 +282,5 @@
     resumeAfterDialog=false;
   });
   $('#lan-create').onclick=()=>enter('host');$('#lan-join').onclick=()=>enter('guest');$('#lan-leave').onclick=()=>leave();
-  if($('#p2p-create'))$('#p2p-create').onclick=()=>enter('host','p2p');
-  if($('#p2p-join'))$('#p2p-join').onclick=()=>enter('guest','p2p');
-  if($('#p2p-reconnect'))$('#p2p-reconnect').onclick=()=>transport?.reconnect();
-  const suspend=()=>{
-    if(!transport)return;
-    stopMotion();actions=[];
-    if(lan.guest)transport.send('input',{...neutral(),actions:['pause']});
-    else {pauseHost('Player left the game window. Host: resume when ready.');transport.send('state',snapshot());}
-  };
-  window.addEventListener('blur',suspend);
-  document.addEventListener('visibilitychange',()=>{if(document.hidden)suspend();});
-  window.addEventListener('pagehide',()=>{if(transport){suspend();leave();return;}if(session)fetch('/lan/leave',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.token},body:JSON.stringify({code:session.code}),keepalive:true}).catch(()=>{});});
+  window.addEventListener('pagehide',()=>{if(session)fetch('/lan/leave',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.token},body:JSON.stringify({code:session.code}),keepalive:true}).catch(()=>{});});
 })();

@@ -1,6 +1,6 @@
 # Cat Fighter — Pacific Paws
 
-ROM 語意版本、自動 SHA 建置與 Pages 切換方式見 [ROM-VERSION](docs/ROM-VERSION.md)。
+ROM 產品版本、自動 Build ID、快取驗證與 Pages 切換方式見 [ROM-VERSION](docs/ROM-VERSION.md)。
 
 ## 動態難度（2026-09-11）
 
@@ -45,7 +45,7 @@ ROM 語意版本、自動 SHA 建置與 Pages 切換方式見 [ROM-VERSION](docs
 - 現行驗證：`tests/aircraft-menu-browser.cjs`、`tests/aircraft-network-browser.cjs`、`tests/coop-menu-browser.cjs`、`tests/net-protocol.test.cjs`、`tests/lan.test.cjs`。後文的手掣、同機雙人及 drop-in 說明／測試保留作舊版記錄，並非現行觸控介面的驗收條件。
 
 
-原創貓鼠二戰戰機直向射擊遊戲，支援本機一至兩人。遊戲執行無套件或網絡依賴，使用 Canvas、內附 PNG 素材與 Web Audio。
+原創貓鼠二戰戰機直向射擊遊戲，支援單人及同一區域網絡內的兩人合作。單人遊戲無網絡依賴；跨裝置合作只使用本機 Cat Fighter LAN server，不支援 Internet 配對或公開 relay。
 
 大佬損毀階段新增金屬碎片：75%／50%／25%／10% 門檻觸發飛散、翻滾及淡出；詳細行為與驗證見 `docs/BOSS-DAMAGE.md`。
 
@@ -76,7 +76,7 @@ ROM 語意版本、自動 SHA 建置與 Pages 切換方式見 [ROM-VERSION](docs
 - 開始畫面按 START 進入選機；P1／P2 各有觸控操作區及實際戰機圖格。先加入，再預選及 CONFIRM；先確認者佔用該款，另一人只能確認剩餘戰機。
 - CANCEL CHOICE 只解除鎖定；獨立 LEAVE / SOLO 隨時退出（包括已 READY），手掣可保持連接。所有仍參與的玩家確認後，START 閃動。確認與開始是分開的操作。
 - 搖桿／十字掣依固定按鈕列上下左右移動 P1／P2 焦點框；推動一次後回中才進行下一次移動，避免斜推抖動連跳。再移動焦點框，再用畫面標示的選取鍵執行該按鈕；加入、戰機、CONFIRM、CANCEL CHOICE、LEAVE 及 START 都以畫面按鈕操作，不使用炸彈／暫停鍵作選單捷徑。鍵盤用 P1 A/D/F/G、P2 左右/K/L，Enter 開始。
-- TWO-PLAYER 可選 SAME SCREEN、CREATE ROOM（P1）或 JOIN ROOM（P2）。房間碼可用觸控數字鍵盤或搖桿導航輸入；連線後明確標示身分及等待／就緒狀態，僅房主可 START／RESUME。原有 Wi-Fi LAN 操作保留在展開區。
+- TWO-PLAYER 只提供 WI-FI CO-OP（同一網絡）。可 CREATE GAME（P1）或以六位數字房間碼 JOIN GAME（P2）；連線後明確標示身分及等待／就緒狀態，僅房主可 START／RESUME。LAN 主機網址與搜尋保留在 Advanced / Diagnostics。
 - 在開始／選機畫面輸入 `joypad` 開啟隱藏手掣設定。
 - 驗證：`tests/aircraft-menu-browser.cjs`、`tests/coop-menu-browser.cjs`；使用 Playwright 內附 headless Chromium。連線面板測試以記憶體 transport 驅動實際 LAN 協調器，不連接外部服務。
 
@@ -98,11 +98,13 @@ P1／P2 及普通鼠兵、雙引擎重型機、巡邏艇、四引擎鼠王已接
 
 產物與驗證見 `docs/LEVEL1-INTEGRATION.md`、`artifacts/level1/`。
 
-## WebRTC 雙人連線（Phase 1）
+## Local Wi-Fi / LAN co-op only
 
-TWO-PLAYER → Create Game / Join Game 使用六位數字房號，連通後透過 WebRTC 直接傳送遊戲資料，P1 維持權威模擬。原有 Wi-Fi LAN 模式仍保留。
+TWO-PLAYER → WI-FI CO-OP 使用六位數字房號，所有配對與遊戲資料都經同一網絡上的本機 Cat Fighter server；P1 維持權威模擬。不再提供公開 Internet signaling、WebRTC 配對或 relay fallback。
 
-開發伺服器：`node tools/p2p-server.cjs`。公開使用需部署同源 HTTPS 信令服務；靜態網站本身不能處理配對。架構、安全限制、操作與驗證見 [WEBRTC-PHASE1](docs/WEBRTC-PHASE1.md)。
+LAN 測試／遊玩伺服器：`node tools/lan-server.cjs`。兩部裝置必須開啟終端顯示的同一 LAN 網址。公開靜態網站沒有 LAN server 時，雙人入口會顯示本機伺服器需求，不會改用遠端服務。
+
+現行流程、殘留引用分類及待人工關閉項目見 [LAN-ONLY-MULTIPLAYER](docs/LAN-ONLY-MULTIPLAYER.md)。
 
 ## 開始
 

@@ -25,3 +25,13 @@ test('aircraft lobby readiness and guest choice commands survive the wire bounda
   assert.deepEqual(protocol.input({x:0,y:0,fire:false,target:null,actions}).actions,actions);
   assert.throws(()=>protocol.input({x:0,y:0,fire:false,target:null,actions:['aircraft-2']}));
 });
+
+
+test('selection versions survive transport and reject invalid ownership payloads',()=>{
+  const selection={model:1,ready:true,revision:7};
+  const input={x:0,y:0,fire:false,target:null,actions:[],selection};
+  assert.deepEqual(protocol.input(input).selection,selection);
+  assert.deepEqual(protocol.state({...empty(),aircraftSelection:{revisions:[4,7]}}).aircraftSelection,{revisions:[4,7]});
+  for(const patch of [{model:2},{ready:1},{revision:-1},{revision:1.5}])assert.throws(()=>protocol.input({...input,selection:{...selection,...patch}}));
+  for(const revisions of [[1],[-1,2],[1,2,3]])assert.throws(()=>protocol.state({...empty(),aircraftSelection:{revisions}}));
+});

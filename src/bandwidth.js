@@ -21,7 +21,7 @@
         const time=now();prune(time);
         const observedSeconds=Math.min(windowSeconds,Math.max(0,(time-started)/1000));
         const result={windowSeconds,observedSeconds,
-          measurement:'Local outgoing + incoming logical JSON, once per direction. P2P includes kind/data; LAN outgoing includes POST envelope, incoming is SSE data. Excludes fragmentation, headers, signaling, retransmissions; POST counts submissions, P2P counts fully queued messages. Decimal MB; relay is a payload-only estimate.'};
+          measurement:'Local LAN outgoing + incoming logical JSON, once per direction. Outgoing values include the POST envelope; incoming values are SSE data. Excludes HTTP headers and request retries. Decimal MB.'};
         for(const [kind,list] of Object.entries(samples)) {
           const bytes=list.reduce((sum,s)=>sum+s.bytes,0);
           const bytesPerSecond=observedSeconds?bytes/observedSeconds:0;
@@ -29,8 +29,6 @@
             bytesPerSecond,averageBytes:list.length?bytes/list.length:0,peakBytes:list.reduce((peak,s)=>Math.max(peak,s.bytes),0),
             estimatedMBPerHour:bytesPerSecond*3600/1e6};
         }
-        const oneWay=result.state.estimatedMBPerHour+result.input.estimatedMBPerHour;
-        result.relayEstimate={piDownloadMBPerHour:oneWay,piUploadMBPerHour:oneWay,piTotalMBPerHour:2*oneWay};
         return result;
       }
     };

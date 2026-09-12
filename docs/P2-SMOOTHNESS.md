@@ -1,5 +1,7 @@
 # P2 呈現平滑化 — 2026-09-09
 
+> **封存 transport 測試記錄。** 本文的 RTC 測試路徑已從正式遊戲移除；呈現與 P1 權威邏輯仍由現行 LAN 測試覆蓋。
+
 狀態：PASS — ready for another physical P2 smoothness test
 
 未 Commit／Push。沒有修改 update()、碰撞、敵人、Boss、武器、分數、玩法計時或 P1 權威規則。原有 src/arcade.js、style.css 與其他未追蹤工作保留。

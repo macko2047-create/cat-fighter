@@ -1,10 +1,10 @@
 'use strict';
-// Two isolated game runtimes, real HTTP/SSE relay, deterministic DOM/input stubs.
+// Two isolated game runtimes, real local HTTP/SSE server, deterministic DOM/input stubs.
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const vm=require('node:vm');
-const {createLanServer}=require('../tools/lan-server.cjs');
+const {createLanServer,generateRoomCode}=require('../tools/lan-server.cjs');
 let base=process.env.CAT_LAN_URL, server;
 const streams=[];
 const wait=async fn=>{for(let i=0;i<150;i++){if(fn())return;await new Promise(r=>setTimeout(r,20));}throw Error('Timed out waiting for LAN state');};
@@ -37,19 +37,20 @@ function runtime(){
     close(){this.controller.abort();}
     interrupt(){this.close();this.onerror?.();}
   }
-  const sandbox={console,Math,performance,AbortSignal,EventSource:SSE,
+  const sandbox={console,Math,performance,TextEncoder,AbortSignal,EventSource:SSE,
     fetch:(url,options)=>fetch(base+url,options),location:{origin:base},
     document:{createElement:()=>el('created-'+Math.random()),hidden:false,body:{classList:{toggle(){}},dataset:{}},documentElement:{style:{setProperty(){}}},querySelector:el,
       addEventListener:(n,f)=>(documentEvents[n]??=[]).push(f)},
     window:{innerHeight:800,innerWidth:600,addEventListener:(n,f)=>(events[n]??=[]).push(f)},
     navigator:{getGamepads:()=>gamepads},localStorage:{getItem:()=>null,setItem(){}},requestAnimationFrame(){}};
   vm.createContext(sandbox);
-  for(const file of ['src/world.js','src/assets.js','src/render.js','src/audio.js','src/levels/level1.js','src/enemies.js','game.js','src/controls.js','src/presentation.js','src/lan.js','src/arcade.js'])vm.runInContext(fs.readFileSync(path.join(__dirname,'..',file),'utf8'),sandbox,{filename:file});
+  for(const file of ['src/world.js','src/assets.js','src/render.js','src/audio.js','src/levels/level1.js','src/enemies.js','src/input-replication.js','game.js','src/controls.js','src/presentation.js','src/bandwidth.js','src/lan.js','src/arcade.js'])vm.runInContext(fs.readFileSync(path.join(__dirname,'..',file),'utf8'),sandbox,{filename:file});
   const run=s=>vm.runInContext(s,sandbox);
   return {run,el,events,pad:p=>{gamepads=p;},key:(code,up=false)=>{for(const fn of events[up?'keyup':'keydown']||[])fn({code,repeat:false,target:{tagName:'BODY'},preventDefault(){}});},pointer:(type,x,y)=>{for(const fn of el('.screen').listeners[type]||[])fn({pointerId:1,pointerType:'touch',clientX:x,clientY:y,preventDefault(){}});}};
 }
 (async()=>{
-  if(!base){server=createLanServer();await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',resolve);});base=`http://127.0.0.1:${server.address().port}`;}
+  for(let i=0;i<2048;i++)assert.match(generateRoomCode(),/^[0-9]{6}$/,'generated room codes are six numeric characters');
+  if(!base){server=createLanServer({roomCodeGenerator:()=> '012847'});await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',resolve);});base=`http://127.0.0.1:${server.address().port}`;}
   let timer;
   const host=runtime(),guest=runtime();
   const post=(route,data={},token)=>fetch(base+'/lan/'+route,{method:'POST',headers:{'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})},body:JSON.stringify(data)});
@@ -61,8 +62,11 @@ function runtime(){
     cancel.el('#lan-close').onclick();
     assert.equal(cancel.run('mode'),'playing','closing Wi-Fi settings without a room resumes the active run');
     assert.equal((await fetch(base+'/tools/lan-server.cjs')).status,404,'server source not served');
+    assert.equal((await fetch(base+'/src/p2p-transport.js')).status,404,'archived Internet transport is not served');
+    assert.equal((await fetch(base+'/src/relay-transport.js')).status,404,'archived relay transport is not served');
     assert.equal((await fetch(base+'/src/..%2FREADME.md')).status,403,'encoded traversal rejected');
     const checkHost=await (await post('create')).json();
+    if(server){assert.equal(checkHost.code,'012847');assert.equal(typeof checkHost.code,'string','leading-zero room code is serialized as a string');}
     assert.deepEqual(await (await fetch(base+'/lan/rooms')).json(),{rooms:[]},'host without event stream is not advertised');
     const checkGuest=await (await post('join',{code:checkHost.code})).json();
     assert.equal((await post('state',{code:checkHost.code,state:{players:[]}},checkGuest.token)).status,405,'guest cannot publish game state');
@@ -70,7 +74,8 @@ function runtime(){
     await post('leave',{code:checkHost.code},checkHost.token);
     assert.equal((await post('join',{code:'XXXXXX'})).status,404);
     await host.el('#lan-create').onclick();
-    const code=host.el('#lan-code').value;assert.match(code,/^[A-F0-9]{6}$/);
+    const code=host.el('#lan-code').value;assert.match(code,/^[0-9]{6}$/);
+    if(server)assert.equal(code,'012847','host preserves all six characters of a leading-zero room code');
     const roomList=async()=>{const response=await fetch(base+'/lan/rooms');assert.equal(response.headers.get('cache-control'),'no-store');return response.json();};
     await wait(()=>streams[0].handlers.presence);
     let listed;
@@ -82,19 +87,31 @@ function runtime(){
     guest.el('#lan-close').onclick();
     host.run('start()');assert.equal(host.run('mode'),'ready','host waits for P2');
     await guest.el('#lan-rooms').children[0].onclick();
+    assert.equal(guest.el('#lan-code').value,code,'client accepts the numeric code without dropping its leading zero');
+    assert.equal(host.run('window.lan.menuState.code'),code);
+    assert.equal(guest.run('window.lan.menuState.code'),code,'host and guest resolve the same string room code');
     assert.deepEqual(await roomList(),{rooms:[]},'full room is excluded');
     timer=setInterval(()=>{const now=performance.now();host.run(`frame(${now})`);guest.run(`frame(${now})`);},16);
     await wait(()=>host.run('window.lan.ready')&&guest.run('window.lan.ready'));
     assert.equal((await post('join',{code})).status,409,'third player rejected');
     assert.equal((await post('state',{code,state:{players:[]}},'invalid')).status,403);
-    host.run("window.choiceCommands=[];window.aircraftMenu={remoteAction:a=>window.choiceCommands.push(a),canStart:()=>true,snapshot:()=>[false,false],poll:()=>false,open(){},peerLost(){},reset(){},beforeStart:()=>true}");
+    host.run("window.choiceCommands=[];window.aircraftMenu={networkState(){},acceptRemote:value=>{if(value)window.receivedSelection=value;},remoteAction:a=>window.choiceCommands.push(a),canStart:()=>true,snapshot:()=>[false,false],poll:()=>false,open(){},peerLost(){},reset(){},beforeStart:()=>true}");
     guest.run("['aircraft-1','confirm-aircraft','cancel-aircraft'].forEach(a=>window.lan.command(a))");
     await wait(()=>host.run('window.choiceCommands.length')===3);
-    assert.equal(host.run('JSON.stringify(window.choiceCommands)'),JSON.stringify(['aircraft-1','confirm-aircraft','cancel-aircraft']),'Wi-Fi relay preserves ordered selection commands');
+    assert.equal(host.run('JSON.stringify(window.choiceCommands)'),JSON.stringify(['aircraft-1','confirm-aircraft','cancel-aircraft']),'Wi-Fi server preserves ordered selection commands');
+    guest.run('window.aircraftMenu={localSelection:()=>({model:0,ready:true,revision:7}),acceptNetwork(){},poll:()=>false}');
+    await wait(()=>host.run('window.receivedSelection?.revision')===7);
+    assert.equal(host.run('JSON.stringify(window.receivedSelection)'),JSON.stringify({model:0,ready:true,revision:7}),'Wi-Fi forwards versioned selection state');
+    guest.run('delete window.aircraftMenu');
     host.run('delete window.aircraftMenu');
     host.run("start();wave=999;nextSupply=999;extraLifeSpawned=true;players.forEach(p=>p.inv=99)");
     await wait(()=>guest.run("mode==='playing'&&players.length===2"));
     assert.equal(guest.el('#start').disabled,true,'guest cannot restart host');
+    for(const peer of [host,guest]){
+      const stats=peer.run('window.lan.diagnostics().bandwidth');
+      assert.ok(stats.state.messages>0&&stats.input.messages>0,'both payload directions are measured on each LAN peer');
+      assert.ok(stats.state.bytes>stats.input.bytes,'state and input counters remain separate');
+    }
     const x=host.run('players[1].x'),p1x=host.run('players[0].x');
     guest.key('KeyD');guest.key('KeyF');
     await wait(()=>host.run('players[1].x')>x+20&&host.run('shots.some(s=>s.owner.index===1)'));
@@ -130,6 +147,8 @@ function runtime(){
     streams[1].interrupt();await wait(()=>host.run('mode')==='paused'&&!host.run('window.lan.ready'));
     host.run('pause()');assert.equal(host.run('mode'),'paused','cannot resume with P2 disconnected');
     streams[1].open();await wait(()=>host.run('window.lan.ready')&&guest.run('window.lan.ready'));
+    assert.equal(host.run('window.lan.menuState.code'),code);
+    assert.equal(guest.run('window.lan.menuState.code'),code,'reconnect retains the same six-character room code');
     assert.equal(host.run('mode'),'paused','reconnection requires deliberate resume');
     host.run('pause()');await wait(()=>guest.run('mode')==='playing');
     host.run('completeLoop()');await wait(()=>guest.run('loopTransition')>0);

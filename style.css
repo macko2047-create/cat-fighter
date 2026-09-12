@@ -452,6 +452,9 @@ body.in-flight { overflow: hidden; height: var(--play-height, 100dvh); }
 #boot-screen { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; background: #03090c; padding: 24px; }
 #boot { color: #f3dda1; border: 1px solid #b79758; background: #112327; border-radius: 8px; padding: 30px 48px; font: 40px var(--arcade-font); box-shadow: 0 0 50px #a6ddc51a; }
 #boot span { display: block; font: 10px monospace; letter-spacing: 2px; margin-top: 18px; color: #8fa9a3; }
+#boot { max-width: 100%; padding-inline: clamp(16px, 6vw, 48px); }
+#boot #rom-version { font: 12px/1.5 monospace; letter-spacing: 0; margin-top: 12px; color: #a9bdb0; }
+#boot #build-version { font: clamp(8px, 2.3vw, 10px)/1.5 monospace; letter-spacing: 0; margin-top: 4px; color: #8fa9a3; overflow-wrap: anywhere; }
 #boot-log { color: #a3e2c3; max-width: 100%; font: clamp(11px, 3vw, 18px) monospace; line-height: 2; }
 #boot-log > span { color: #f3dda1; }
 #boot-text { white-space: pre-wrap; }
@@ -524,25 +527,69 @@ button:disabled { opacity: .5; cursor: default; }
 @keyframes ready-pulse { 50% { box-shadow: 0 0 22px #ffe49b; background: #ffe49b; color: #10252b; } }
 @media (prefers-reduced-motion: reduce) { .start-ready { animation: none; outline: 3px solid #ffe49b; } }
 
-#lan-dialog { font-family: monospace; padding: 18px; border-radius: 12px; }
-#lan-dialog h2 { font-size: 24px; margin: 0 0 12px; }
-#coop-step { color: #ffdf93; font-weight: bold; }
-.coop-options { display: grid; gap: 10px; }
-#lan-dialog button { min-height: 44px; min-width: 0; padding: 10px; font: bold 13px monospace; }
-.coop-options button { display: grid; gap: 8px; text-align: left; margin: 0; }
-.coop-options span { font-weight: normal; font-size: 12px; }
-#coop-host, #coop-host-panel, #coop-role { color: #ffcf7c; }
-#coop-guest, #coop-guest-panel { color: #8be0d1; }
-#p2p-code, #coop-room-code { font-size: 25px; letter-spacing: 4px; }
-#coop-keypad { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; margin: 10px 0; }
-#coop-keypad button { margin: 0; }
-#coop-controls { font-size: 12px; color: #b9d6d1; }
-#lan-dialog :focus-visible { outline: 3px solid #ffdf93; outline-offset: 2px; }
-#coop-start { width: 100%; }
-#lan-dialog details { margin: 15px 0; padding: 10px; border: 1px solid #476368; }
-#lan-status { padding: 10px; background: #0a2028; overflow-wrap: anywhere; }
+/* Two-player cabinet: one decision per screen; diagnostics alone can scroll. */
+#lan-dialog {
+  width: min(460px, calc(100vw - 24px)); max-width: calc(100vw - 24px);
+  max-height: calc(100dvh - 24px); padding: 16px; border: 2px solid var(--gold); border-radius: 0;
+  background: #0b2029; color: #efe7cb; font: 14px/1.4 monospace;
+  box-shadow: 0 0 0 4px #173a40, 0 14px 40px #0008; overflow: hidden; overflow-wrap: anywhere;
+}
+#lan-dialog::backdrop { background: #020e18d9; }
+#lan-dialog [hidden] { display: none !important; }
+#lan-dialog .link-marquee { text-align: center; padding: 4px 0 12px; border-bottom: 3px double #60857f; }
+#lan-dialog .link-marquee p { color: var(--gold); font: 22px/1.4 var(--arcade-font); margin: 0 0 6px; }
+#lan-dialog h2 { font: 14px/1.4 var(--arcade-font); margin: 0; }
+#lan-dialog h3 { font: 14px/1.5 var(--arcade-font); color: var(--gold); margin: 0 0 8px; }
+#lan-dialog p { margin: 8px 0; line-height: 1.4; }
+#lan-dialog .coop-options { display: grid; gap: 10px; }
+#lan-dialog section { padding: 12px; border: 1px solid #587b77; background: #12313a; }
+#lan-dialog button {
+  display: block; width: 100%; min-height: 48px; min-width: 0; padding: 12px 8px; margin: 8px 0 0;
+  border: 1px solid #b7a577; border-bottom: 3px solid #8c794c; border-radius: 0;
+  background: #23474a; color: #fff0c5; font: 12px/1.5 var(--arcade-font); text-align: center;
+  white-space: normal; box-shadow: none;
+}
+#lan-dialog .coop-options button { min-height: 64px; margin: 0; }
+#lan-dialog .coop-options small { display: block; margin-top: 5px; color: #bce7d9; font: 11px/1.4 monospace; }
+#lan-dialog button:hover { background: #315c5b; }
+#lan-dialog button:disabled { opacity: .5; cursor: default; }
+#lan-dialog :focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+#lan-dialog :is(#lan-create, #lan-join, #coop-start) { background: var(--gold); color: #10262e; }
+#lan-dialog #coop-step { padding: 10px 8px; border-left: 3px solid #98dbc9; background: #071c25; color: #bce7d9; font: 12px/1.5 monospace; }
+#lan-dialog label { display: block; color: #bce7d9; font-size: 12px; margin-bottom: 6px; }
+#lan-dialog input { min-height: 48px; min-width: 0; border: 1px solid #71918a; border-radius: 0; background: #061820; color: #fff0c5; font-size: 16px; }
+#lan-dialog :is(#lan-code, #coop-room-code) {
+  padding: 10px 6px; border: 2px solid #ad9b69; background: #061820;
+  color: var(--gold); font: 24px/1.5 var(--arcade-font); letter-spacing: 3px; text-align: center;
+}
+#lan-dialog #coop-room-code { user-select: all; }
+#lan-dialog #coop-next { color: #bce7d9; font-size: 12px; }
+#lan-dialog .link-footer { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+#lan-dialog .link-footer button { flex: 1 1 40%; margin: 0; background: #0d252f; border-color: #6c928b; color: #bce7d9; font-size: 10px; min-height: 44px; padding: 8px 4px; }
+#lan-dialog #coop-advanced { flex-basis: 100%; font: 11px/1.4 monospace; }
+#lan-dialog:not([data-screen="connected"]) #lan-leave { display: none; }
+#lan-dialog[data-screen="diagnostics"] { overflow-y: auto; }
+#lan-dialog[data-screen="diagnostics"] .link-footer { position: sticky; bottom: -16px; background: #0b2029; padding: 8px 0; }
+#lan-dialog code { color: var(--gold); overflow-wrap: anywhere; }
+@media (max-height: 600px) {
+  #lan-dialog { padding: 10px; }
+  #lan-dialog .link-marquee { padding: 0 0 6px; }
+  #lan-dialog .link-marquee p { display: none; }
+  #lan-dialog #coop-step { padding: 6px; margin: 6px 0; }
+  #lan-dialog section { padding: 8px; }
+  #lan-dialog button, #lan-dialog .coop-options button { min-height: 44px; padding-block: 8px; }
+  #lan-dialog .link-footer { margin-top: 8px; }
+  #lan-dialog .link-footer button, #lan-dialog #coop-advanced { flex: 1 1 0; font-size: 9px; }
+  #lan-dialog :is(#lan-code, #coop-room-code) { padding-block: 4px; font-size: 20px; }
+}
 
-/* Controller cursor is distinct from the aircraft ownership/selection border. */
+@media (max-height: 380px) {
+  #lan-dialog #coop-connected { display: grid; grid-template-columns: 1fr 1.4fr; align-items: center; gap: 6px; }
+  #lan-dialog #coop-role { margin: 0; font-size: 11px; }
+  #lan-dialog #coop-room-code { margin: 0; font-size: 18px; letter-spacing: 1px; }
+  #lan-dialog #coop-connected :is(#coop-next, button) { grid-column: 1 / -1; margin: 0; }
+}
+
 #overlay .pad-focus-0, #overlay .pad-focus-1, #lan-dialog .menu-focus {
   outline: 3px solid #fff4ba; outline-offset: 3px; position: relative;
   box-shadow: 0 0 0 6px #10252b !important;

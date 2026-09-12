@@ -1,17 +1,16 @@
 <!doctype html>
 <html lang="en">
   <meta charset="utf-8">
-  <!-- Public P2P: set the HTTPS Worker origin. Empty preserves same-origin Node/LAN. -->
-  <meta name="cat-fighter-signaling-origin" content="https://cat-fighter-signaling.catfighter-signal.workers.dev">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>CAT FIGHTER • Pacific Paws</title>
-  <link rel="stylesheet" href="style.css?v=35fceefa79c0">
+  <link rel="stylesheet" href="style.css?v=428e7e13c57d">
   <body class="arcade-shell" data-arcade="off" data-input-mode="touch">
     <div id="boot-screen">
-      <button id="boot">BOOT <span id="rom-version"></span><span>TOUCH TO POWER ON</span></button>
+      <button id="boot">BOOT <span id="rom-version"></span><span id="build-version"></span><span>TOUCH TO POWER ON</span></button>
       <div id="boot-log" hidden role="status"><span>PACIFIC PAWS · ARCADE SYSTEM</span><pre id="boot-text"></pre></div>
     </div>
-    <script src="src/rom-version.js?v=6ec3d9103c29"></script>
+    <!-- cat-build-info -->
+    <script src="src/rom-version.js?v=aad47f2c23fb"></script>
     <main>
       <section class="cabinet">
         <div class="topline">
@@ -95,8 +94,7 @@
       <p id="coop-step" role="status">CHOOSE A MODE</p>
       <div id="coop-options" class="coop-options">
         <button id="coop-local" hidden>SAME SCREEN</button>
-        <button id="coop-wifi"><span id="wifi-title">WIFI 2 PLAYERS</span></button>
-        <button id="coop-internet"><span id="internet-title">INTERNET 2 PLAYERS</span></button>
+        <button id="coop-wifi"><span id="wifi-title">WI-FI CO-OP</span><small>Same network required</small></button>
       </div>
       <section id="coop-roles" hidden>
         <button id="coop-host">CREATE GAME</button>
@@ -104,23 +102,18 @@
       </section>
       <section id="coop-host-panel" hidden>
         <h3>P1 · CREATE GAME</h3>
-        <button id="p2p-create">CREATE GAME</button>
-        <button id="lan-create" hidden>CREATE GAME</button>
+        <button id="lan-create">CREATE GAME</button>
       </section>
       <section id="coop-guest-panel" hidden>
-        <label for="p2p-code" id="coop-code-label">ROOM CODE</label>
-        <input id="p2p-code" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="000000" autocomplete="off" spellcheck="false">
-        <input id="lan-code" hidden maxlength="6" placeholder="ROOM CODE" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Room code">
-        <div id="coop-keypad" hidden aria-label="Room code keypad"></div>
-        <button id="p2p-join">JOIN GAME</button>
-        <button id="lan-join" hidden>JOIN GAME</button>
+        <label for="lan-code" id="coop-code-label">ROOM CODE</label>
+        <input id="lan-code" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="000000" autocomplete="off" spellcheck="false" aria-label="Room code">
+        <button id="lan-join">JOIN GAME</button>
       </section>
       <section id="coop-connected" hidden>
         <h3 id="coop-role"></h3>
         <p id="coop-room-code" aria-label="Room code"></p>
         <p id="coop-next" role="status"></p>
         <button id="coop-start" hidden>CHOOSE AIRCRAFT</button>
-        <button id="p2p-reconnect" hidden>RECONNECT</button>
       </section>
       <section id="wifi-controls" hidden aria-label="Advanced / Diagnostics">
         <h3 id="wifi-setup-title">ADVANCED / DIAGNOSTICS</h3>
@@ -143,25 +136,25 @@
       </div>
     </dialog>
     <script src="src/world.js?v=5c520ff0b9f9"></script>
-    <script src="src/assets.js?v=4680be27ef9d"></script>
-    <script src="src/render.js?v=32fd95a33328"></script>
+    <script src="src/assets.js?v=6bb3b4951971"></script>
+    <script src="src/render.js?v=79d9c894f800"></script>
     <script src="src/audio.js?v=97b84fb8767c"></script>
-    <script src="src/levels/level1.js?v=7d6fea367f52"></script>
+    <script src="src/levels/level1.js?v=0d08827a2d18"></script>
     <script src="src/enemies.js?v=678ab88195f6"></script>
-    <script src="game.js?v=984b89bf00eb"></script>
+    <script src="src/input-replication.js?v=ccff1be399ea"></script>
+    <script src="game.js?v=56202f62c3e4"></script>
     <script src="src/half-controllers.js?v=c30b04b7668e"></script>
     <script src="src/controller-export.js?v=54a715bb5ffb"></script>
     <script src="src/controller-setup.js?v=6cc70d91bdc9"></script>
     <script src="src/controls.js?v=b595d7dc7768"></script>
-    <script src="src/net-protocol.js?v=200a284e45bb"></script>
-    <script src="src/p2p-transport.js?v=3b63b73e051d"></script>
-    <script src="src/presentation.js?v=cd01682aab8c"></script>
-    <script src="src/bandwidth.js"></script>
-    <script src="src/lan.js?v=67b28dddf7fb"></script>
+    <script src="src/net-protocol.js?v=f6518cf8592d"></script>
+    <script src="src/presentation.js?v=0887fd7adaa6"></script>
+    <script src="src/bandwidth.js?v=0dadcd2c15e0"></script>
+    <script src="src/lan.js?v=78aa40afe941"></script>
     <script src="src/arcade.js?v=0f3a05a5e237"></script>
     <script src="src/menu-navigation.js?v=63b201a2f6e8"></script>
-    <script src="src/aircraft-menu.js?v=d2fec78b1169"></script>
-    <script src="src/coop-menu.js?v=6cc6b99b3975"></script>
+    <script src="src/aircraft-menu.js?v=d3946b0eef61"></script>
+    <script src="src/coop-menu.js?v=88c239e0d69a"></script>
     <script src="src/drop-in.js?v=b26eb8fd710a"></script>
   </body>
 </html>

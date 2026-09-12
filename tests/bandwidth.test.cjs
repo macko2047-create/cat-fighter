@@ -1,0 +1,22 @@
+'use strict';
+const test=require('node:test'),assert=require('node:assert/strict');
+const {create}=require('../src/bandwidth.js');
+test('UTF-8 LAN JSON is unchanged, classified once, with rolling rates',()=>{
+  let time=0;const meter=create(()=>time);
+  const payload=Object.freeze({text:'貓🐈é',nested:Object.freeze({x:1})});
+  const json=JSON.stringify({kind:'state',data:payload}),before=JSON.stringify(payload);
+  meter.record('state',json);meter.record('input','{}');meter.record('bye','{}');
+  time=10000;
+  let d=meter.diagnostics(),bytes=Buffer.byteLength(json,'utf8');
+  assert.ok(bytes>json.length);assert.equal(d.state.bytes,bytes);
+  assert.equal(d.state.messages,1);assert.equal(d.input.bytes,2);
+  assert.equal(d.state.messagesPerSecond,.1);assert.equal(d.state.bytesPerSecond,bytes/10);
+  assert.equal(d.state.averageBytes,bytes);assert.equal(d.state.peakBytes,bytes);
+  meter.record('state','{}');d=meter.diagnostics();assert.equal(d.state.averageBytes,(bytes+2)/2);
+  assert.equal(JSON.stringify(payload),before);assert.equal(json,JSON.stringify({kind:'state',data:payload}));
+  time=20000;d=meter.diagnostics();assert.equal(d.state.bytes,2);assert.equal(d.state.peakBytes,2);
+  assert.equal(d.state.bytesPerSecond,.1);assert.equal(d.input.messages,0);
+  time=30000;assert.equal(meter.diagnostics().state.bytes,0);
+  meter.reset();assert.equal(meter.diagnostics().observedSeconds,0);
+  assert.equal(meter.diagnostics().state.bytesPerSecond,0);
+});

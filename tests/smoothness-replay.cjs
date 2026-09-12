@@ -1,0 +1,4 @@
+const {create}=require(process.argv[2]||'../src/presentation.js');
+const neutral={x:0,y:0};
+function state(t){const x=100+t*.26;return {mode:'playing',loop:1,loopTransition:0,elapsed:t/1000,ambient:t/1000,players:[{netId:1,x,y:200},{netId:2,x,y:200,lives:3,respawn:0,entering:false}],enemies:[],shots:[],hostile:[],drops:[],sparks:[],bossDebris:[]};}
+for(const jitter of [false,true]){const p=create();let s,steps=[[],[]],prev;let n=0;for(let t=0;t<1200;t+=1000/60){while(n*50+(jitter?[0,20,-10,10][n%4]:0)<=t){s=state(n*50);p.accept(s,n*50+(jitter?[0,20,-10,10][n%4]:0));n++;}const r=p.render(s,t,{x:1,y:0},true);if(prev&&t>300)r.players.forEach((x,i)=>steps[i].push((x.x-prev.players[i].x)*60));prev=r;}console.log({jitter,velocity:steps.map(a=>{let mean=a.reduce((a,b)=>a+b)/a.length;return {mean,std:Math.sqrt(a.reduce((s,x)=>s+(x-mean)**2,0)/a.length),min:Math.min(...a),max:Math.max(...a)}})});}

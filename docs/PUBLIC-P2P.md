@@ -1,5 +1,7 @@
 # Public two-device multiplayer
 
+> **Archived deployment record.** Public Internet multiplayer was removed from the production game on 2026-09-12. This document is retained only to identify infrastructure that still needs manual shutdown; none of these steps describe a supported player flow.
+
 Before: the browser posts to same-origin `/p2p/*`; GitHub Pages cannot implement
 those routes. A running Node server was necessary for room creation/reconnect.
 

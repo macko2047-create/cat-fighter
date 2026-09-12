@@ -1,5 +1,5 @@
 'use strict';
-// One touch pilot per device. The host owns the shared network lobby state.
+// Each device owns its selection; the host mirrors P2 for start validation.
 (() => {
   const panel = document.createElement('section');
   panel.id = 'aircraft-menu'; panel.hidden = true;
@@ -12,12 +12,29 @@
   </section>`).join('') + '<p id="selection-status" role="status" aria-live="polite"></p>';
   $('#overlay').insertBefore(panel, $('#start'));
   const locked = [false,false];
-  let active = false, network = false;
+  let active = false, network = false, signature = '';
+  const revisions = [0,0];
+  let remoteRevision = -1, restored = false;
+  function change(slot, model, confirmed, source, revision) {
+    const previous = {aircraft:aircraft[slot], ready:locked[slot]};
+    if (revision !== undefined) revisions[slot] = revision;
+    if (previous.aircraft === model && previous.ready === confirmed) return false;
+    aircraft[slot] = model; locked[slot] = confirmed;
+    if (revision === undefined) revisions[slot]++;
+    else revisions[slot] = revision;
+    console.debug('[aircraft-selection]', {localPlayer:localSlot()+1, player:slot+1,
+      previous, next:{aircraft:model,ready:confirmed}, source,
+      ownership:slot===localSlot()?'local':'remote', revision:revisions[slot]});
+    return true;
+  }
   const localSlot = () => window.lan?.guest ? 1 : 0;
   const eligible = () => ['ready','over','win'].includes(mode) &&
     (!window.arcade || ['demo','game'].includes(window.arcade.phase));
-  const ready = () => window.lan?.active ? window.lan.ready && locked.every(Boolean) : locked[0];
+  const ready = () => window.lan?.active ? window.lan.ready && locked.every(Boolean) && aircraft[0] !== aircraft[1] : locked[0];
   function renderMenu() {
+    const next = JSON.stringify([active,window.lan?.ready,window.lan?.active,localSlot(),aircraft,locked]);
+    if (signature === next) return;
+    signature = next;
     panel.hidden = !active;
     $('#overlay').classList.toggle('selecting-aircraft', active);
     $('#start').classList.toggle('start-ready', active && ready() && !window.lan?.guest);
@@ -34,7 +51,7 @@
       panel.querySelector(`.p${slot+1}`).hidden = !dual && !own;
       $(`#pilot-state-${slot}`).textContent = `${dual ? `P${slot+1} · ${own ? 'YOU' : 'TEAMMATE'}` : 'YOUR AIRCRAFT'} · ${locked[slot] ? 'READY' : 'CHOOSE'}`;
       $(`#pilot-confirm-${slot}`).textContent = locked[slot] ? 'READY ✓' : 'CONFIRM';
-      $(`#pilot-confirm-${slot}`).disabled = !own || locked[slot];
+      $(`#pilot-confirm-${slot}`).disabled = !own || locked[slot] || (dual && locked[other] && aircraft[other] === aircraft[slot]);
       $(`#pilot-cancel-${slot}`).disabled = !own || !locked[slot];
       $(`#pilot-help-${slot}`).textContent = own ? 'Touch to choose · Both aircraft have the same abilities' : 'Selected on your teammate’s device';
       panel.querySelectorAll(`[data-slot="${slot}"]`).forEach(button => {
@@ -49,7 +66,7 @@
     if (!eligible()) return false;
     const isNetwork = !!window.lan?.active;
     if (!active || network !== isNetwork) {
-      mode = 'ready'; locked.fill(false); network = isNetwork;
+      mode = 'ready'; network = isNetwork;
       window.arcade?.dismiss();
       show('CHOOSE YOUR AIRCRAFT', 'Hold & drag to move/fire · Double-tap for bomb');
       active = true;
@@ -61,21 +78,19 @@
   function act(slot, action, model) {
     if (!active || !eligible()) return;
     if (slot !== localSlot() && !(window.lan?.active && window.lan.applying && slot === 1)) return;
-    if (window.lan?.guest) {
-      window.lan.command(action === 'choose' ? `aircraft-${model}` : `${action}-aircraft`);
-      return;
-    }
-    if (action === 'cancel') locked[slot] = false;
-    else if (!locked[slot]) {
+    let selected = aircraft[slot], confirmed = locked[slot];
+    if (action === 'cancel') confirmed = false;
+    else if (!confirmed) {
       if (action === 'choose') {
         if (![0,1].includes(model) || (network && locked[1-slot] && aircraft[1-slot] === model)) return;
-        aircraft[slot] = model;
+        selected = model;
       } else if (action === 'confirm') {
-        if (network && locked[1-slot] && aircraft[1-slot] === aircraft[slot]) aircraft[slot] = 1-aircraft[1-slot];
-        locked[slot] = true;
-        if (network && !locked[1-slot]) aircraft[1-slot] = 1-aircraft[slot];
+        // Never resolve a collision by moving either player's cursor.
+        if (network && locked[1-slot] && aircraft[1-slot] === selected) return;
+        confirmed = true;
       }
     }
+    change(slot, selected, confirmed, window.lan?.applying ? 'remote-command' : action);
     renderMenu();
   }
   panel.querySelectorAll('[data-model]').forEach(button => button.onclick = () => act(Number(button.dataset.slot), 'choose', Number(button.dataset.model)));
@@ -86,12 +101,34 @@
   window.aircraftMenu = {
     open,
     snapshot: () => [...locked],
-    peerLost() { if (eligible()) { locked[1] = false; renderMenu(); } },
+    peerLost() { if (eligible()) { change(1,aircraft[1],false,'disconnect',window.lan?.guest ? undefined : revisions[1]); renderMenu(); } },
+    resetNetwork() { revisions.fill(0); remoteRevision=-1; restored=false; },
+    networkState: () => ({revisions:[...revisions]}),
+    localSelection: () => active && (!window.lan?.guest || restored || revisions[1] > 0) ? {model:aircraft[localSlot()],ready:locked[localSlot()],revision:revisions[localSlot()]} : undefined,
+    acceptRemote(value) {
+      if (!value || window.lan?.guest || !eligible() || value.revision <= remoteRevision) return;
+      if (!active) open();
+      remoteRevision=value.revision;
+      change(1,value.model,value.ready,'remote-selection',value.revision);
+      revisions[1]=value.revision;
+      renderMenu();
+    },
     canStart: ready,
-    acceptNetwork(value) {
+    acceptNetwork(value, models, metadata) {
       if (!eligible()) { active = false; renderMenu(); return; }
-      open();
-      locked.splice(0,2,...(value || [false,false]));
+      if (!active) open();
+      const revision=metadata?.revisions?.[0];
+      if (revision === undefined || revision > remoteRevision) {
+        change(0,models[0],!!value?.[0],'snapshot',revision);
+        if (revision !== undefined) remoteRevision=revision;
+      }
+      // Restore once on joining, before local input; never replay a stale local choice.
+      if (!restored) {
+        if (revisions[1] === 0) change(1,models[1],!!value?.[1],'initial-sync',metadata?.revisions?.[1]);
+        restored=true;
+      } else if (metadata?.revisions?.[1] === revisions[1] && locked[1] && value?.[1] === false) {
+        change(1,aircraft[1],false,'reconnect-confirmation');
+      }
       renderMenu();
     },
     remoteAction(action) {
@@ -107,7 +144,7 @@
       if (!ready() || window.lan?.guest) return false;
       active = false; $('#start').disabled = false; renderMenu(); return true;
     },
-    reset() { if (active) $('#start').disabled = false; active = false; locked.fill(false); renderMenu(); },
+    reset() { if (active) $('#start').disabled = false; active = false; for (const slot of [0,1]) change(slot,aircraft[slot],false,'reset'); renderMenu(); },
     key(e) {
       if (!active || !eligible() || $('#settings').open || $('#lan-dialog').open ||
           /^(INPUT|TEXTAREA|SELECT)$/.test(e.target?.tagName) || e.ctrlKey || e.metaKey || e.altKey) return false;

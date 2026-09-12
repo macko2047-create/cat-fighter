@@ -654,6 +654,7 @@ function spawn() {
 }
 function update(dt) {
   if (mode !== "playing") return;
+  window.lan?.processMovement(dt, loopTransition === 0);
   if (loopTransition > 0) {
     loopTransition = Math.max(0, loopTransition - dt);
     flash = Math.max(0, flash - dt);
@@ -705,10 +706,13 @@ function update(dt) {
     const a = input(p.index);
     const touchTarget = window.lan?.active && p.index === 1
       ? window.lan.targetFor(1) : window.flightControls?.targetFor(p.index);
-    // Stop exactly at a nearby touch target instead of overshooting every frame.
-    const arrived = touchTarget && Math.hypot(touchTarget.x - p.x, touchTarget.y - p.y) <= 260 * dt;
-    p.x = clamp(arrived ? touchTarget.x : p.x + a.x * 260 * dt, 24, W - 24);
-    p.y = clamp(arrived ? touchTarget.y : p.y + a.y * 260 * dt, 60, H - 25);
+    if (!(window.lan?.active && p.index === 1)) {
+      // P1/local movement retains the existing gameplay path. Network P2 uses
+      // the same CatInputReplication.move function on authority and prediction.
+      const arrived=touchTarget&&Math.hypot(touchTarget.x-p.x,touchTarget.y-p.y)<=260*dt;
+      p.x=clamp(arrived?touchTarget.x:p.x+a.x*260*dt,24,W-24);
+      p.y=clamp(arrived?touchTarget.y:p.y+a.y*260*dt,60,H-25);
+    }
     if (a.fire && p.cool <= 0) {
       p.cool = p.rapid ? 0.06 : 0.12;
       for (let j = 0; j < p.level; j++) {
@@ -907,6 +911,7 @@ function frame(ts) {
   }
   if (window.lan?.guest) {
     poll();
+    window.lan.predict(dt);
     window.lan.tick(ts);
     draw();
     requestAnimationFrame(frame);

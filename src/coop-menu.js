@@ -2,69 +2,82 @@
 (() => {
   const nav = window.menuNavigation;
   const dialog = $('#lan-dialog');
-  let stage = 'options', signature = '', wasOpen = false;
+  let stage = 'options', previousStage = 'options', signature = '', wasOpen = false;
+  let attempt = false, failure = false, sawConnecting = false, previouslyActive = false;
   const previousPads = new Map(), directions = new Map();
-  const keypad = $('#coop-keypad');
-  for (const digit of ['1','2','3','4','5','6','7','8','9','DELETE','0','CLEAR']) {
-    const button = document.createElement('button');
-    button.textContent = digit; button.type = 'button';
-    button.onclick = () => {
-      const input = $('#p2p-code');
-      input.value = digit === 'CLEAR' ? '' : digit === 'DELETE' ? input.value.slice(0,-1) : (input.value+digit).slice(0,6);
-      sync();
-    };
-    keypad.append(button);
-  }
   const controls = () => Array.from(dialog.querySelectorAll('button,input,summary')).filter(el => !el.disabled && el.getClientRects().length);
   function move(direction) {
     nav.focus(nav.next(controls(), document.activeElement, direction));
   }
   function selectStage(value) {
     stage = value; signature = ''; sync();
-    const target = value === 'host' ? $('#p2p-create') : value === 'guest' ? $('#p2p-code') : $('#coop-host');
-    nav.focus(target);
+    const target = value === 'host' ? $('#lan-create') : value === 'guest' ? $('#lan-code') : value === 'roles' ? $('#coop-host') : value === 'diagnostics' ? $('#coop-back') : $('#coop-wifi');
+    nav.focus(target.getClientRects().length ? target : controls()[0]);
   }
   function back() {
     if (window.lan.menuState.connecting) return;
-    if (!window.lan.active && stage !== 'options') selectStage('options');
+    if (stage === 'diagnostics') selectStage(previousStage);
+    else if (!window.lan.active && stage !== 'options') { failure = false; selectStage(stage === 'roles' ? 'options' : 'roles'); }
     else dialog.close();
   }
   function sync() {
     const state = window.lan.menuState;
+    if (previouslyActive && !state.active) { stage = 'options'; failure = false; }
+    previouslyActive = state.active;
     // The network layer also refreshes these controls after async requests.
-    $('#p2p-create').disabled = state.active || state.connecting;
-    $('#p2p-join').disabled = state.active || state.connecting || !/^\d{6}$/.test($('#p2p-code').value);
-    for (const id of ['#coop-local','#coop-host','#coop-guest']) $(id).disabled = mode === 'playing' || mode === 'paused';
-    const key = JSON.stringify([stage,state,mode,$('#p2p-code').value]);
+    $('#lan-create').disabled = state.active || state.connecting;
+    $('#lan-join').disabled = state.active || state.connecting || !/^\d{6}$/.test($('#lan-code').value);
+    const locked = mode === 'playing' || mode === 'paused';
+    for (const id of ['#coop-local','#coop-host','#coop-guest','#coop-wifi']) $(id).disabled = locked;
+    if (attempt && state.connecting) sawConnecting = true;
+    if (attempt && !state.connecting && (sawConnecting || /Unable to connect:/.test($('#lan-status').textContent))) {
+      failure = !state.active; attempt = false; sawConnecting = false;
+    }
+    const diagnostics = stage === 'diagnostics';
+    const key = JSON.stringify([stage,state,mode,$('#lan-code').value,failure]);
     if (key === signature) return;
     signature = key;
+    dialog.dataset.screen = diagnostics ? 'diagnostics' : state.active ? 'connected' : stage;
     $('#coop-options').hidden = state.active || stage !== 'options';
+    $('#coop-roles').hidden = state.active || stage !== 'roles';
     $('#coop-host-panel').hidden = state.active || stage !== 'host';
     $('#coop-guest-panel').hidden = state.active || stage !== 'guest';
-    $('#coop-connected').hidden = !state.active;
-    $('#coop-back').hidden = state.active || stage === 'options';
+    $('#coop-connected').hidden = !state.active || diagnostics;
+    $('#wifi-controls').hidden = !diagnostics;
+    $('#coop-back').hidden = !diagnostics && (state.active || stage === 'options');
     $('#coop-back').disabled = state.connecting;
-    $('#p2p-code').disabled = state.connecting || state.active;
-    for (const button of keypad.querySelectorAll('button')) button.disabled = state.connecting;
-    $('#coop-step').textContent = state.connecting ? 'Connecting… Please wait' : state.active ? '3 · Connect & play' : ['playing','paused'].includes(mode) ? 'Finish this run before choosing a new game.' : stage === 'options' ? '1 · Choose how to play' : '2 · Confirm your role';
-    $('#coop-role').textContent = state.guest ? 'YOU ARE P2 · GUEST' : 'YOU ARE P1 · HOST';
-    $('#coop-room-code').textContent = 'ROOM CODE · '+state.code;
-    $('#coop-next').textContent = !state.ready ? (state.guest ? 'Connecting to P1…' : 'Share the code with P2. Waiting for your teammate…') : state.guest ? 'CONNECTED · Choose your aircraft, then wait for P1 to start.' : mode === 'playing' ? 'CONNECTED · Return to your game.' : 'BOTH CONNECTED · Choose your aircraft on each device.';
-    $('#coop-start').hidden = !state.active || (state.guest && mode === 'paused') || mode === 'playing';
+    $('#lan-close').hidden = diagnostics || (!state.active && stage !== 'options');
+    // Network refreshes may unhide Leave; CSS also gates it to the connected screen.
+    $('#lan-leave').hidden = !state.active || diagnostics;
+    $('#coop-advanced').hidden = diagnostics;
+    $('#lan-code').disabled = state.connecting || state.active;
+    $('#coop-step').textContent = diagnostics ? 'CONNECTION DETAILS' : state.connecting ? 'CONNECTING…' : failure ? 'CAN’T CONNECT · TRY AGAIN' : state.active ? (state.ready ? 'CONNECTED' : 'WAITING FOR PLAYER') : locked ? 'FINISH THIS GAME FIRST' : stage === 'options' ? 'LOCAL WI-FI / LAN ONLY' : 'WI-FI CO-OP · SAME NETWORK REQUIRED';
+    $('#coop-role').textContent = state.guest ? 'P2 · JOIN' : 'P1 · HOST';
+    $('#coop-room-code').textContent = state.code;
+    $('#coop-next').textContent = !state.ready ? (state.guest ? 'Waiting for P1' : 'Share this code with P2') : state.guest ? 'Choose your aircraft · P1 starts' : 'Choose your aircraft';
+    $('#coop-start').hidden = !state.active || !state.ready || (state.guest && mode === 'paused') || mode === 'playing';
     $('#coop-start').disabled = !state.ready;
     $('#coop-start').textContent = mode === 'paused' ? 'RESUME ▶' : 'CHOOSE AIRCRAFT';
     $('#coop-start').classList.toggle('start-ready', state.active && state.ready && !state.guest && mode !== 'playing');
-    $('#p2p-reconnect').hidden = !state.active || state.transport !== 'p2p' || state.ready;
     if (!controls().includes(document.activeElement) && dialog.open) controls()[0]?.focus();
   }
   $('#coop-local').onclick = () => {
     dialog.close();
     window.aircraftMenu.open();
   };
-  $('#coop-host').onclick = () => selectStage('host');
+  $('#coop-wifi').onclick = () => { failure = false; selectStage('roles'); };
+  $('#coop-advanced').onclick = () => { previousStage = stage; selectStage('diagnostics'); };
+  for (const id of ['#lan-create','#lan-join']) {
+    // Observe the existing action without replacing any transport handler.
+    $(id).addEventListener('click', () => { attempt = true; failure = false; sawConnecting = false; signature = ''; }, true);
+  }
+  $('#coop-host').onclick = () => {
+    selectStage('host');
+    $('#lan-create').click();
+  };
   $('#coop-guest').onclick = () => selectStage('guest');
   $('#coop-back').onclick = back;
-  $('#p2p-code').addEventListener('input', () => { $('#p2p-code').value = $('#p2p-code').value.replace(/\D/g,'').slice(0,6); signature='';sync(); });
+  $('#lan-code').addEventListener('input', () => { $('#lan-code').value = $('#lan-code').value.replace(/\D/g,'').slice(0,6); signature='';sync(); });
   $('#coop-start').onclick = () => {
     if (!window.lan.ready) return;
     if (mode === 'paused') {
@@ -72,7 +85,7 @@
       dialog.close(); pause();
     } else { dialog.close(); window.aircraftMenu.open(); }
   };
-  dialog.addEventListener('close', () => { wasOpen=false; stage='options';signature='';nav.focus(null); });
+  dialog.addEventListener('close', () => { wasOpen=false; stage='options';failure=false;attempt=false;sawConnecting=false;signature='';nav.focus(null); });
   window.coopMenu = {
     key(e) {
       if (!dialog.open) return false;

@@ -1,5 +1,7 @@
 # WebRTC 實體 HTTPS 測試
 
+> **封存測試記錄。** 正式遊戲已移除此 Internet/tunnel 路徑。以下網址與指令只供辨認待人工關閉的舊部署，不是現行 LAN 測試方式。
+
 本次使用已提交的 `1dbcc9231d8b79b604c0ff2fa521f4986b710ec8`，不更改遊戲或網路實作。
 最小路徑：現有 Node HTTP 服務 + Cloudflare Quick Tunnel。HTTPS 網站與 `/p2p/*` 都轉送至同一個 Node process。
 

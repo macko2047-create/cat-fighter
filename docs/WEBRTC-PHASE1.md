@@ -1,5 +1,7 @@
 # WebRTC Phase 1
 
+> **封存設計。** 正式遊戲已於 2026-09-12 移除此 Internet/WebRTC 配對路徑；目前只支援同一網絡上的 Local Wi-Fi / LAN co-op。本文不是現行操作文件。
+
 ## 玩家流程
 
 兩個裝置開啟同一個 Cat Fighter 網址，選 TWO-PLAYER。P1 選 Create Game，將畫面上的六位數字告訴 P2；P2 輸入後選 Join Game。顯示 Direct connection ready 後，P1 關閉對話框並按 START。

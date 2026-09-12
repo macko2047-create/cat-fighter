@@ -4,10 +4,32 @@ const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
-const {randomBytes} = require('node:crypto');
+const {randomBytes,randomInt} = require('node:crypto');
 const ROOT = path.resolve(__dirname, '..');
 const token = () => randomBytes(24).toString('hex');
-function createLanServer({handleRequest}={}) {
+const generateRoomCode = () => String(randomInt(1000000)).padStart(6,'0');
+function createLanServer({handleRequest,root=process.env.CAT_SITE_ROOT||ROOT,roomCodeGenerator=generateRoomCode}={}) {
+  root=fs.realpathSync(path.resolve(root));
+  const {generate,prepare,hash}=require('./build-info.cjs');
+  const artifact=fs.existsSync(path.join(root,'version.json'));
+  let site;
+  function currentSite(){
+    if(artifact){
+      const info=JSON.parse(fs.readFileSync(path.join(root,'version.json'),'utf8'));
+      return {info,html:fs.readFileSync(path.join(root,'index.html'),'utf8'),js:fs.readFileSync(path.join(root,'src/build-info.js'),'utf8')};
+    }
+    const info=generate(root);
+    if(!site||['git','dirty','content'].some(k=>site.info[k]!==info[k]))site=prepare(root,info);
+    return site;
+  }
+  currentSite();
+  function content(req,res,body,type,policy){
+    const etag='"'+hash(body)+'"';
+    const headers={'Content-Type':type,'Cache-Control':policy,'ETag':etag,'X-Content-Type-Options':'nosniff'};
+    if(policy!=='no-store'&&req.headers['if-none-match']===etag){res.writeHead(304,headers);return res.end();}
+    res.writeHead(200,{...headers,'Content-Length':Buffer.byteLength(body)});
+    res.end(req.method==='HEAD'?undefined:body);
+  }
   const rooms = new Map();
   const send = (peer, type, data) => {
     const out = peer?.stream;
@@ -58,7 +80,7 @@ function createLanServer({handleRequest}={}) {
         }
         if (url.pathname === '/lan/create' && req.method === 'POST') {
           if (rooms.size >= 32) return reply(res,429,{error:'Server full. Try again later'});
-          let code; do { code=randomBytes(3).toString('hex').toUpperCase(); } while (rooms.has(code));
+          let code; do { code=roomCodeGenerator(); } while (rooms.has(code));
           const host={token:token(),stream:null};
           rooms.set(code,{host,guest:null,updated:Date.now(),state:null});
           return reply(res,200,{code,token:host.token,role:'host'});
@@ -97,7 +119,9 @@ function createLanServer({handleRequest}={}) {
         if (url.pathname === '/lan/input' && req.method === 'POST' && role === 'guest') {
           const axis = v => Number.isFinite(v) ? Math.max(-1,Math.min(1,v)) : 0;
           const target = body.input?.target;
-          send(room.host,'input',{
+          let replication={};
+          if(body.input?.inputEpoch!==undefined){try{const checked=require('../src/net-protocol.js').input({...body.input,actions:body.actions||[]});replication={inputEpoch:checked.inputEpoch,moves:checked.moves,selection:checked.selection};}catch{return reply(res,400,{error:'Invalid movement commands'});}}
+          send(room.host,'input',{...replication,
             x:axis(body.input?.x),y:axis(body.input?.y),fire:body.input?.fire===true,
             target:target && Number.isFinite(target.x)&&Number.isFinite(target.y) ? {x:Math.max(24,Math.min(576,target.x)),y:Math.max(60,Math.min(775,target.y))} : null,
             actions:Array.isArray(body.actions)?body.actions.filter(a=>['bomb','rejoin','pause','aircraft-0','aircraft-1','confirm-aircraft','cancel-aircraft'].includes(a)).slice(0,8):[]
@@ -109,15 +133,30 @@ function createLanServer({handleRequest}={}) {
       if (!['GET','HEAD'].includes(req.method)) return reply(res,405,{error:'Operation not allowed'});
       const name = decodeURIComponent(url.pathname === '/' ? '/index.html' : url.pathname);
       if (name.split('/').some(part=>part==='..'||part==='.')) return reply(res,403,{error:'Access denied'});
+      if(['/src/p2p-transport.js','/src/relay-transport.js'].includes(name))return reply(res,404,{error:'File not found'});
+      if(name==='/version.json')return content(req,res,JSON.stringify(currentSite().info),'application/json; charset=utf-8','no-store');
+      if(name==='/index.html')return content(req,res,currentSite().html,'text/html; charset=utf-8','no-cache');
+      if(name==='/src/build-info.js'){
+        const body=currentSite().js;
+        return content(req,res,body,'text/javascript; charset=utf-8',url.searchParams.get('v')===hash(body)?'public, max-age=31536000, immutable':'no-cache');
+      }
       if (!/^\/(index\.html|style\.css|game\.js|src\/[\w./-]+|assets\/[\w./-]+)$/.test(name)) return reply(res,404,{error:'File not found'});
-      const file = path.resolve(ROOT, '.'+name);
-      if (!file.startsWith(ROOT+path.sep)) return reply(res,403,{error:'Access denied'});
+      const file = path.resolve(root, '.'+name);
+      if (!file.startsWith(root+path.sep)) return reply(res,403,{error:'Access denied'});
       const real = await fs.promises.realpath(file);
       if (real !== file) return reply(res,403,{error:'Access denied'});
       const stat=await fs.promises.stat(real);
       if (!stat.isFile()) return reply(res,404,{error:'File not found'});
       const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.png':'image/png','.webp':'image/webp','.svg':'image/svg+xml','.json':'application/json','.woff2':'font/woff2'};
-      res.writeHead(200,{'Content-Type':mime[path.extname(real)]||'application/octet-stream','Content-Length':stat.size,'Cache-Control':'no-cache','X-Content-Type-Options':'nosniff'});
+      if(/\.(js|css)$/.test(real)){
+        const body=await fs.promises.readFile(real);
+        return content(req,res,body,mime[path.extname(real)],url.searchParams.get('v')===hash(body)?'public, max-age=31536000, immutable':'no-cache');
+      }
+      // Stable asset paths revalidate cheaply; unchanged images/audio return 304.
+      const etag=`"${stat.size}-${stat.mtimeMs}"`;
+      const headers={'Content-Type':mime[path.extname(real)]||'application/octet-stream','Cache-Control':'no-cache','ETag':etag,'X-Content-Type-Options':'nosniff'};
+      if(req.headers['if-none-match']===etag){res.writeHead(304,headers);return res.end();}
+      res.writeHead(200,{...headers,'Content-Length':stat.size});
       if(req.method==='HEAD') res.end(); else fs.createReadStream(real).on('error',()=>res.destroy()).pipe(res);
     } catch (error) {
       if (!res.headersSent) reply(res,error.code==='ENOENT'?404:400,{error:'Unable to complete request'}); else res.destroy();
@@ -143,4 +182,4 @@ if(require.main===module){
     console.log('Select Wi-Fi CO-OP in the game to create or join a room. Press Ctrl+C to stop the server.');
   });
 }
-module.exports={createLanServer};
+module.exports={createLanServer,generateRoomCode};
