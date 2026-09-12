@@ -1,5 +1,7 @@
 # Cat Fighter — Pacific Paws
 
+ROM 語意版本、自動 SHA 建置與 Pages 切換方式見 [ROM-VERSION](docs/ROM-VERSION.md)。
+
 ## 動態難度（2026-09-11）
 
 - 仍有生命的玩家計入有效人數，包括短暫重生／進場；耗盡生命後最多 5 秒回落至單人基準，重新加入最多 12 秒升回雙人基準。

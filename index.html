@@ -5,12 +5,13 @@
   <meta name="cat-fighter-signaling-origin" content="https://cat-fighter-signaling.catfighter-signal.workers.dev">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>CAT FIGHTER • Pacific Paws</title>
-  <link rel="stylesheet" href="style.css?v=9615f1e4937e">
+  <link rel="stylesheet" href="style.css?v=35fceefa79c0">
   <body class="arcade-shell" data-arcade="off" data-input-mode="touch">
     <div id="boot-screen">
-      <button id="boot">BOOT <span>TOUCH TO POWER ON</span></button>
+      <button id="boot">BOOT <span id="rom-version"></span><span>TOUCH TO POWER ON</span></button>
       <div id="boot-log" hidden role="status"><span>PACIFIC PAWS · ARCADE SYSTEM</span><pre id="boot-text"></pre></div>
     </div>
+    <script src="src/rom-version.js?v=6ec3d9103c29"></script>
     <main>
       <section class="cabinet">
         <div class="topline">
@@ -89,56 +90,57 @@
       <button id="close">Done / Back</button>
     </dialog>
     <button id="lan-bar" hidden aria-label="Connection status and settings"></button>
-    <dialog id="lan-dialog">
-      <h2>TWO-PLAYER</h2>
-      <p id="coop-step" role="status">1 · Choose how to play</p>
+    <dialog id="lan-dialog" aria-labelledby="link-title">
+      <div class="link-marquee"><p>CAT FIGHTER</p><h2 id="link-title">TWO-PLAYER LINK</h2></div>
+      <p id="coop-step" role="status">CHOOSE A MODE</p>
       <div id="coop-options" class="coop-options">
-        <button id="coop-local" hidden><strong>SAME SCREEN</strong><span>P1 + P2 · Share this device</span></button>
-        <button id="coop-host"><strong>CREATE ROOM · P1</strong><span>Two devices · Invite a friend</span></button>
-        <button id="coop-guest"><strong>JOIN ROOM · P2</strong><span>Two devices · Enter your friend's code</span></button>
+        <button id="coop-local" hidden>SAME SCREEN</button>
+        <button id="coop-wifi"><span id="wifi-title">WIFI 2 PLAYERS</span></button>
+        <button id="coop-internet"><span id="internet-title">INTERNET 2 PLAYERS</span></button>
       </div>
+      <section id="coop-roles" hidden>
+        <button id="coop-host">CREATE GAME</button>
+        <button id="coop-guest">JOIN GAME</button>
+      </section>
       <section id="coop-host-panel" hidden>
-        <h3>P1 · HOST</h3><p>Create a room, share its code, then wait for P2.</p>
-        <button id="p2p-create">CONFIRM · CREATE ROOM</button>
+        <h3>P1 · CREATE GAME</h3>
+        <button id="p2p-create">CREATE GAME</button>
+        <button id="lan-create" hidden>CREATE GAME</button>
       </section>
       <section id="coop-guest-panel" hidden>
-        <h3>P2 · JOIN</h3>
-        <label for="p2p-code">Enter P1's 6-digit room code</label>
+        <label for="p2p-code" id="coop-code-label">ROOM CODE</label>
         <input id="p2p-code" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="000000" autocomplete="off" spellcheck="false">
-        <div id="coop-keypad" aria-label="Room code keypad"></div>
-        <button id="p2p-join">CONFIRM · JOIN ROOM</button>
+        <input id="lan-code" hidden maxlength="6" placeholder="ROOM CODE" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Room code">
+        <div id="coop-keypad" hidden aria-label="Room code keypad"></div>
+        <button id="p2p-join">JOIN GAME</button>
+        <button id="lan-join" hidden>JOIN GAME</button>
       </section>
       <section id="coop-connected" hidden>
-        <h3 id="coop-role"></h3><p id="coop-room-code"></p><p id="coop-next" role="status"></p>
-        <p>Hold &amp; drag to move/fire · Double-tap for bomb.</p>
-        <button id="coop-start" hidden>START ▶</button>
+        <h3 id="coop-role"></h3>
+        <p id="coop-room-code" aria-label="Room code"></p>
+        <p id="coop-next" role="status"></p>
+        <button id="coop-start" hidden>CHOOSE AIRCRAFT</button>
         <button id="p2p-reconnect" hidden>RECONNECT</button>
       </section>
-      <button id="coop-back" hidden>CANCEL · BACK</button>
-      <p id="coop-controls">Touch a button to choose. Each player uses their own device.</p>
-      <details>
-      <summary>Existing Wi-Fi LAN mode</summary>
-      <p>Connect both devices to the same Wi-Fi and open the game URL provided by the computer.</p>
-      <p>The host controls P1; the other device controls P2. Hold and drag to move and fire automatically. Double-tap the same spot to use a bomb.</p>
-      <p>On the computer, run <code>node tools/lan-server.cjs</code> in the game folder, then open the URL shown in the terminal.</p>
-      <button id="lan-create">Create room · P1</button>
-      <h3>Available hosts</h3>
-      <button id="lan-search">Find / refresh hosts</button>
-      <p id="lan-discovery-status" role="status"></p>
-      <div id="lan-rooms"></div>
-      <p>Only available rooms on this server are listed. Both devices must open the same computer URL; room codes only work on their own server.</p>
-      <label for="lan-host-url">Another host computer URL</label>
-      <input id="lan-host-url" type="url" placeholder="http://192.168.0.55:8767" autocomplete="url" spellcheck="false">
-      <button id="lan-open-host">Open host URL</button>
-      <label for="lan-code">Room code</label>
-      <input id="lan-code" maxlength="6" placeholder="6-character room code" autocomplete="off" autocapitalize="characters" spellcheck="false">
-      <button id="lan-join">Join room · P2</button>
-      <p id="lan-addresses"></p>
-      <p>Once connected, the host closes this window and presses START. Disconnecting or switching to the background pauses the game. The host resumes after reconnecting.</p>
-      </details>
-      <p id="lan-status" role="status">Not connected</p>
-      <button id="lan-leave" hidden>Leave room</button>
-      <button id="lan-close">BACK TO GAME</button>
+      <section id="wifi-controls" hidden aria-label="Advanced / Diagnostics">
+        <h3 id="wifi-setup-title">ADVANCED / DIAGNOSTICS</h3>
+        <p id="lan-status" role="status">Not connected</p>
+        <p id="coop-controls"></p>
+        <p>WiFi setup: <code>node tools/lan-server.cjs</code></p>
+        <p id="lan-addresses"></p>
+        <button id="lan-search">FIND / REFRESH HOSTS</button>
+        <p id="lan-discovery-status" role="status"></p>
+        <div id="lan-rooms"></div>
+        <label for="lan-host-url">HOST URL</label>
+        <input id="lan-host-url" type="url" placeholder="http://192.168.0.55:8767" autocomplete="url" spellcheck="false">
+        <button id="lan-open-host">OPEN HOST URL</button>
+      </section>
+      <div class="link-footer">
+        <button id="coop-back" hidden>BACK</button>
+        <button id="lan-leave" hidden>LEAVE GAME</button>
+        <button id="lan-close">BACK TO GAME</button>
+        <button id="coop-advanced">ADVANCED / DIAGNOSTICS</button>
+      </div>
     </dialog>
     <script src="src/world.js?v=5c520ff0b9f9"></script>
     <script src="src/assets.js?v=4680be27ef9d"></script>
@@ -154,6 +156,7 @@
     <script src="src/net-protocol.js?v=200a284e45bb"></script>
     <script src="src/p2p-transport.js?v=3b63b73e051d"></script>
     <script src="src/presentation.js?v=cd01682aab8c"></script>
+    <script src="src/bandwidth.js"></script>
     <script src="src/lan.js?v=67b28dddf7fb"></script>
     <script src="src/arcade.js?v=0f3a05a5e237"></script>
     <script src="src/menu-navigation.js?v=63b201a2f6e8"></script>
