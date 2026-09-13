@@ -1,6 +1,30 @@
 'use strict';
 (() => {
   let pairing = null, last = new Map();
+  // The touch-first shell must allow the existing pad pipeline when hardware
+  // becomes visible. Keep a running game's input mode stable on disconnect.
+  function detectControllers() {
+    if (window.lan?.active) return;
+    const connected = Array.from(navigator.getGamepads?.() || []).some(p=>p && p.connected !== false);
+    if (connected) document.body.dataset.inputMode = 'controller';
+    else if (!['playing','paused'].includes(mode)) document.body.dataset.inputMode = 'touch';
+  }
+  function readiness(list) {
+    for (const slot of [0,1]) {
+      const p = list.find(p=>p.index===-100-slot);
+      const assigned = p ? assignments.indexOf(p.index) : -1;
+      const target = p ? (assigned < 0 ? availableControllerSlot(p) : assigned) : slot;
+      const association = target < 0 ? 'Player slots occupied · Use pairing to reassign' : `P${target+1}${assigned < 0 ? ' · Press a button to join' : ' · Joined'}`;
+      const message = `${slot ? 'RIGHT' : 'LEFT'} JOY-CON · ${p ? `READY · ${association}` : 'NOT DETECTED · Connect and press a button'}`;
+      const element = $('#joycon-ready-'+slot);
+      // Avoid announcing identical live-region text on every animation frame.
+      if (element.textContent !== message) element.textContent = message;
+    }
+  }
+  $('#demo-controllers').onclick = () => $('#test').click();
+  $('#test').addEventListener('click',()=>{ detectControllers(); renderDevices(); readiness(pads()); });
+  window.addEventListener('gamepadconnected',detectControllers);
+  detectControllers();
   const preferences = {};
   try {
     const saved=JSON.parse(localStorage.getItem('catfighter-player-controllers')||'{}');
@@ -31,19 +55,23 @@
   window.controllerSetup = {
     preferredSlot(p) { return preferences[p.id]; },
     resetHalfPreferences() {
-      delete preferences['Half Joy-Con P1']; delete preferences['Half Joy-Con P2'];
+      for (const id of Object.keys(preferences)) {
+        if (/^Half Joy-Con P[12]$/.test(id) || /^Joy-Con \([LR]\)(?: |$)/.test(id)) delete preferences[id];
+      }
       try {localStorage.setItem('catfighter-player-controllers',JSON.stringify(preferences));} catch {}
     },
     snapshot() {
       // Diagnostic metadata only; no calibration reads or state changes.
       const profiles=window.halfControllers.snapshot().profiles;
-      return assignments.map((index,slot)=>({player:slot+1,index,half:index===-100||index===-101 ? profiles[-100-index]?.side || `calibrated-${-99-index}` : null}));
+      return assignments.map((index,slot)=>({player:slot+1,index,half:index===-100||index===-101 ? profiles[-100-index]?.side || (profiles[-100-index] ? `calibrated-${-99-index}` : index===-100 ? 'left' : 'right') : null}));
     },
     poll() {
+      detectControllers();
       if (!$('#settings').open) return false;
       for (const slot of [0,1]) $('#controller-pair-'+slot).disabled = !editable();
       if (pairing !== null && !editable()) cancel();
       const list=pads();
+      readiness(list);
       for (const p of list) {
         const pressed=p.buttons.map(b=>b.pressed), prev=last.get(p.index)||[];
         if (pairing !== null && pressed.some((v,i)=>v&&!prev[i])) {

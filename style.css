@@ -446,7 +446,7 @@ body.in-flight { overflow: hidden; height: var(--play-height, 100dvh); }
 #lan-rooms button { width: 100%; margin: 0; }
 #lan-bar { position: fixed; top: env(safe-area-inset-top, 0px); left: 50%; transform: translateX(-50%); z-index: 5; max-width: 95vw; font-size: 10px; padding: 3px 9px; margin: 0; opacity: .9; }
 #lan-bar[hidden], #lan-leave[hidden] { display: none; }
-.arcade-shell header, .arcade-shell aside, .arcade-shell #test,
+.arcade-shell header, .arcade-shell aside,
 .arcade-shell .instructions { display: none; }
 .arcade-shell [hidden] { display: none !important; }
 #boot-screen { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; background: #03090c; padding: 24px; }
@@ -626,5 +626,22 @@ body:has(#drop-in:not([hidden])) { --deck-height: 128px; }
 /* One touch pilot per device; the second choice appears after a peer connects. */
 #aircraft-menu.solo { grid-template-columns: minmax(0, 1fr); max-width: 400px; }
 #aircraft-menu.solo .aircraft-art { width: clamp(80px, 25cqi, 130px); }
-[data-input-mode="touch"] :is(#test, #coop-local, #drop-in, #join, #join-p1, #aircraft-0, #aircraft-1) { display: none !important; }
+[data-input-mode="touch"] :is(#coop-local, #drop-in, #join, #join-p1, #aircraft-0, #aircraft-1) { display: none !important; }
 [data-input-mode="touch"] #overlay > label { display: none; }
+
+/* Controller service panel uses the cabinet's gold / teal marquee. */
+#settings { width: min(620px, 94vw); border: 2px solid #60857f; background: #10272d; box-shadow: 0 12px 60px #0009; }
+#settings::backdrop { background: #020e18d9; }
+.controller-marquee { text-align: center; padding-bottom: 12px; border-bottom: 3px double #60857f; }
+.controller-marquee p { color: var(--gold); font: 22px/1.4 var(--arcade-font); margin: 0 0 6px; }
+#controller-title { font: 16px/1.4 var(--arcade-font); }
+.joycon-readiness { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.joycon-readiness p { padding: 10px; border: 1px solid #60857f; color: #ffcf7c; }
+#joycon-ready-1 { color: #8be0d1; }
+#settings button, #settings summary, #test, #demo-controllers { touch-action: manipulation; }
+#settings :focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+#settings #close { position: sticky; bottom: 0; width: 100%; background: #19383e; border-color: var(--gold); }
+#settings pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+#settings #deadzone { min-height: 44px; width: 100%; }
+.arcade-shell #demo-controllers, .arcade-shell #test { min-height: 44px; }
+@media (max-width: 480px) { .joycon-readiness { grid-template-columns: 1fr; gap: 0; } }

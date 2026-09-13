@@ -30,6 +30,11 @@
     try { localStorage.setItem(storageKey, JSON.stringify({profiles,defaultsEnabled})); } catch {}
   }
   const status = text => { $('#half-status').textContent = text; };
+  status(profiles.some(c=>c && !c.side)
+    ? 'Saved half-controller calibration loaded. Recalibrate only if needed, or restore automatic Joy-Con defaults.'
+    : defaultsEnabled
+      ? 'Automatic Joy-Con defaults are enabled. Left: P1 · Right: P2. Calibration is optional.'
+      : 'Full-controller mode is enabled. Restore automatic Joy-Con defaults to split Joy-Con controls.');
   function prompt() {
     status(`${setup.slot === 0 ? 'First / left half' : 'Second / right half'}: ${setup.neutral ? 'Release all sticks and buttons, then wait.' : steps[setup.step]}`);
   }
@@ -96,10 +101,18 @@
   // physical buttons used by the combined preset and the same logical identity.
   // Source: chromium device/gamepad/nintendo_controller.cc UpdateButtonFor*Side.
   function singleSlot(p) {
-    if (p.mapping !== 'standard' || p.axes.length < 2) return -1;
+    if (p.mapping !== 'standard' || p.axes.length < 2 || p.buttons.length < 4) return -1;
     if (/^Joy-Con \(L\)(?: |$)/.test(p.id)) return 0;
     if (/^Joy-Con \(R\)(?: |$)/.test(p.id)) return 1;
     return -1;
+  }
+  function halfButtons(p, physical) {
+    const buttons=Array.from({length:16},()=>({pressed:false,value:0}));
+    [1,0,9].forEach((logical,i)=>{buttons[logical]=p.buttons[physical[i]] || {pressed:false,value:0};});
+    // A standalone has no other player's buttons. Keep its spare buttons
+    // addressable after calibration/reload; combined halves stay isolated.
+    if (singleSlot(p)>=0) p.buttons.forEach((button,i)=>{buttons[16+i]=physical.includes(i) ? {pressed:false,value:0} : button;});
+    return buttons;
   }
   const pendingDisconnects = new Map();
   window.halfControllers={
@@ -133,24 +146,29 @@
       // Suppress gameplay/old menu shortcuts while learning physical buttons.
       if (setup) return [];
       if (releasePending) {
-        if (raw.some(p=>profiles.some(c=>c && c.id===p.id && c.index===p.index && c.buttons.some(i=>p.buttons[i]?.pressed)))) return [];
+        if (raw.some(p=>p.buttons.some(b=>b.pressed))) return [];
         releasePending=false;
       }
-      const singles = defaultsEnabled ? raw.filter(p=>singleSlot(p)>=0 && !profiles.some(c=>c && c.id===p.id && c.index===p.index)) : [];
+      const singles = defaultsEnabled ? raw.filter(p=>{
+        const slot=singleSlot(p), calibrated=profiles[slot];
+        if (slot<0 || profiles.some(c=>c && c.id===p.id && c.index===p.index)) return false;
+        // A connected saved calibration owns its logical slot before defaults.
+        return !(calibrated && !calibrated.side && raw.some(other=>other.id===calibrated.id && other.index===calibrated.index));
+      }) : [];
       const result=raw.filter(p=>!singles.includes(p) && !profiles.some(c=>c && c.id===p.id && c.index===p.index));
       for (const p of singles) {
         const slot=singleSlot(p), physical=slot ? [3,2,1] : [1,0,3];
-        const buttons=Array.from({length:16},()=>({pressed:false,value:0}));
-        [1,0,9].forEach((logical,i)=>{buttons[logical]=p.buttons[physical[i]] || {pressed:false,value:0};});
-        result.push({id:`Half Joy-Con P${slot+1}`,displayName:`Joy-Con · ${slot ? 'Right' : 'Left'} half (single)`,preferredSlot:slot,index:-100-slot,axes:[p.axes[0],p.axes[1]],buttons,mapping:'standard'});
+        const buttons=halfButtons(p,physical);
+        // Retain existing physical-device remaps; new remaps use the logical pad.
+        const custom = bindings[p.id];
+        result.push({id:custom ? p.id : `Half Joy-Con P${slot+1}`,displayName:`Joy-Con · ${slot ? 'Right' : 'Left'} half (single)`,preferredSlot:slot,index:-100-slot,axes:[p.axes[0],p.axes[1]],buttons:custom ? p.buttons : buttons,mapping:'standard'});
       }
       profiles.forEach((c,slot)=>{
         if (!c || result.some(p=>p.index===-100-slot)) return;
         const p=raw.find(p=>p.id===c.id && p.index===c.index);
         if (!p) return;
         const axes=c.axes.map(a=>clamp(((p.axes[a.axis] ?? a.rest)-a.rest)*a.sign,-1,1));
-        const buttons=Array.from({length:16},()=>({pressed:false,value:0}));
-        [1,0,9].forEach((mapped,i)=>{buttons[mapped]=p.buttons[c.buttons[i]] || {pressed:false,value:0};});
+        const buttons=halfButtons(p,c.buttons);
         result.push({id:`Half Joy-Con P${slot+1}`,displayName:c.side ? `Joy-Con · ${c.side === 'left' ? 'Left' : 'Right'} half` : `Calibrated half-controller ${slot+1}`,preferredSlot:slot,index:-100-slot,axes:[axes[0],-axes[1]],buttons,mapping:'standard'});
       });
       for (const [index,deadline] of pendingDisconnects) {
@@ -172,6 +190,10 @@
   };
   $('#half-default').onclick=()=>{
     window.controllerSetup?.resetHalfPreferences();
+    for (const id of Object.keys(bindings)) {
+      if (/^Half Joy-Con P[12]$/.test(id) || /^Joy-Con \([LR]\)(?: |$)/.test(id)) delete bindings[id];
+    }
+    try { localStorage.setItem('catfighter-bindings',JSON.stringify(bindings)); } catch {}
     setup=null; releasePending=true; defaultsEnabled=true; profiles.fill(null); assignments.fill(null); previous.clear(); save();
     status('Automatic Joy-Con mode restored. Left half: P1 · Right half: P2. Select a fighter to join.');
   };
