@@ -645,3 +645,23 @@ body:has(#drop-in:not([hidden])) { --deck-height: 128px; }
 #settings #deadzone { min-height: 44px; width: 100%; }
 .arcade-shell #demo-controllers, .arcade-shell #test { min-height: 44px; }
 @media (max-width: 480px) { .joycon-readiness { grid-template-columns: 1fr; gap: 0; } }
+
+/* Cabinet controller onboarding and hands-on controls. */
+#controller-activation{display:flex;align-items:center;justify-content:center;gap:12px;max-width:580px;margin:10px auto;padding:10px 16px;border:2px solid #75d9ce;background:#12262c;color:#fff0bc;font-size:12px;text-align:center;letter-spacing:1px}
+#controller-activation[hidden]{display:none}
+#controller-activation svg{width:64px;height:40px;flex-shrink:0;fill:none;stroke:#75d9ce;stroke-width:3}
+.ready-pulse{animation:controller-ready .7s ease-out}
+@keyframes controller-ready{0%{box-shadow:0 0 30px #fff0bc;background:#376a5b}100%{box-shadow:none}}
+.custom-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.custom-controls button{min-height:48px;white-space:normal;font-size:11px}
+.controller-test{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:12px 0}
+.controller-test [data-test]{padding:8px 5px;border:1px solid #687776;font-size:10px}
+.controller-test .lit{background:#fff0bc;color:#12262c;box-shadow:0 0 12px #75d9ce}
+.test-stick{position:relative;display:inline-block;width:52px;height:52px;border:2px solid #75d9ce;border-radius:50%;background:linear-gradient(transparent 49%,#687776 50%,transparent 52%),linear-gradient(90deg,transparent 49%,#687776 50%,transparent 52%)}
+.test-stick i{position:absolute;left:18px;top:18px;width:12px;height:12px;background:#fff0bc;border-radius:50%}
+#controller-physical{overflow-wrap:anywhere;font-size:11px}
+.menu-focus,#settings .menu-focus{outline:3px solid #fff0bc;outline-offset:3px;box-shadow:0 0 16px #75d9ce;border-color:#fff0bc!important}
+@media(prefers-reduced-motion:reduce){.ready-pulse{animation:none}}
+#controller-activation{position:fixed;z-index:3;bottom:calc(env(safe-area-inset-bottom) + 4px);left:12px;right:100px;max-width:580px;margin:0 auto;padding:6px 10px;pointer-events:none;font:10px/1.5 var(--arcade-font)}
+#controller-activation svg{width:48px;height:32px}
+body[data-arcade="off"] #controller-activation,body[data-arcade="boot"] #controller-activation{display:none}

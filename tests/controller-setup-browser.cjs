@@ -16,8 +16,8 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),path
   await page.evaluate(()=>{rawPad.buttons[2].pressed=true;poll();rawPad.buttons[2].pressed=false;poll();rawPad.buttons[13].pressed=true;poll();rawPad.buttons[13].pressed=false;poll();});
   assert.deepEqual(await page.evaluate(()=>[...assignments]),[-100,-101]);
   await page.locator('#demo-controllers').tap();await page.evaluate(()=>poll());
-  assert.match(await page.locator('#joycon-ready-0').textContent(),/LEFT JOY-CON · READY · P1/);
-  assert.match(await page.locator('#joycon-ready-1').textContent(),/RIGHT JOY-CON · READY · P2/);
+  assert.match(await page.locator('#joycon-ready-0').textContent(),/P1 · Joy-Con · Left half · READY · ASSIGNED/);
+  assert.match(await page.locator('#joycon-ready-1').textContent(),/P2 · Joy-Con · Right half · READY · ASSIGNED/);
   assert.ok(await page.locator('#demo-controllers').evaluate(el=>el.getBoundingClientRect().height>=44));
   assert.ok(await page.locator('#close').evaluate(el=>el.getBoundingClientRect().height>=44));
   assert.equal(await page.locator('#settings').evaluate(el=>el.scrollWidth<=el.clientWidth),true);
@@ -32,7 +32,8 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),path
   assert.match(await page.locator('[data-pad="-101"] b').textContent(),/P1 · Joy-Con · Right half/);
   assert.match(await page.locator('[data-pad="-100"] b').textContent(),/P2 · Joy-Con · Left half/);
   await page.evaluate(()=>{rawPad.buttons[0].pressed=true;poll();rawPad.buttons[0].pressed=false;poll();});
-  assert.equal(await page.locator('#settings').isVisible(),true,'testing bomb must not dismiss settings');
+  assert.equal(await page.locator('#settings').isVisible(),false,'default Back closes settings');
+  await page.locator('#demo-controllers').tap();await page.evaluate(()=>poll());
   await page.locator('#controller-pair-1').click();await page.locator('#controller-pair-cancel').click();
   assert.deepEqual(await page.evaluate(()=>[...assignments]),[-101,-100]);
   // Reconnect the same physical pair with a new browser index.
@@ -42,7 +43,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),path
   assert.equal(report.playerControllers[0].half,'right');
   assert.equal(report.controllerMode,'automatic-with-calibration');
   await page.locator('#close').tap();
-  await page.evaluate(()=>{arcade.dismiss();});
+  await page.evaluate(()=>{aircraftMenu.open();});
   await page.locator('#test').tap();
   assert.equal(await page.locator('#settings').isVisible(),true);
   await page.locator('#close').tap();
@@ -65,7 +66,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),path
    await touch.locator('#boot').tap();await touch.evaluate(()=>arcade.frame(3));
    await touch.locator('#demo-controllers').tap();
    assert.equal(await touch.locator('#settings').isVisible(),true);
-   assert.match(await touch.locator('#joycon-ready-0').textContent(),/NOT DETECTED/);
+   assert.match(await touch.locator('#joycon-ready-0').textContent(),/NO CONTROLLER · WAITING/);
    assert.equal(await touch.locator('#settings').evaluate(el=>el.scrollWidth<=el.clientWidth),true);
    await touch.locator('.half-controllers > summary').tap();
    for (const id of ['half-p1','half-p2','half-default','controller-pair-0','controller-pair-1','close']) {
@@ -76,11 +77,11 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),path
     window.singlePads=['R','L'].map((side,index)=>({id:`Joy-Con (${side}) (STANDARD GAMEPAD)`,index,mapping:'standard',connected:true,axes:[0,0],buttons:Array.from({length:17},()=>({pressed:false,value:0}))}));
     navigator.getGamepads=()=>singlePads;poll();
    });
-   assert.match(await touch.locator('#joycon-ready-0').textContent(),/LEFT JOY-CON · READY · P1/);
-   assert.match(await touch.locator('#joycon-ready-1').textContent(),/RIGHT JOY-CON · READY · P2/);
+   assert.match(await touch.locator('#joycon-ready-0').textContent(),/P1 · Joy-Con · Left half.*CONNECTED · PRESS ANY BUTTON/);
+   assert.match(await touch.locator('#joycon-ready-1').textContent(),/P2 · Joy-Con · Right half.*CONNECTED · PRESS ANY BUTTON/);
    assert.deepEqual(await touch.evaluate(()=>halfControllers.snapshot().profiles),[null,null]);
    await touch.locator('#close').tap();
-   await touch.evaluate(()=>arcade.dismiss());await touch.locator('#test').tap();
+   await touch.evaluate(()=>aircraftMenu.open());await touch.locator('#test').tap();
    assert.equal(await touch.locator('#settings').isVisible(),true);
    await touch.close();
   }

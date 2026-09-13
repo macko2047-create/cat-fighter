@@ -32,3 +32,69 @@ window.menuNavigation = {
     el.scrollIntoView({block:'nearest',inline:'nearest'});
   },
 };
+
+// All menu transitions share gameplay's edge ledger. Consume before clicking:
+// a Start press must never become a fresh Pause on the next gameplay frame.
+(() => {
+  const nav=window.menuNavigation, directions=new Map();
+  function root() {
+    if ($('#settings').open) return $('#settings');
+    if ($('#lan-dialog').open || mode==='playing') return null;
+    if (window.arcade?.phase==='demo') return $('.demo-menu');
+    if (['ready','paused','over','win'].includes(mode)) return $('#overlay');
+    return null;
+  }
+  const controls = host => nav.available(host.querySelectorAll('button,summary,input,select'));
+  function back(host) {
+    if (host===$('#settings')) { if(capture) {capture=null;$('#mapping').textContent='MAPPING CANCELLED';} else host.close(); }
+    else if(mode==='paused') pause();
+    else if(!$('#aircraft-menu').hidden) {
+      const slot=window.lan?.guest ? 1 : 0;
+      const cancel=$('#pilot-cancel-'+slot);
+      if(!cancel.disabled) cancel.click();
+      else if(window.lan?.active) $('#lan-open').click();
+      else $('#watch-demo').click();
+    }
+  }
+  nav.poll = () => {
+    const host=root();
+    if(!host || capture || window.halfControllers?.snapshot().calibration) return false;
+    const list=pads();
+    for(const p of list) {
+      const pressed=p.buttons.map(b=>b.pressed), prev=previous.get(p.index)||[], c=config(p);
+      const edge=i=>pressed[i]&&!prev[i], direction=nav.direction(p);
+      previous.set(p.index,pressed);
+      window.lan?.consumeMenuPad?.(p);
+      const fresh=pressed.some((v,i)=>v&&!prev[i]);
+      if(!assignments.includes(p.index) && fresh && host!==$('#settings') && !window.lan?.active) {
+        const slot=availableControllerSlot(p);
+        if(slot>=0) assignments[slot]=p.index;
+        // Activation does not also activate the focused menu item.
+        directions.set(p.index,direction); continue;
+      }
+      const items=controls(host);
+      if(!items.includes(document.activeElement)) nav.focus(items[0]);
+      if(edge(c.back)) back(host);
+      else if(mode==='paused' && edge(c.pause)) pause();
+      else if(edge(c.confirm)) {
+        const target=document.activeElement;
+        if(target?.tagName==='SUMMARY') target.parentElement.open=!target.parentElement.open;
+        else if(items.includes(target)) target.click();
+      } else if(direction && direction!==directions.get(p.index)) {
+        const target=document.activeElement;
+        if(target?.type==='range' && ['left','right'].includes(direction)) {
+          target.value=Number(target.value)+(direction==='right'?1:-1);target.dispatchEvent(new Event('input',{bubbles:true}));
+        } else nav.focus(nav.next(items,target,direction));
+      }
+      directions.set(p.index,direction);
+      if(root()!==host || capture) break;
+    }
+    return host!==$('#settings'); // Keep the existing capture/debug refresh pipeline.
+  };
+  window.addEventListener('keydown', e=>{
+    const host=root();
+    if(!host || !['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code) || /^(INPUT|SELECT|TEXTAREA)$/.test(e.target?.tagName)) return;
+    e.preventDefault();e.stopImmediatePropagation();
+    if(!e.repeat) nav.focus(nav.next(controls(host),document.activeElement,e.code.slice(5).toLowerCase()));
+  },true);
+})();

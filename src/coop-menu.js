@@ -109,9 +109,10 @@
         const pressed=p.buttons.map(b=>b.pressed), prev=previousPads.get(p.index)||[], c=config(p);
         const edge=i=>pressed[i]&&!prev[i];
         const direction=nav.direction(p);
-        $('#coop-controls').textContent=`Stick / D-pad: move frame · Button ${c.fire}: select highlighted button. To go back, select CANCEL / BACK on screen.`;
+        $('#coop-controls').textContent=`Stick / D-pad: move frame · CONFIRM: select · BACK: return.`;
         if (!document.activeElement?.classList.contains('menu-focus')) nav.focus(controls().includes(document.activeElement) ? document.activeElement : controls()[0]);
-        if(edge(c.fire)) {
+        if(edge(c.back)) back();
+        else if(edge(c.confirm)) {
           if(document.activeElement?.tagName === 'INPUT')move('down');
           else if(controls().includes(document.activeElement))document.activeElement.click();
           else move('down');
@@ -119,6 +120,7 @@
         previousPads.set(p.index,pressed);directions.set(p.index,direction);
         // Suppress the same physical press when returning to the selection/game.
         previous.set(p.index,pressed);
+        window.lan?.consumeMenuPad?.(p);
         if (!dialog.open) break;
       }
       return true;

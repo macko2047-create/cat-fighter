@@ -1,0 +1,94 @@
+const {chromium,webkit}=require('playwright'),assert=require('node:assert/strict'),path=require('node:path');
+(async()=>{
+ const browser=await (process.env.BROWSER==='webkit'?webkit:chromium).launch({headless:true});
+ try{
+  const page=await browser.newPage({viewport:{width:820,height:1180},hasTouch:true});
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.addInitScript(()=>{
+   requestAnimationFrame=()=>0;
+   window.rawPad={id:'Joy-Con (L/R) Extended Gamepad',index:0,connected:true,mapping:'standard',axes:[0,0,0,0],buttons:Array.from({length:17},()=>({pressed:false,value:0}))};
+   window.expose=false;navigator.getGamepads=()=>expose?[rawPad]:[];
+  });
+  await page.goto('file://'+path.resolve('index.html'));
+  await page.evaluate(()=>{document.documentElement.requestFullscreen=()=>Promise.resolve();});
+  await page.locator('#boot').tap();await page.evaluate(()=>arcade.frame(3));
+  assert.match(await page.locator('#controller-activation').textContent(),/PRESS ANY BUTTON/);
+  await page.screenshot({path:'artifacts/controller-settings/controller-onboarding.png'});
+  const press=async b=>page.evaluate(b=>{rawPad.buttons[b].pressed=true;poll();rawPad.buttons[b].pressed=false;poll();},b);
+  const focus=async selector=>page.evaluate(s=>menuNavigation.focus(document.querySelector(s)),selector);
+  const move=async (x,y)=>page.evaluate(([x,y])=>{rawPad.axes[1]=x;rawPad.axes[0]=-y;poll();rawPad.axes.fill(0);poll();},[x,y]);
+  await page.evaluate(()=>{expose=true;poll();});
+  assert.match(await page.locator('#controller-activation').textContent(),/PRESS ANY BUTTON/);
+  await press(16);
+  assert.match(await page.locator('#controller-activation').textContent(),/CONTROLLER CONNECTED/,'unmapped physical button still acknowledges connection');
+  await press(13);
+  assert.match(await page.locator('#controller-activation').textContent(),/P1 CONTROLLER READY/);
+  assert.equal(await page.evaluate(()=>mode),'ready');
+  await focus('#demo-start');await move(0,1);
+  assert.notEqual(await page.evaluate(()=>document.activeElement.id),'demo-start','stick changes focus');
+  await focus('#demo-lan');await press(13);
+  assert.equal(await page.locator('#lan-dialog').isVisible(),true,'controller opens two-player menu');
+  await press(14);assert.equal(await page.locator('#lan-dialog').isVisible(),false,'controller Back closes two-player menu');
+  await focus('#demo-controllers');await press(13);
+  assert.equal(await page.locator('#settings').isVisible(),true);
+  assert.match(await page.locator('#controller-physical').textContent(),/PHYSICAL CONNECTED.*Logical halves/);
+  assert.match(await page.locator('#joycon-ready-0').textContent(),/P1.*READY.*ASSIGNED/);
+  assert.match(await page.locator('#joycon-ready-1').textContent(),/P2.*CONNECTED.*PRESS ANY BUTTON/);
+  await press(2);
+  assert.match(await page.locator('#joycon-ready-1').textContent(),/P2.*READY/);
+  await page.locator('[data-pad="-100"] [data-action="test"]').tap();
+  await page.evaluate(()=>{rawPad.axes[1]=.8;rawPad.buttons[15].pressed=true;poll();});
+  assert.match(await page.locator('[data-pad="-100"] .test-stick i').getAttribute('style'),/12.8px/);
+  assert.equal(await page.locator('[data-pad="-100"] [data-test="pause"]').evaluate(e=>e.classList.contains('lit')),true);
+  await page.evaluate(()=>{rawPad.axes.fill(0);rawPad.buttons[15].pressed=false;poll();});
+  await press(13);await press(14);
+  assert.equal(await page.locator('#settings').isVisible(),true,'Back is testable');
+  await press(14); // second Back exits test, without closing settings
+  for(const [action,button,logical] of [['fire',14,0],['bomb',15,9],['pause',13,1],['confirm',15,9],['back',14,0]]){
+   await page.locator(`[data-pad="-100"] [data-action="${action}"]`).tap();await press(button);
+   assert.equal(await page.evaluate(a=>config(pads()[0])[a],action),logical);
+   if(action==='fire')assert.equal(await page.evaluate(()=>config(pads()[0]).confirm),1,'Fire override leaves Confirm unchanged');
+   assert.match(await page.locator('#mapping').textContent(),/SAVED/);
+  }
+  assert.deepEqual(await page.evaluate(()=>JSON.parse(localStorage.getItem('catfighter-bindings'))['Half Joy-Con P1']),{fire:0,bomb:9,pause:1,confirm:9,back:0});
+  await page.reload();await page.evaluate(()=>{expose=true;poll();});
+  assert.equal(await page.evaluate(()=>config(pads()[0]).pause),1,'mapping survives reload');
+  await page.evaluate(()=>$('#test').click());await page.locator('[data-pad="-100"] [data-action="reset"]').tap();
+  assert.deepEqual(await page.evaluate(()=>config(pads()[0])),{fire:1,bomb:0,pause:9,confirm:1,back:0});
+  await press(14);await press(14);assert.equal(await page.locator('#settings').isVisible(),false);
+  await page.evaluate(()=>{document.documentElement.requestFullscreen=()=>Promise.resolve();$('#boot').click();arcade.frame(3);});
+  await press(13);await focus('#demo-start');await press(13);
+  assert.equal(await page.locator('#aircraft-menu').isVisible(),true);
+  await focus('[data-slot="0"][data-model="0"]');await move(1,0);await press(13);
+  assert.equal(await page.evaluate(()=>aircraft[0]),1,'controller selects aircraft');
+  await move(0,1);await press(13);
+  assert.equal(await page.locator('#start').isEnabled(),true,'controller confirms');
+  await move(0,1);
+  assert.equal(await page.evaluate(()=>document.activeElement.id),'start');
+  // Map Confirm to Pause to reproduce the shared transition edge.
+  await page.evaluate(()=>{bindings['Half Joy-Con P1']={confirm:9};rawPad.buttons[15].pressed=true;poll();});
+  assert.equal(await page.evaluate(()=>mode),'playing','controller starts without touch');
+  await page.evaluate(()=>{poll();poll();});
+  assert.equal(await page.evaluate(()=>mode),'playing','held Start does not immediately pause');
+  await page.evaluate(()=>{rawPad.buttons[15].pressed=false;poll();});
+  await press(15);assert.equal(await page.evaluate(()=>mode),'paused');
+  await press(15);assert.equal(await page.evaluate(()=>mode),'playing','pause resumes');
+  await page.evaluate(()=>pause());await page.keyboard.press('Escape');
+  assert.equal(await page.evaluate(()=>mode),'playing','keyboard resume remains available');
+  await page.locator('#pause').tap();assert.equal(await page.evaluate(()=>mode),'paused','touch pause remains available');
+  await page.evaluate(()=>$('#test').click());await page.evaluate(()=>poll());
+  await page.screenshot({path:'artifacts/controller-settings/controller-ux.png'});
+  await page.keyboard.press('Escape');await page.locator('#watch-demo').tap();
+  await page.keyboard.press('ArrowUp');await page.keyboard.press('Enter');
+  assert.equal(await page.locator('#aircraft-menu').isVisible(),true,'keyboard opens aircraft selection');
+  await page.keyboard.press('ArrowLeft');await page.keyboard.press('ArrowRight');await page.keyboard.press('Enter');
+  await page.keyboard.press('ArrowDown');await page.keyboard.press('Enter');
+  assert.equal(await page.locator('#start').isEnabled(),true,'keyboard confirms aircraft');
+  for(let i=0;i<3 && await page.evaluate(()=>document.activeElement.id)!=='start';i++)await page.keyboard.press('ArrowDown');
+  assert.equal(await page.evaluate(()=>document.activeElement.id),'start','keyboard moves through Change Aircraft to Start');
+  await page.keyboard.press('Enter');
+  assert.equal(await page.evaluate(()=>mode),'playing','keyboard starts from focus');
+  assert.deepEqual(errors,[]);
+  console.log('PASS: hybrid activation, physical/logical readiness, focus, live test, five-action remap/reload/reset, aircraft/confirm/start/back, held Start/Pause, keyboard/touch and browser errors.');
+ }finally{await browser.close();}
+})().catch(e=>{console.error(e);process.exitCode=1;});

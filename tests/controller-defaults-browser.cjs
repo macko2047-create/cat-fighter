@@ -9,8 +9,8 @@ const el = (s) => {
     elements.set(s, {
       style: {},
       dataset: {},
-      classList: {toggle() {}},
-      querySelector: () => ({textContent:''}),
+      classList: {toggle() {},add() {},remove() {}},
+      querySelector: () => ({textContent:'',style:{},classList:{toggle(){}}}),
       click() { this.onclick?.(); },
       textContent: "",
       innerHTML: "",
@@ -132,12 +132,12 @@ assert.deepEqual(json('pads().map(p=>p.index)'),[-100,-101],'restore automatic d
 assert.equal(run('bindings["Standard full gamepad"].fire'),4,'restore preserves unrelated full-pad remaps');
 assert.equal(run('halfControllers.snapshot().defaultsEnabled'),true);
 run("mode='ready'; controllerSetup.poll(); $('#settings').showModal(); controllerSetup.poll()");
-assert.match(el('#joycon-ready-0').textContent,/LEFT JOY-CON · READY · P1/);
-assert.match(el('#joycon-ready-1').textContent,/RIGHT JOY-CON · READY · P2/);
+assert.match(el('#joycon-ready-0').textContent,/P1 · Joy-Con · Left half.*READY/);
+assert.match(el('#joycon-ready-1').textContent,/P2 · Joy-Con · Right half.*READY/);
 run('assignments[0]=9; controllerSetup.poll()');
-assert.match(el('#joycon-ready-0').textContent,/READY · P2/,'readiness follows the available player slot');
+assert.match(el('#joycon-ready-1').textContent,/P2 · Joy-Con.*READY/,'readiness follows the available player slot');
 run('assignments[1]=10; controllerSetup.poll()');
-assert.match(el('#joycon-ready-0').textContent,/Player slots occupied/);
+assert.match(el('#joycon-ready-0').textContent,/NO CONTROLLER · WAITING/);
 run('assignments.fill(null)');
 gamepads=[];run("mode='ready'; controllerSetup.poll()");
 assert.equal(run('touchOnly()'),true,'no hardware returns to touch mode');
@@ -202,3 +202,52 @@ assert.match(html, /id="demo-controllers"[^>]*aria-controls="settings"/);
 assert.match(html, /<dialog id="settings" aria-labelledby="controller-title">/);
 assert.ok(!css.includes('.arcade-shell #test,') && !css.includes(':is(#test,'),'settings no longer hidden by shell/touch selectors');
 console.log('PASS: both join orders, LAN input-mode guard and discoverable settings markup (visual QA still requires browser).');
+
+// Verified iPad identity: fresh storage must yield the same input as calibration.
+saved.delete(profileKey);
+vm.runInContext(fs.readFileSync('src/half-controllers.js','utf8'),sandbox);
+sandbox.halfControllers=sandbox.window.halfControllers;
+const extended=make('Joy-Con (L/R) Extended Gamepad',0,[.25,.5,.75,-1]);
+gamepads=[extended];
+assert.equal(saved.has(profileKey),false);
+assert.deepEqual(json('halfControllers.snapshot().profiles'),[null,null]);
+const automatic=json('halfControllers.read(navigator.getGamepads())');
+assert.deepEqual(automatic.map(p=>[p.id,p.index,p.preferredSlot,p.axes]),[
+  ['Half Joy-Con P1',-100,0,[.5,-.25]],['Half Joy-Con P2',-101,1,[1,.75]],
+]);
+const verified=[
+  {id:extended.id,index:0,axes:[{axis:1,rest:0,sign:1},{axis:0,rest:0,sign:1}],buttons:[13,14,15]},
+  {id:extended.id,index:0,axes:[{axis:3,rest:0,sign:-1},{axis:2,rest:0,sign:-1}],buttons:[2,0,3]},
+];
+assert.deepEqual(json('halfControllers.snapshot().profiles').map(({side,...c})=>c),verified);
+assert.equal(run('halfControllers.snapshot().calibration'),null);
+assert.equal(run('halfControllers.snapshot().releasePending'),false);
+for (const [slot,physical] of [[0,[13,14,15]],[1,[2,0,3]]]) {
+  for (const [action,button] of physical.entries()) {
+    extended.buttons[button]={pressed:true,value:1};
+    const halves=json('halfControllers.read(navigator.getGamepads())');
+    assert.deepEqual(halves.map(p=>p.buttons.flatMap((b,i)=>b.pressed?[i]:[])),
+      slot===0 ? [[[1,0,9][action]],[]] : [[],[[1,0,9][action]]]);
+    extended.buttons[button]={pressed:false,value:0};
+  }
+}
+// Saved manual profiles flow through exactly the same logical output path.
+saved.set(profileKey,JSON.stringify({defaultsEnabled:true,profiles:verified}));
+vm.runInContext(fs.readFileSync('src/half-controllers.js','utf8'),sandbox);
+sandbox.halfControllers=sandbox.window.halfControllers;
+assert.deepEqual(json('halfControllers.read(navigator.getGamepads())').map(({displayName,...p})=>p),
+  automatic.map(({displayName,...p})=>p));
+assert.deepEqual(json('halfControllers.snapshot().profiles'),verified,'saved calibration remains authoritative');
+run("$('#half-default').click()");
+assert.deepEqual(json('halfControllers.read(navigator.getGamepads())'),automatic,'restore recreates verified defaults');
+console.log('PASS: fresh iPad Extended pair, exact axes/buttons and slots, manual calibration equivalence, saved profiles and restore.');
+
+// Two unassigned full pads are displayed once each, before either joins.
+gamepads=[make('Full pad A',20),make('Full pad B',21)];
+run("mode='ready';assignments.fill(null);$('#settings').showModal();controllerSetup.poll()");
+assert.match(el('#joycon-ready-0').textContent,/P1 · Full pad A · CONNECTED/);
+assert.match(el('#joycon-ready-1').textContent,/P2 · Full pad B · CONNECTED/);
+gamepads[1].buttons[1].pressed=true;run('controllerSetup.poll()');
+assert.match(el('#controller-activation-text').textContent,/P2 CONTROLLER READY/);
+assert.match(el('#joycon-ready-1').textContent,/P2 · Full pad B · READY · NOT ASSIGNED/);
+console.log('PASS: distinct full-pad P1/P2 previews and first-input readiness without assigning players.');

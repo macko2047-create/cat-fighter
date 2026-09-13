@@ -60,7 +60,7 @@ function musicState(state) {
 }
 const touchOnly = () => document.body?.dataset?.inputMode === "touch";
 const pads = () => {
-  if (touchOnly()) return [];
+  // Touchscreen devices can also have connected Bluetooth/USB gamepads.
   const raw = Array.from(navigator.getGamepads?.() || []).filter(p => p && p.connected !== false);
   return window.halfControllers ? window.halfControllers.read(raw) : raw;
 };
@@ -76,7 +76,10 @@ function availableControllerSlot(p) {
   return assignments.indexOf(null);
 }
 function controllerName(p) { return p.displayName || p.id; }
-const config = (p) => bindings[p.id] || { fire: 1, bomb: 0, pause: 9 };
+const config = (p) => {
+  const custom = bindings[p.id] || {};
+  return { fire: 1, bomb: 0, pause: 9, confirm: 1, back: 0, ...custom };
+};
 function pilot(i) {
   return {
     x: i ? 365 : 235,
@@ -119,6 +122,10 @@ function start() {
   bossDebris = [];
   flash = 0;
   mode = "playing";
+  for (const p of pads()) {
+    previous.set(p.index, p.buttons.map(b=>b.pressed));
+    window.lan?.consumeMenuPad?.(p);
+  }
   $("#overlay").style.display = "none";
   window.flightControls?.sync();
   sfx.initAudio();
@@ -342,6 +349,10 @@ window.addEventListener("gamepaddisconnected", (e) => {
   previous.delete(e.gamepad.index);
   renderDevices();
 });
+function bindingLabel(p, action) {
+  const n = config(p)[action];
+  return ({1:'PRIMARY',0:'SECONDARY',9:'MENU'})[n] || `BUTTON ${n + 1}`;
+}
 function renderDevices() {
   const playerOrder = p => assignments.indexOf(p.index) < 0 ? 2 : assignments.indexOf(p.index);
   const list = pads().sort((a,b) => playerOrder(a)-playerOrder(b));
@@ -349,7 +360,10 @@ function renderDevices() {
     ? list
         .map(
           (p) =>
-            `<div class="device" data-pad="${p.index}"><b></b><p class="device-feedback">Move the stick or press a button to identify this controller.</p><details><summary>Advanced button mapping / input values</summary><pre></pre><button data-action="fire">Map Select / Fire</button><button data-action="bomb">Map Bomb</button><button data-action="pause">Map Pause</button></details></div>`,
+            `<div class="device" data-pad="${p.index}"><b></b><p class="device-feedback"></p>
+            <div class="controller-test" aria-label="Live controller test"><span class="test-stick" aria-label="Move"><i></i></span><span>MOVE</span>${['fire','bomb','pause','confirm','back'].map(action=>`<span data-test="${action}">${action.toUpperCase()}</span>`).join('')}</div>
+            <button data-action="test">LIVE INPUT TEST</button><h3>CUSTOM CONTROLS</h3><div class="custom-controls">${['fire','bomb','pause','confirm','back'].map(action=>`<button data-action="${action}">${action.toUpperCase()} · ${bindingLabel(p,action)}</button>`).join('')}<button data-action="reset">RESTORE DEFAULTS</button></div>
+            <details><summary>Advanced · input values</summary><pre></pre></details></div>`,
         )
         .join("")
     : "<p>No controller detected. Press a button on a connected controller.</p>";
@@ -362,12 +376,23 @@ function renderDevices() {
     .forEach(
       (b) =>
         (b.onclick = () => {
+          const p = pads().find(p=>p.index===Number(b.closest('[data-pad]').dataset.pad));
+          if (!p) return;
+          if (b.dataset.action === 'test') { window.controllerSetup?.beginTest(p.index); return; }
+          window.controllerSetup?.cancelInteraction();
+          if (b.dataset.action === 'reset') {
+            delete bindings[p.id];
+            try { localStorage.setItem('catfighter-bindings',JSON.stringify(bindings)); } catch {}
+            capture = null; renderDevices(); $('#mapping').textContent='DEFAULTS RESTORED ✓'; return;
+          }
+          previous.set(p.index,p.buttons.map(button=>button.pressed));
+          b.textContent='PRESS NEW BUTTON · '+b.dataset.action.toUpperCase();
           capture = {
             index: Number(b.closest("[data-pad]").dataset.pad),
             action: b.dataset.action,
           };
           $("#mapping").textContent =
-            "Press a button for " + b.textContent.replace("Map ", "") + "…";
+            "PRESS NEW BUTTON · " + b.dataset.action.toUpperCase();
         }),
     );
 }
@@ -375,10 +400,11 @@ let deviceSignature = "";
 function poll() {
   window.dropIn?.sync();
   if (window.controllerSetup?.poll()) return;
-  if (window.coopMenu?.poll()) return;
-  if ($("#lan-dialog").open) return;
+  if (window.menuNavigation?.poll()) return;
+  if (!$("#settings").open && window.coopMenu?.poll()) return;
+  if ($("#lan-dialog").open && !$("#settings").open) return;
   if (window.aircraftMenu?.poll()) return;
-  if (window.lan?.active) { window.lan.poll(); return; }
+  if (window.lan?.active && !$("#settings").open) { window.lan.poll(); return; }
   for (const p of pads()) {
     const c = config(p),
       prev = previous.get(p.index) || [],
@@ -387,17 +413,17 @@ function poll() {
     const fresh = pressed.findIndex((v, i) => v && !prev[i]);
     if (window.dropIn?.handlePad(p, pressed, prev)) { previous.set(p.index,pressed); continue; }
     if (capture && capture.index === p.index && fresh >= 0) {
-      const next = { ...c };
-      for (const action of ["fire", "bomb", "pause"])
-        if (action !== capture.action && next[action] === fresh)
-          next[action] = c[capture.action];
-      next[capture.action] = fresh;
+      const next = { ...bindings[p.id], [capture.action]: fresh };
       bindings[p.id] = next;
       try {
         localStorage.setItem("catfighter-bindings", JSON.stringify(bindings));
       } catch {}
+      const action=capture.action;
       capture = null;
-      $("#mapping").textContent = "Button mappings saved.";
+      $("#mapping").textContent = "MAPPING SAVED ✓";
+      renderDevices();
+      const button=$(`[data-pad="${p.index}"] [data-action="${action}"]`);
+      if(button && window.menuNavigation) {button.textContent+=' ✓';window.menuNavigation.focus(button);}
     } else if (!$("#settings").open) {
       if (!assignments.includes(p.index) && fresh >= 0) {
         const slot = availableControllerSlot(p);
@@ -444,7 +470,7 @@ function poll() {
   }
   if ($("#settings").open) {
     const sig = pads()
-      .map((p) => p.index + ":" + assignments.indexOf(p.index))
+      .map((p) => `${p.id}:${p.index}:${assignments.indexOf(p.index)}`)
       .join(",");
     if (sig !== deviceSignature) {
       deviceSignature = sig;
@@ -652,9 +678,25 @@ function spawn() {
     enemies.push(enemy);
   }
 }
-function update(dt) {
+// Shared spawn geometry; guest callers only retain render copies.
+function playerProjectiles(p) {
+  const result = [];
+  for (let j = 0; j < p.level; j++) {
+    const angle = p.level === 3 ? (j - 1) * LEVEL1.spreadShotAngle * Math.PI / 180 : 0;
+    result.push({
+      x: p.x + (j - (p.level - 1) / 2) * 12,
+      y: p.y - 25,
+      vx: Math.sin(angle) * 550,
+      vy: -Math.cos(angle) * 550,
+      owner: p,
+    });
+  }
+  return result;
+}
+function playerFireCooldown(p) { return p.rapid ? 0.06 : 0.12; }
+function update(dt, movementDt = dt) {
   if (mode !== "playing") return;
-  window.lan?.processMovement(dt, loopTransition === 0);
+  window.lan?.processMovement(movementDt, loopTransition === 0);
   if (loopTransition > 0) {
     loopTransition = Math.max(0, loopTransition - dt);
     flash = Math.max(0, flash - dt);
@@ -714,17 +756,8 @@ function update(dt) {
       p.y=clamp(arrived?touchTarget.y:p.y+a.y*260*dt,60,H-25);
     }
     if (a.fire && p.cool <= 0) {
-      p.cool = p.rapid ? 0.06 : 0.12;
-      for (let j = 0; j < p.level; j++) {
-        const angle = p.level === 3 ? (j - 1) * LEVEL1.spreadShotAngle * Math.PI / 180 : 0;
-        shots.push({
-          x: p.x + (j - (p.level - 1) / 2) * 12,
-          y: p.y - 25,
-          vx: Math.sin(angle) * 550,
-          vy: -Math.cos(angle) * 550,
-          owner: p,
-        });
-      }
+      p.cool = playerFireCooldown(p);
+      shots.push(...playerProjectiles(p));
       sfx.playSfx("fire");
     }
   }
@@ -901,7 +934,8 @@ function updateEffects(dt) {
   sparks = sparks.filter(s => s.life > 0);
 }
 function frame(ts) {
-  const dt = Math.min((ts - last) / 1000 || 0, 0.035);
+  const movementDt = Math.max(0, (ts - last) / 1000 || 0);
+  const dt = Math.min(movementDt, 0.035);
   last = ts;
   if (window.arcade?.frame(dt)) {
     // The attract screen also owns the start menu and controller settings.
@@ -919,7 +953,10 @@ function frame(ts) {
   }
   ambient += dt;
   poll();
-  if (mode === "playing") update(dt);
+  // Remote commands already contain the exact dt predicted by P2. Fund their
+  // bounded host budget with elapsed time, not the world-step cap: slow host
+  // frames otherwise accumulate old inputs indefinitely before collision.
+  if (mode === "playing") update(dt, movementDt);
   updateEffects(dt);
   draw();
   window.lan?.tick(ts);

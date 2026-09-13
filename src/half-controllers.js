@@ -132,7 +132,9 @@
         if (matches.length===1) c.index=matches[0].index;
       }
       if (defaultsEnabled && !setup) {
-        const pad=raw.find(p=>p.id==='Joy-Con (L/R) (STANDARD GAMEPAD)' && p.axes.length>=4);
+        // iPad Chrome's hardware-verified Extended identity uses the same preset.
+        const pad=raw.find(p=>(p.id==='Joy-Con (L/R) (STANDARD GAMEPAD)' && p.axes.length>=4) ||
+          (p.id==='Joy-Con (L/R) Extended Gamepad' && p.mapping==='standard' && p.axes.length===4 && p.buttons.length>=17));
         if (pad) {
           const axes=[[{axis:1,rest:0,sign:1},{axis:0,rest:0,sign:1}],
             [{axis:3,rest:0,sign:-1},{axis:2,rest:0,sign:-1}]];
