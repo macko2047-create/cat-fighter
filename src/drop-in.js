@@ -17,12 +17,12 @@
     $('#drop-in-join').textContent=`P${slot()+1} JOIN`;
     $('#drop-in-join').hidden=confirming;
     $('#drop-in-confirmation').hidden=!confirming;
-    $('#drop-in-label').textContent=`P${slot()+1} · ${players[0].aircraft===0?'MINT':'GINGER'} · 3 lives`;
+    $('#drop-in-label').textContent=`P${slot()+1} JOIN · 3 lives`;
   }
   function join(){
     if(!eligible() || !confirming)return false;
     if(controller!==null && !pads().some(p=>p.index===controller)){reset();sync();return false;}
-    const controlSlot=slot(), aircraftId=1-(players[0].aircraft ?? aircraft[players[0].controlSlot ?? players[0].index]);
+    const controlSlot=slot(), aircraftId=FIXED_AIRCRAFT[controlSlot];
     // Append to preserve existing shot-owner references and player indices.
     const newcomer={...pilot(1),controlSlot,aircraft:aircraftId,y:H+55,entering:true,inv:3};
     players.push(newcomer);joined[controlSlot]=true;aircraft[controlSlot]=aircraftId;

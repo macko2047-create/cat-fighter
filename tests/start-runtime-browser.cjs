@@ -6,7 +6,7 @@ const root=path.resolve(__dirname,'..');
 (async()=>{
  const browser=await chromium.launch({headless:true});
  try {
-  for(const [legacy,model] of [[true,0],[false,0],[false,1]]) {
+  for(const legacy of [true,false]) {
    const page=await browser.newPage({viewport:{width:390,height:844},hasTouch:true});
    const errors=[],enemyRequests=[];
    page.on('pageerror',e=>errors.push(e.message));
@@ -26,8 +26,7 @@ const root=path.resolve(__dirname,'..');
    await page.goto('http://catfighter.test/');
    await page.locator('#boot').tap();await page.locator('#demo-start').waitFor();
    await page.locator('#demo-start').tap();
-   await page.locator(`[data-slot="0"][data-model="${model}"]`).tap();
-   await page.locator('#pilot-confirm-0').tap();await page.locator('#start').tap();
+   await page.locator('#start').tap();
    if(legacy) {
     await page.waitForFunction(()=>wave===1);
     assert.ok(errors.some(e=>e.includes('formationReward is not defined')),'old unversioned assets reproduce the reported startup crash');
@@ -37,10 +36,10 @@ const root=path.resolve(__dirname,'..');
     await page.waitForFunction(t=>elapsed>t+1,first);
     assert.deepEqual(errors,[]);
     assert.ok(enemyRequests.every(q=>/^\?v=[a-f0-9]{12}$/.test(q)));
-    assert.equal(await page.evaluate(()=>players[0].aircraft),model);
+    assert.equal(await page.evaluate(()=>players[0].aircraft),0);
    }
    await page.close();
   }
-  console.log('PASS: stale dependency reproduces START crash; versioned assets start both aircraft and keep the real animation loop running.');
+  console.log('PASS: stale dependency reproduces START crash; versioned assets start fixed P1 directly and keep the real animation loop running.');
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

@@ -48,13 +48,6 @@ window.menuNavigation = {
   function back(host) {
     if (host===$('#settings')) { if(capture) {capture=null;$('#mapping').textContent='MAPPING CANCELLED';} else host.close(); }
     else if(mode==='paused') pause();
-    else if(!$('#aircraft-menu').hidden) {
-      const slot=window.lan?.guest ? 1 : 0;
-      const cancel=$('#pilot-cancel-'+slot);
-      if(!cancel.disabled) cancel.click();
-      else if(window.lan?.active) $('#lan-open').click();
-      else $('#watch-demo').click();
-    }
   }
   nav.poll = () => {
     const host=root();
@@ -68,7 +61,13 @@ window.menuNavigation = {
       const fresh=pressed.some((v,i)=>v&&!prev[i]);
       if(!assignments.includes(p.index) && fresh && host!==$('#settings') && !window.lan?.active) {
         const slot=availableControllerSlot(p);
-        if(slot>=0) assignments[slot]=p.index;
+        if(slot>=0) {
+          assignments[slot]=p.index;
+          joined[slot]=true;
+          sfx.playSfx('playerJoined');
+          if(window.arcade?.phase==='demo') window.aircraftMenu?.open();
+          updateHUD();
+        }
         // Activation does not also activate the focused menu item.
         directions.set(p.index,direction); continue;
       }

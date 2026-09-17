@@ -1,9 +1,11 @@
 <!doctype html>
 <html lang="en">
+  <meta name="cat-fighter-transport" content="lan">
+  <meta name="cat-fighter-signaling-origin" content="">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>CAT FIGHTER • Pacific Paws</title>
-  <link rel="stylesheet" href="style.css?v=e33cb7710d38">
+  <link rel="stylesheet" href="style.css?v=1d753374286a">
   <body class="arcade-shell" data-arcade="off" data-input-mode="touch">
     <div id="boot-screen">
       <button id="boot">BOOT <span id="rom-version"></span><span id="build-version"></span><span>TOUCH TO POWER ON</span></button>
@@ -25,7 +27,7 @@
             <div class="demo-progress-track"><div id="demo-progress"></div></div>
             <div id="demo-feedback" hidden></div>
             <div id="demo-finger" aria-hidden="true"><svg viewBox="0 0 64 80"><path d="M24 40V9a7 7 0 0 1 14 0v24c3-5 11-3 12 2 5-2 11 1 11 7v17c0 11-8 18-20 18H30c-7 0-12-4-16-10L3 51c-4-6 4-13 9-8l12 12Z"/></svg><b id="demo-gesture"></b></div>
-            <div class="demo-menu"><button id="demo-start">START ▶</button><div><button id="demo-lan">TWO-PLAYER</button><button id="demo-options">CHOOSE AIRCRAFT</button><button id="demo-sound">SOUND OFF</button><button id="demo-controllers" aria-haspopup="dialog" aria-controls="settings">CONTROLLER SETTINGS</button></div></div>
+            <div class="demo-menu"><button id="demo-start">START ▶</button><div><button id="demo-lan">WI-FI CO-OP</button><button id="demo-options">READY SCREEN</button><button id="demo-sound">SOUND OFF</button><button id="demo-controllers" aria-haspopup="dialog" aria-controls="settings">CONTROLLER SETTINGS</button></div></div>
           </div>
           <div id="overlay">
             <div class="eyebrow">PACIFIC PAWS</div>
@@ -34,18 +36,32 @@
             <p id="demo-return" hidden role="status"></p>
             <button id="start">START ▶</button>
             <p id="lobby-status" role="status">Press START to fly, or join with a friend</p>
-            <button id="join-p1">P1 JOIN</button>
-            <label>P1 AIRCRAFT <select id="aircraft-0"><option value="0">GINGER</option><option value="1">MINT</option></select></label>
-            <button id="join">P2 JOIN</button>
-            <label>P2 AIRCRAFT <select id="aircraft-1"><option value="1">MINT</option><option value="0">GINGER</option></select></label>
+            <section id="player-status" aria-label="Local players">
+              <div id="player-status-0" class="ready-player p1"><span class="ready-aircraft model-0" aria-hidden="true"></span><span><b>P1 · GINGER</b><small id="player-state-0">READY</small></span></div>
+              <div id="player-status-1" class="ready-player p2 not-joined"><span class="ready-aircraft model-1" aria-hidden="true"></span><span><b id="player-name-1">P2</b><small id="player-state-1">NOT JOINED</small></span></div>
+              <div id="controller-activation" role="status"><span class="controller-badge" aria-hidden="true">+</span><span id="controller-activation-text">P2 PRESS START / PRIMARY TO JOIN</span></div>
+            </section>
             <p class="hint">Hold and drag to move and fire. Double-tap to use a bomb.</p>
             <div class="menu-options">
-              <button id="lan-open">TWO-PLAYER</button>
+              <button id="lan-open">WI-FI CO-OP</button>
               <button id="sound">SOUND OFF</button>
               <button id="test" aria-haspopup="dialog" aria-controls="settings">CONTROLLER SETTINGS ↗</button>
               <button id="fullscreen">FULLSCREEN</button>
               <button id="watch-demo">END RUN / DEMO</button>
             </div>
+            <div id="pause-actions" aria-label="Pause menu">
+              <button id="pause-settings" aria-haspopup="dialog" aria-controls="settings">SETTINGS</button>
+              <button id="pause-exit-fullscreen" hidden>EXIT FULLSCREEN</button>
+              <button id="pause-main-menu">RETURN TO MAIN MENU <small>ENDS CURRENT RUN</small></button>
+            </div>
+            <section id="game-over-panel" hidden aria-labelledby="game-over-title">
+              <h2 id="game-over-title">GAME OVER</h2>
+              <p>FINAL SCORE</p>
+              <strong id="final-score">000000</strong>
+              <p id="final-progress">LOOP 1 · WAVE 0</p>
+              <button id="game-over-retry">RETRY ▶</button>
+              <button id="game-over-main-menu">RETURN TO MAIN MENU</button>
+            </section>
           </div>
         </div>
         <div class="bottomline">
@@ -54,7 +70,6 @@
         </div>
       </section>
     </main>
-    <div id="controller-activation" role="status"><svg viewBox="0 0 80 44" aria-hidden="true"><rect x="2" y="2" width="28" height="40" rx="12"/><rect x="50" y="2" width="28" height="40" rx="12"/><path d="M10 15h12m-6-6v12"/><circle cx="60" cy="27" r="2"/><circle cx="69" cy="20" r="2"/></svg><span id="controller-activation-text">PRESS ANY BUTTON TO ACTIVATE CONTROLLER</span></div>
     <dialog id="settings" aria-labelledby="controller-title">
       <div class="controller-marquee"><p>CAT FIGHTER</p><h2 id="controller-title">CONTROLLER SETTINGS</h2></div>
       <p>Connect your controller and press a button. Recognized standalone Joy-Con and combined pairs work automatically: left → P1, right → P2. Hold each Joy-Con sideways. Saved custom settings take priority; use Restore automatic Joy-Con defaults below to start over.</p>
@@ -95,49 +110,51 @@
     </dialog>
     <button id="lan-bar" hidden aria-label="Connection status and settings"></button>
     <dialog id="lan-dialog" aria-labelledby="link-title">
-      <div class="link-marquee"><p>CAT FIGHTER</p><h2 id="link-title">TWO-PLAYER LINK</h2></div>
-      <p id="coop-step" role="status">CHOOSE A MODE</p>
-      <div id="coop-options" class="coop-options">
+      <div class="link-marquee"><p>CAT FIGHTER</p><h2 id="link-title">WI-FI CO-OP</h2></div>
+      <p id="coop-step" role="status">CHOOSE AN OPTION</p>
+      <div id="coop-options" class="coop-options" hidden>
         <button id="coop-local" hidden>SAME SCREEN</button>
-        <button id="coop-wifi"><span id="wifi-title">WI-FI CO-OP</span><small>Same network required</small></button>
+        <button id="coop-wifi"><span id="wifi-title">WI-FI CO-OP</span><small>Same Wi-Fi required</small></button>
       </div>
-      <section id="coop-roles" hidden>
+      <section id="coop-roles">
         <button id="coop-host">CREATE GAME</button>
-        <button id="coop-guest">JOIN GAME</button>
+        <button id="coop-guest">FIND GAME</button>
       </section>
       <section id="coop-host-panel" hidden>
         <h3>P1 · CREATE GAME</h3>
         <button id="lan-create">CREATE GAME</button>
       </section>
       <section id="coop-guest-panel" hidden>
-        <label for="lan-code" id="coop-code-label">ROOM CODE</label>
-        <input id="lan-code" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="000000" autocomplete="off" spellcheck="false" aria-label="Room code">
-        <button id="lan-join">JOIN GAME</button>
+        <h3>FIND GAME</h3>
+        <button id="lan-search">SEARCH AGAIN</button>
+        <p id="lan-discovery-status" role="status"></p>
+        <div id="lan-rooms"></div>
+        <label for="lan-code" id="coop-code-label" hidden>ROOM CODE</label>
+        <input id="lan-code" hidden type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="000000" autocomplete="off" spellcheck="false" aria-label="Room code">
+        <button id="lan-join" hidden>JOIN GAME</button>
       </section>
       <section id="coop-connected" hidden>
         <h3 id="coop-role"></h3>
-        <p id="coop-room-code" aria-label="Room code"></p>
+        <p id="coop-room-code" hidden aria-label="Room code"></p>
         <p id="coop-next" role="status"></p>
-        <button id="coop-start" hidden>CHOOSE AIRCRAFT</button>
+        <button id="coop-start" hidden>READY</button>
       </section>
-      <section id="wifi-controls" hidden aria-label="Advanced / Diagnostics">
+      <p id="lan-status" role="status">Not connected</p>
+      <section id="wifi-controls" hidden aria-hidden="true">
         <h3 id="wifi-setup-title">ADVANCED / DIAGNOSTICS</h3>
-        <p id="lan-status" role="status">Not connected</p>
         <p id="coop-controls"></p>
         <p>WiFi setup: <code>node tools/lan-server.cjs</code></p>
         <p id="lan-addresses"></p>
-        <button id="lan-search">FIND / REFRESH HOSTS</button>
-        <p id="lan-discovery-status" role="status"></p>
-        <div id="lan-rooms"></div>
         <label for="lan-host-url">HOST URL</label>
         <input id="lan-host-url" type="url" placeholder="http://192.168.0.55:8767" autocomplete="url" spellcheck="false">
         <button id="lan-open-host">OPEN HOST URL</button>
       </section>
       <div class="link-footer">
         <button id="coop-back" hidden>BACK</button>
+        <button id="p2p-reconnect" hidden>RECONNECT</button>
         <button id="lan-leave" hidden>LEAVE GAME</button>
         <button id="lan-close">BACK TO GAME</button>
-        <button id="coop-advanced">ADVANCED / DIAGNOSTICS</button>
+        <button id="coop-advanced" hidden>ADVANCED / DIAGNOSTICS</button>
       </div>
     </dialog>
     <script src="src/world.js?v=5c520ff0b9f9"></script>
@@ -147,19 +164,20 @@
     <script src="src/levels/level1.js?v=0d08827a2d18"></script>
     <script src="src/enemies.js?v=678ab88195f6"></script>
     <script src="src/input-replication.js?v=ccff1be399ea"></script>
-    <script src="game.js?v=56202f62c3e4"></script>
-    <script src="src/half-controllers.js?v=36e54287ba63"></script>
+    <script src="game.js?v=01600e5a91d7"></script>
+    <script src="src/half-controllers.js?v=436473bb754b"></script>
     <script src="src/controller-export.js?v=54a715bb5ffb"></script>
-    <script src="src/controller-setup.js?v=ba81dba7bb23"></script>
-    <script src="src/controls.js?v=b595d7dc7768"></script>
+    <script src="src/controller-setup.js?v=9e629ee71f8d"></script>
+    <script src="src/controls.js?v=be94caeb9d41"></script>
     <script src="src/net-protocol.js?v=f6518cf8592d"></script>
-    <script src="src/presentation.js?v=0887fd7adaa6"></script>
+    <script src="src/presentation.js?v=ea6b056a9e70"></script>
     <script src="src/bandwidth.js?v=0dadcd2c15e0"></script>
-    <script src="src/lan.js?v=78aa40afe941"></script>
-    <script src="src/arcade.js?v=0f3a05a5e237"></script>
-    <script src="src/menu-navigation.js?v=63b201a2f6e8"></script>
-    <script src="src/aircraft-menu.js?v=d3946b0eef61"></script>
-    <script src="src/coop-menu.js?v=88c239e0d69a"></script>
-    <script src="src/drop-in.js?v=b26eb8fd710a"></script>
+    <script src="src/p2p-transport.js?v=f9a03a1154a1"></script>
+    <script src="src/lan.js?v=f79e58f78322"></script>
+    <script src="src/arcade.js?v=9a84b7867dda"></script>
+    <script src="src/menu-navigation.js?v=44edd30272b3"></script>
+    <script src="src/aircraft-menu.js?v=54acd9ed872a"></script>
+    <script src="src/coop-menu.js?v=5bf57a74a25a"></script>
+    <script src="src/drop-in.js?v=9025bb619e49"></script>
   </body>
 </html>

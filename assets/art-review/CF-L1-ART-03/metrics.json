@@ -1,0 +1,38 @@
+[
+  {
+    "name": "p1-roll-left",
+    "bounds": [
+      34,
+      33,
+      187,
+      190
+    ]
+  },
+  {
+    "name": "p1-roll-right",
+    "bounds": [
+      41,
+      33,
+      173,
+      190
+    ]
+  },
+  {
+    "name": "p2-roll-left",
+    "bounds": [
+      33,
+      37,
+      190,
+      182
+    ]
+  },
+  {
+    "name": "p2-roll-right",
+    "bounds": [
+      33,
+      37,
+      190,
+      182
+    ]
+  }
+]

@@ -1,0 +1,7 @@
+{
+  "newCanvases": 0,
+  "medianMs": 9.300000011920929,
+  "p95Ms": 42.5,
+  "method": "15 warm draw + GPU flush samples; fixed 12 enemies, 175 bullets, 80 particles; headless Chrome",
+  "errors": []
+}

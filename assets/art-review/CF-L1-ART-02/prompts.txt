@@ -1,0 +1,2 @@
+目前採用參考圖摘取版本，提示詞摘要見 README.md。
+原生成版本完整提示詞已移至 archive-generated-v1/prompts.txt，僅供歷史追溯。

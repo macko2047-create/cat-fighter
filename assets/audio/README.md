@@ -42,7 +42,7 @@ Validation:
 - node tests/game.test.cjs --current (PASS, including 200-second simulation)
 - node --test tests/charge.test.cjs tests/audio.test.cjs (9 PASS)
 - node tests/lan.test.cjs (PASS; localhost service required sandbox permission)
-- node --test tests/net-protocol.test.cjs tests/p2p-signaling.test.cjs tests/presentation.test.cjs tests/player-assets.test.cjs tests/viewport.test.cjs (15 PASS)
+- node --test tests/net-protocol.test.cjs tests/presentation.test.cjs tests/player-assets.test.cjs tests/viewport.test.cjs
 - node --check game.js; node --check src/audio.js (PASS)
 - node tests/game.test.cjs (historical baseline fails at superseded drop-rate
   expectation, as already documented in project README; not rewritten)

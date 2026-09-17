@@ -1,0 +1,111 @@
+{
+  "source": {
+    "path": "/Users/maccow/Documents/Screenshot 2026-09-07 at 11.13.11.png",
+    "image_size_px": [1660, 742],
+    "method": "Approximate manual reading of illustrated projections including outline strokes",
+    "typical_boundary_reading_tolerance_px": 4,
+    "tolerance_note": "Heuristic reading tolerance, not calibrated accuracy; ear-root boundaries are less certain",
+    "absolute_scale_known": false,
+    "true_3d_dimensions_recoverable": false
+  },
+  "coordinates": {
+    "dimension_order": ["X_width", "Y_depth", "Z_height"],
+    "front_direction": "-Y",
+    "up_direction": "+Z",
+    "character_left": "+X",
+    "origin": "Head bottom center; Y=0 is assumed cranial mid-depth",
+    "unit": "U",
+    "head_width_U": 100,
+    "front_px_per_U": 4.78,
+    "front_center_x_px": 322,
+    "front_bottom_y_px": 546,
+    "physical_conversion": "mm = U * chosen_head_width_mm / 100"
+  },
+  "image_measurements": {
+    "front_head_width": {"x_px": [83, 561], "span_px": 478, "span_U": 100},
+    "front_head_height_without_ears": {"y_px": [151, 546], "span_px": 395, "span_U": 82.6},
+    "front_total_height": {"y_px": [92, 546], "span_px": 454, "span_U": 95.0},
+    "front_image_left_ear_region": {"bbox_xyxy_px": [109, 92, 244, 270], "width_height_U": [28.2, 37.2], "root_boundary_ambiguous": true},
+    "front_image_right_ear_region": {"bbox_xyxy_px": [397, 93, 533, 270], "width_height_U": [28.5, 37.0], "root_boundary_ambiguous": true},
+    "front_image_left_inner_ear": {"bbox_xyxy_px": [132, 119, 209, 244], "width_height_U": [16.1, 26.2]},
+    "front_eye_centers_px": [[219, 384], [421, 384]],
+    "front_eye_spacing_U": 42.3,
+    "front_eye_width_height_U": [11.9, 15.1],
+    "front_nose_bbox_xyxy_px": [295, 409, 343, 443],
+    "front_nose_width_height_U": [10.0, 7.1],
+    "front_muzzle_color_bbox_xyxy_px": [200, 410, 441, 541],
+    "front_muzzle_color_width_height_U": [50.4, 27.4],
+    "side_nose_to_occiput": {"x_px": [1199, 1610], "span_px": 411, "conditional_span_U": 86.0, "assumption": "Side and front drawings have equal scale; not verified"}
+  },
+  "modeling_proposal": {
+    "status": "Design starting parameters, not measured 3D geometry",
+    "Head_Base": {
+      "dimensions_U": [100, 80, 83],
+      "bounds_min_U": [-50, -40, 0],
+      "bounds_max_U": [50, 40, 83],
+      "depth_trial_range_U": [76, 86],
+      "depth_is_assumed": true,
+      "independent_closed_mesh": true
+    },
+    "Muzzle_Base": {
+      "dimensions_U": [50, 12, 28],
+      "bounds_min_U": [-25, -44, 1],
+      "bounds_max_U": [25, -32, 29],
+      "geometry_required": true,
+      "dimensions_are_design_estimates": true,
+      "width_height_basis": "Initial envelope informed by front muzzle color region, not a measured solid boundary",
+      "maximum_projection_beyond_head_front_plane_U": 4,
+      "shape": "Continuous rounded muzzle volume blending into cheeks and chin",
+      "editing_strategy": "Separate editable object during modeling; may be smoothly integrated into head for final topology"
+    },
+    "Nose": {
+      "dimensions_U": [10, 5, 7],
+      "bounds_min_U": [-5, -46, 22],
+      "bounds_max_U": [5, -41, 29],
+      "geometry_required": true,
+      "depth_and_position_are_assumed": true,
+      "width_height_basis": "Rounded front-view nose silhouette measurements",
+      "maximum_projection_beyond_head_front_plane_U": 6,
+      "maximum_projection_beyond_muzzle_front_plane_U": 2
+    },
+    "muzzle_structure_requirements": {
+      "front_reference_plane_y_U": -40,
+      "required_layers": ["cranial_face", "projecting_muzzle_base", "nose_tip"],
+      "color_patch_alone_is_sufficient": false,
+      "nose_without_muzzle_volume_is_sufficient": false,
+      "depths_include_embedded_overlap": true,
+      "projection_note": "Distances beyond reference planes, not local surface-normal offsets; verify connections on actual geometry",
+      "validation": "In side view with a single flat material, preserve forehead-to-nose projection, convex muzzle and return to chin; verify continuous cheek transitions and no gaps",
+      "model_validation_performed": false
+    },
+    "Ear_L": {
+      "dimensions_U": [29, 12, 38],
+      "bounds_min_U": [15.5, -11, 57],
+      "bounds_max_U": [44.5, 1, 95],
+      "pivot_U": [29, -5, 65],
+      "tip_reference_U": [36, -5, 95],
+      "independent_closed_mesh": true
+    },
+    "Ear_R": {
+      "dimensions_U": [29, 12, 38],
+      "bounds_min_U": [-44.5, -11, 57],
+      "bounds_max_U": [-15.5, 1, 95],
+      "pivot_U": [-29, -5, 65],
+      "tip_reference_U": [-36, -5, 95],
+      "independent_closed_mesh": true
+    },
+    "ear_assumptions": {
+      "depth_trial_range_U": [10, 16],
+      "cavity_recess_trial_range_U": [2, 4],
+      "root_extension_below_pivot_U": 8,
+      "outward_tilt_from_proposed_points_degrees": 13.1,
+      "unmeasured_parameters": ["depth", "Y_position", "hidden_root", "pivot", "cavity_recess", "tilt"],
+      "inner_ear_color_width_height_U": [16, 26],
+      "inner_ear_strategy": "Material region on each outer ear; if separate mesh, parent to corresponding ear"
+    },
+    "overall_excluding_whiskers_dimensions_U": [100, 86, 95],
+    "nose_tip_y_U_assumed": -46,
+    "prohibited_head_ear_merge_operations": ["join", "boolean_union", "shared_voxel_remesh"],
+    "physical_connectors_and_tolerances": null
+  }
+}

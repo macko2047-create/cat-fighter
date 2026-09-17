@@ -1,0 +1,1 @@
+PASS: real RTC P1/P2/both/diagonal/reversals/fire/Boss scene, pause, disconnect/reconnect, host-only resume, no stale movement/fire, no page errors.

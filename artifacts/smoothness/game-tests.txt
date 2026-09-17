@@ -1,0 +1,67 @@
+✔ UTF-8 logical JSON is unchanged, classified once, with rolling rates and relay math (1.147167ms)
+✔ P2P measures identical reassembled JSON once, excludes fragments and rejected sends (14.038375ms)
+PASS: co-op, firing, bombs, defeat, boss clear/next loop, independent controllers, reconnect, 200-second simulation.
+PASS: Boss attack patterns, three bullet clears and reveal pauses, enlarged sprites.
+PASS: rage resistance, crossing bombs, immediate fire, slower bullets and stationary-player danger.
+PASS: P1-only/P2-only keyboard and gamepad calls skip absent slots; Boss damage matches 300px body.
+PASS: 1.25x enemy bullet hitboxes, exact boundaries, enlarged player contact range and three-hit small enemies.
+PASS: 24 reward combinations, pattern-change speed reset, same-pattern retention, Rapid reacquisition and actual firing cadence.
+PASS: kamikaze Rapid, alternating boat upgrades, exclusive 50% Bomb / 10% 1UP rolls, no legacy supplies, slower final-phase bullets and per-loop scaling.
+PASS: adaptive team/firepower scaling, smoothing, death/rejoin, fixed Boss HP, rewards and preview isolation.
+/Users/maccow/isonated project/Cat Fighter/tests/baseline.test.cjs:32
+    throw new Error(name, { cause: error });
+    ^
+
+Error: movement: 260 units/second, diagonal normalization and P2 keyboard
+    at test (/Users/maccow/isonated project/Cat Fighter/tests/baseline.test.cjs:32:11)
+    at Object.<anonymous> (/Users/maccow/isonated project/Cat Fighter/tests/baseline.test.cjs:180:1)
+    ... 5 lines matching cause stack trace ...
+    at Module.require (node:internal/modules/cjs/loader:1679:12)
+    at require (node:internal/modules/helpers:196:16)
+    at Object.<anonymous> (/Users/maccow/isonated project/Cat Fighter/tests/game.test.cjs:407:42) {
+  [cause]: AssertionError [ERR_ASSERTION]: 326 != 261
+      at near (/Users/maccow/isonated project/Cat Fighter/tests/baseline.test.cjs:37:10)
+      at /Users/maccow/isonated project/Cat Fighter/tests/baseline.test.cjs:185:3
+      at test (/Users/maccow/isonated project/Cat Fighter/tests/baseline.test.cjs:29:5)
+      at Object.<anonymous> (/Users/maccow/isonated project/Cat Fighter/tests/baseline.test.cjs:180:1)
+      at Module._compile (node:internal/modules/cjs/loader:1934:14)
+      at Object..js (node:internal/modules/cjs/loader:2074:10)
+      at Module.load (node:internal/modules/cjs/loader:1656:32)
+      at Module._load (node:internal/modules/cjs/loader:1448:12)
+      at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+      at Module.require (node:internal/modules/cjs/loader:1679:12) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+}
+
+Node.js v26.8.1
+✖ tests/game.test.cjs (1478.947ms)
+✔ interpolates every moving group using copies; authoritative state stays byte-identical (2.890084ms)
+✔ latest membership prevents ghosts and mismatched IDs cannot blend (0.230958ms)
+✔ teleport, death, entering and pause snap safely (1.769834ms)
+✔ immediate local motion, smooth release reconciliation, no authoritative write (0.808042ms)
+✔ stale stream, loop reset and reconnect do not interpolate prior history (0.216125ms)
+✔ reordered projectiles follow IDs, not array indices (0.554916ms)
+✔ touch prediction stops at target and never writes the input or hitbox (0.143709ms)
+✔ stable simulation clock rejects arrival jitter without changing any snapshot (5.927458ms)
+✔ P2 constant-speed prediction has no snapshot-frequency sawtooth (1.303542ms)
+✔ diagnostics are bounded, read-only, and distinguish pause from stale waiting (0.432083ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 12
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1488.753791
+
+✖ failing tests:
+
+test at tests/game.test.cjs:1:1
+✖ tests/game.test.cjs (1478.947ms)
+  'test failed'

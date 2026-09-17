@@ -133,7 +133,7 @@ function createLanServer({handleRequest,root=process.env.CAT_SITE_ROOT||ROOT,roo
       if (!['GET','HEAD'].includes(req.method)) return reply(res,405,{error:'Operation not allowed'});
       const name = decodeURIComponent(url.pathname === '/' ? '/index.html' : url.pathname);
       if (name.split('/').some(part=>part==='..'||part==='.')) return reply(res,403,{error:'Access denied'});
-      if(['/src/p2p-transport.js','/src/relay-transport.js'].includes(name))return reply(res,404,{error:'File not found'});
+      if(['/src/relay-transport.js'].includes(name))return reply(res,404,{error:'File not found'});
       if(name==='/version.json')return content(req,res,JSON.stringify(currentSite().info),'application/json; charset=utf-8','no-store');
       if(name==='/index.html')return content(req,res,currentSite().html,'text/html; charset=utf-8','no-cache');
       if(name==='/src/build-info.js'){

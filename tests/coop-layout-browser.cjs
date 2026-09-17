@@ -14,7 +14,7 @@ const path=require('node:path');
    window.calls=[];
    window.fetch=async (url,options)=>{
     const route=String(url).split('/').pop();calls.push({route,body:options?.body});
-    const data=route==='info'?{addresses:['http://192.168.1.5:8767']}:route==='rooms'?{rooms:[]}:
+    const data=route==='rooms'?{rooms:[{code:'654321'},{code:'123456'}]}:
      {role:route==='create'?'host':'guest',code:'654321',token:'lan-test'};
     return new Response(JSON.stringify(data),{headers:{'content-type':'application/json'}});
    };
@@ -44,27 +44,23 @@ const path=require('node:path');
    }
    await page.setViewportSize({width:320,height:568});
   }
-  await inspect('modes');
-  await page.locator('#coop-advanced').click();
-  assert.equal(await page.locator('#lan-host-url').isVisible(),true);
-  await page.locator('#coop-back').click();
-  await page.locator('#coop-wifi').click();await inspect('wifi-roles');
-  await page.locator('#coop-guest').click();await inspect('wifi-code');
-  await page.locator('#lan-code').fill('654321');await page.locator('#lan-join').click();
+  await inspect('wifi-actions');
+  assert.equal(await page.locator('#coop-advanced').isVisible(),false);
+  assert.equal(await page.locator('#lan-host-url').isVisible(),false);
+  await page.locator('#coop-guest').click();await page.waitForTimeout(100);assert.equal(await page.locator('#lan-rooms button').count(),2);await inspect('wifi-find');
+  await page.locator('#lan-rooms button').first().click();
   await page.waitForFunction(()=>lan.active,null,{polling:50});await page.evaluate(()=>poll());await inspect('wifi-waiting');
   assert.equal(await page.evaluate(()=>lan.menuState.transport),'lan');
   assert.equal(await page.evaluate(()=>JSON.parse(calls.find(c=>c.route==='join').body).code),'654321');
   await page.evaluate(()=>{testEvents.listeners.presence({data:JSON.stringify({host:true,guest:true})});poll();});
   await inspect('wifi-connected');assert.equal(await page.locator('#coop-start').isVisible(),true);
   await page.locator('#lan-leave').click();await page.evaluate(()=>poll());
-  await page.locator('#coop-wifi').click();await page.locator('#coop-host').click();
+  await page.locator('#coop-host').click();
   await page.waitForFunction(()=>lan.active,null,{polling:50});await page.evaluate(()=>poll());
   assert.equal(await page.evaluate(()=>lan.guest),false);await inspect('wifi-host-code');
   await page.locator('#lan-leave').click();await page.evaluate(()=>poll());
-  await page.locator('#coop-advanced').click();await page.evaluate(()=>poll());
-  assert.equal(await page.locator('#lan-leave').isVisible(),false);
-  await page.locator('#coop-back').click();assert.equal(await page.locator('#coop-options').isVisible(),true);
+  assert.equal(await page.locator('#coop-roles').isVisible(),true);
   assert.deepEqual(errors,[]);
-  console.log('PASS: LAN-only Wi-Fi create/join, connected state, diagnostics/back; six viewport sizes, <=4 controls, >=44px targets, no normal-flow scrolling or clipped controls.');
+  console.log('PASS: Wi-Fi create/find/join and connected states; technical controls hidden; six viewport sizes, <=4 controls, >=44px targets, no scrolling or clipping.');
  } finally {await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

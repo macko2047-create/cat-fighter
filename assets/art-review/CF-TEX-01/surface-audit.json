@@ -1,0 +1,73 @@
+{
+  "result": "PASS",
+  "baseline_source_sha256": "b18be40729fceb3682e8f01876306fa895a0c4903f499136c352a3fab288c8b6",
+  "camera_light_rig_function_exact_match": true,
+  "canvas_msaa_pose_rotation_and_scale_exact_match": true,
+  "geometry": {
+    "after_materials_sha256": "e34c8878ea739051aad1ca633ad99286b781d5d9e04e0ed2d1d4367344d22168",
+    "all_vertices_normals_indices_uvs_and_local_transforms_identical": true,
+    "baseline_sha256": "e34c8878ea739051aad1ca633ad99286b781d5d9e04e0ed2d1d4367344d22168",
+    "before_materials_sha256": "e34c8878ea739051aad1ca633ad99286b781d5d9e04e0ed2d1d4367344d22168",
+    "mesh_instances": 459,
+    "surface_only": true
+  },
+  "uv_states_checked": 5,
+  "texture_pairs": 10,
+  "renders": [
+    {
+      "pose": "normal",
+      "rgba": true,
+      "size": [
+        1024,
+        1024
+      ],
+      "no_edge_clipping": true,
+      "opaque_region_alpha_max_difference": 0,
+      "changed_rgb_pixels": 286935
+    },
+    {
+      "pose": "roll-left",
+      "rgba": true,
+      "size": [
+        1024,
+        1024
+      ],
+      "no_edge_clipping": true,
+      "opaque_region_alpha_max_difference": 0,
+      "changed_rgb_pixels": 270523
+    },
+    {
+      "pose": "roll-right",
+      "rgba": true,
+      "size": [
+        1024,
+        1024
+      ],
+      "no_edge_clipping": true,
+      "opaque_region_alpha_max_difference": 0,
+      "changed_rgb_pixels": 275702
+    },
+    {
+      "pose": "pitch-up",
+      "rgba": true,
+      "size": [
+        1024,
+        1024
+      ],
+      "no_edge_clipping": true,
+      "opaque_region_alpha_max_difference": 0,
+      "changed_rgb_pixels": 285156
+    },
+    {
+      "pose": "pitch-down",
+      "rgba": true,
+      "size": [
+        1024,
+        1024
+      ],
+      "no_edge_clipping": true,
+      "opaque_region_alpha_max_difference": 0,
+      "changed_rgb_pixels": 280122
+    }
+  ]
+}

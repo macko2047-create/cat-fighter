@@ -29,7 +29,8 @@ const keys = new Set(),
   previous = new Map(),
   bindings = {};
 let deadzone = 0.08;
-const joined = [false, false], aircraft = [0, 1];
+const FIXED_AIRCRAFT = Object.freeze([0, 1]);
+const joined = [false, false], aircraft = [...FIXED_AIRCRAFT];
 function joinPilot(slot) {
   if (window.lan?.active) return;
   if (mode==="playing" || mode==="paused") return;
@@ -104,6 +105,7 @@ function start() {
     joined.fill(true);
   }
   if (mode === "playing") return;
+  aircraft.splice(0, 2, ...FIXED_AIRCRAFT);
   if (touchOnly() && !window.lan?.active) { joined[0] = true; joined[1] = false; }
   if (!joined.some(Boolean)) joined[0] = true;
   players = joined.flatMap((active, slot) => active ? [{...pilot(0), controlSlot:slot, aircraft:aircraft[slot]}] : []);
@@ -229,8 +231,18 @@ function show(title, message) {
   $("#overlay h2").innerHTML = title;
   $("#message").textContent = message;
   $("#start").textContent = mode === "paused" ? "RESUME ▶" : mode === "over" ? "RETRY ▶" : "START ▶";
-  $("#join").style.display =
-    mode === "ready" || mode === "over" || mode === "win" ? "block" : "none";
+  const gameOver = mode === "over";
+  $("#game-over-panel").hidden = !gameOver;
+  if (gameOver) {
+    $("#final-score").textContent = String(score).padStart(6, "0");
+    $("#final-progress").textContent = `LOOP ${loop} · WAVE ${wave}`;
+    $("#game-over-retry").disabled = !!window.lan?.guest;
+  }
+  syncPauseActions();
+}
+function syncPauseActions() {
+  const exit = $("#pause-exit-fullscreen");
+  exit.hidden = mode !== "paused" || !document.fullscreenElement || typeof document.exitFullscreen !== "function";
 }
 function pause(reason = "Take a breather, pilot.") {
   if (window.lan?.active && !window.lan.applying) {
@@ -250,12 +262,26 @@ function pause(reason = "Take a breather, pilot.") {
 }
 $("#start").onclick = () => (mode === "paused" ? pause() : start());
 $("#pause").onclick = () => pause();
-$("#join").onclick = () => {
-  joinPilot(1);
-  updateHUD();
+$("#pause-settings").onclick = () => $("#test").click();
+$("#pause-exit-fullscreen").onclick = async () => {
+  if (!document.fullscreenElement || typeof document.exitFullscreen !== "function") return;
+  try { await document.exitFullscreen(); } catch { /* Browser keeps the pause menu open. */ }
+  finally { syncPauseActions(); }
 };
-$("#join-p1").onclick = () => joinPilot(0);
-[0,1].forEach(i => { $("#aircraft-"+i).onchange = e => { aircraft[i]=Number(e.target.value); updateHUD(); }; });
+$("#pause-main-menu").onclick = () => {
+  if (!window.confirm("Return to the main menu? This will end the current run.")) return;
+  if (window.lan?.active) $("#lan-leave").click();
+  window.arcade?.returnToMainMenu();
+};
+$("#game-over-retry").onclick = () => {
+  if (window.lan?.guest) return;
+  start();
+};
+$("#game-over-main-menu").onclick = () => {
+  if (window.lan?.active) $("#lan-leave").click();
+  window.arcade?.returnToMainMenu();
+};
+document.addEventListener("fullscreenchange", syncPauseActions);
 $("#sound").onclick = () => {
   sound = !sound;
   sfx.setMuted(!sound);
@@ -446,10 +472,6 @@ function poll() {
         const playerIndex=players.findIndex(p=>(p.controlSlot ?? p.index)===slot);
         if (mode === "ready" && !joined[slot] && fresh>=0) {
           joined[slot]=true; previous.set(p.index,pressed); updateHUD(); continue;
-        }
-        if (mode === "ready" && (edge(14)||edge(15)||edge(0))) {
-          aircraft[slot]=1-aircraft[slot]; $("#aircraft-"+slot).value=aircraft[slot];
-          previous.set(p.index,pressed); updateHUD(); continue;
         }
         if (edge(c.fire) && mode === "playing" && playerIndex >= 0 && tryRejoin(playerIndex)) {
           previous.set(p.index, pressed);
@@ -901,9 +923,20 @@ function draw() {
 }
 function updateHUD() {
   if (window.arcade?.simulating) return;
-  $("#join-p1").textContent = joined[0] ? "P1 JOINED · LEAVE" : "P1 JOIN";
-  $("#join").textContent = joined[1] ? "P2 JOINED · LEAVE" : "P2 JOIN";
-  $("#lobby-status").textContent = joined.filter(Boolean).length + " joined · " + (joined.every(Boolean) ? "CO-OP" : "SOLO") + " · Choose aircraft, then START";
+  aircraft.splice(0, 2, ...FIXED_AIRCRAFT);
+  const localReady = mode === 'ready' && !window.lan?.active;
+  const p1Controller = assignments[0] !== null;
+  const p2Joined = !!joined[1];
+  $("#player-state-0").textContent = p1Controller ? "CONTROLLER READY" : "READY";
+  $("#player-status-1").classList?.toggle("not-joined", !p2Joined);
+  $("#player-name-1").textContent = p2Joined ? "P2 · MINT" : "P2";
+  $("#player-state-1").textContent = p2Joined ? "P2 JOINED" : "NOT JOINED";
+  $("#lobby-status").textContent = window.lan?.active
+    ? (window.lan.ready ? "WI-FI CO-OP · BOTH PLAYERS READY" : "WI-FI CO-OP · WAITING FOR P2")
+    : p2Joined ? "LOCAL CO-OP · P2 JOINED · PRESS START" : "SOLO READY · P2 CAN JOIN NOW";
+  if (localReady) $("#controller-activation-text").textContent = p2Joined
+    ? "P2 JOINED ✓"
+    : assignments[0] === null ? "PRESS START / PRIMARY TO USE A CONTROLLER" : "P2 PRESS START / PRIMARY TO JOIN";
   window.flightControls?.sync();
   $("#score").textContent = String(score).padStart(6, "0");
   $("#status").textContent =

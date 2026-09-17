@@ -1,0 +1,52 @@
+[
+  {
+    "every_part_to_model_matrix_matches_local_transform": true,
+    "rotation_radians": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "screen_or_world_projection": false,
+    "time_dependent_uv": false
+  },
+  {
+    "every_part_to_model_matrix_matches_local_transform": true,
+    "rotation_radians": [
+      0.0,
+      0.0,
+      -0.488692194223404
+    ],
+    "screen_or_world_projection": false,
+    "time_dependent_uv": false
+  },
+  {
+    "every_part_to_model_matrix_matches_local_transform": true,
+    "rotation_radians": [
+      0.0,
+      0.0,
+      0.488692194223404
+    ],
+    "screen_or_world_projection": false,
+    "time_dependent_uv": false
+  },
+  {
+    "every_part_to_model_matrix_matches_local_transform": true,
+    "rotation_radians": [
+      0.174532920122147,
+      0.0,
+      0.0
+    ],
+    "screen_or_world_projection": false,
+    "time_dependent_uv": false
+  },
+  {
+    "every_part_to_model_matrix_matches_local_transform": true,
+    "rotation_radians": [
+      -0.174532920122147,
+      0.0,
+      0.0
+    ],
+    "screen_or_world_projection": false,
+    "time_dependent_uv": false
+  }
+]

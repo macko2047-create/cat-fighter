@@ -5,8 +5,8 @@
   // Read once before any session starts; invalid explicit configuration fails closed.
   const configuredOrigin=document.querySelector('meta[name="cat-fighter-signaling-origin"]')?.content.trim()||'';
   function signalingBase() {
-    if(!configuredOrigin)return '';
-    const url=new URL(configuredOrigin);
+    if(!configuredOrigin)throw Error('Missing public signaling origin configuration');
+    let url;try{url=new URL(configuredOrigin);}catch{throw Error('Invalid public signaling origin configuration');}
     if((url.protocol!=='https:'&&!(url.protocol==='http:'&&['localhost','127.0.0.1','[::1]'].includes(url.hostname)))||
       url.username||url.password||url.pathname!=='/'||url.search||url.hash)throw Error('Invalid public signaling origin configuration');
     return url.origin;
@@ -53,9 +53,10 @@
             const now=performance.now();
             if(now-receiveAt>=1000){receiveAt=now;receiveCount=0;}
             if(++receiveCount>120)throw Error('Peer message rate exceeded');
-            const value=JSON.parse(incoming.data.join(''));incoming=null;
+            const json=incoming.data.join(''),value=JSON.parse(json);incoming=null;
             if(value.kind==='bye'){hooks.ended();return;}
             if(value.kind!==(session.role==='host'?'input':'state'))throw Error('Peer authority violation');
+            hooks.payload?.(value.kind,json);
             hooks.message(value.kind,value.data);
           }
         }catch{fail('Invalid peer message.');}
@@ -128,7 +129,7 @@
         // Do not enqueue stale frames behind a congested link. Caller retains actions.
         if(channel.bufferedAmount>256*1024)return false;
         const total=Math.ceil(value.length/CHUNK),message=++serial;
-        try {for(let part=0;part<total;part++)channel.send(JSON.stringify({id:message,part,total,data:value.slice(part*CHUNK,(part+1)*CHUNK)}));return true;}
+        try {for(let part=0;part<total;part++)channel.send(JSON.stringify({id:message,part,total,data:value.slice(part*CHUNK,(part+1)*CHUNK)}));hooks.payload?.(kind,value);return true;}
         catch{fail('Unable to send peer data.');return false;}
       },
       disconnect(){if(!closed)fail('Authoritative snapshot flow timed out.');},

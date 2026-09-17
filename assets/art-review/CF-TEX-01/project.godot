@@ -1,0 +1,12 @@
+[application]
+config/name="CF-TEX-01 P1 Surface Fidelity"
+run/main_scene="res://inspect.tscn"
+
+[display]
+window/size/viewport_width=900
+window/size/viewport_height=900
+
+[rendering]
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+environment/defaults/default_clear_color=Color(0, 0, 0, 0)

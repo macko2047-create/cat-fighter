@@ -1,0 +1,8 @@
+{
+  "after_materials_sha256": "e34c8878ea739051aad1ca633ad99286b781d5d9e04e0ed2d1d4367344d22168",
+  "all_vertices_normals_indices_uvs_and_local_transforms_identical": true,
+  "baseline_sha256": "e34c8878ea739051aad1ca633ad99286b781d5d9e04e0ed2d1d4367344d22168",
+  "before_materials_sha256": "e34c8878ea739051aad1ca633ad99286b781d5d9e04e0ed2d1d4367344d22168",
+  "mesh_instances": 459,
+  "surface_only": true
+}

@@ -13,7 +13,7 @@ function build(root = path.resolve(__dirname, '..'), {requireGit = false} = {}) 
     fs.cpSync(path.join(root, name), path.join(output, name), {
       recursive: true,
       filter: source => path.basename(source) !== '.DS_Store' &&
-        !['src/p2p-transport.js','src/relay-transport.js'].includes(path.relative(root,source)),
+        !['src/relay-transport.js'].includes(path.relative(root,source)),
     });
   }
   const prepared=prepare(output,info);

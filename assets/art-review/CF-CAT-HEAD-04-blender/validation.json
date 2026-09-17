@@ -1,0 +1,129 @@
+{
+  "blender": "5.2.1 LTS",
+  "engine": "BLENDER_EEVEE",
+  "head_vertices": 89882,
+  "head_faces": 89564,
+  "shape_keys": [
+    "Basis",
+    "Hurt \u2022 ears back"
+  ],
+  "views": [
+    "front",
+    "three-quarter",
+    "side",
+    "back",
+    "top-back",
+    "hurt-front",
+    "hurt-side",
+    "hurt-back"
+  ],
+  "textures": false,
+  "game_integrated": false,
+  "saved_neutral_verified": true,
+  "image_checks": {
+    "front": {
+      "size": [
+        720,
+        720
+      ],
+      "bounds": [
+        101,
+        138,
+        618,
+        569
+      ],
+      "transparent_corners": true
+    },
+    "three-quarter": {
+      "size": [
+        720,
+        720
+      ],
+      "bounds": [
+        109,
+        136,
+        590,
+        583
+      ],
+      "transparent_corners": true
+    },
+    "side": {
+      "size": [
+        720,
+        720
+      ],
+      "bounds": [
+        187,
+        138,
+        515,
+        569
+      ],
+      "transparent_corners": true
+    },
+    "back": {
+      "size": [
+        720,
+        720
+      ],
+      "bounds": [
+        101,
+        138,
+        618,
+        569
+      ],
+      "transparent_corners": true
+    },
+    "top-back": {
+      "size": [
+        720,
+        720
+      ],
+      "bounds": [
+        101,
+        171,
+        618,
+        502
+      ],
+      "transparent_corners": true
+    },
+    "hurt-front": {
+      "size": [
+        720,
+        720
+      ],
+      "bounds": [
+        101,
+        138,
+        618,
+        493
+      ],
+      "transparent_corners": true
+    },
+    "hurt-side": {
+      "size": [
+        720,
+        720
+      ],
+      "bounds": [
+        188,
+        138,
+        515,
+        493
+      ],
+      "transparent_corners": true
+    },
+    "hurt-back": {
+      "size": [
+        720,
+        720
+      ],
+      "bounds": [
+        101,
+        138,
+        618,
+        493
+      ],
+      "transparent_corners": true
+    }
+  }
+}

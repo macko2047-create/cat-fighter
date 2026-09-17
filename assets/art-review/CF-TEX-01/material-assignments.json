@@ -1,0 +1,1742 @@
+[
+  {
+    "label": "ContinuousFuselage",
+    "mapping_rect": [
+      -0.649999976158142,
+      -2.09999990463257,
+      1.29999995231628,
+      4.19999980926514
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "fuselage-metal"
+  },
+  {
+    "label": "RedEngineCowl",
+    "mapping_rect": [
+      -0.379999995231628,
+      -2.29999995231628,
+      0.759999990463257,
+      0.720000028610229
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "red-enamel"
+  },
+  {
+    "label": "MainWing",
+    "mapping_rect": [
+      0.0,
+      -0.600000023841858,
+      2.40000009536743,
+      1.5
+    ],
+    "mirror_x": true,
+    "projection": 0,
+    "texture": "wing-metal"
+  },
+  {
+    "label": "RedWingCap",
+    "mapping_rect": [
+      2.09999990463257,
+      -0.200000002980232,
+      0.25,
+      0.550000011920929
+    ],
+    "mirror_x": true,
+    "projection": 0,
+    "texture": "red-enamel"
+  },
+  {
+    "label": "Tailplane",
+    "mapping_rect": [
+      0.0,
+      1.29999995231628,
+      1.14999997615814,
+      0.800000011920929
+    ],
+    "mirror_x": true,
+    "projection": 0,
+    "texture": "tailplane-metal"
+  },
+  {
+    "label": "RedTailCap",
+    "mapping_rect": [
+      0.939999997615814,
+      1.55999994277954,
+      0.189999997615814,
+      0.400000005960464
+    ],
+    "mirror_x": true,
+    "projection": 0,
+    "texture": "red-enamel"
+  },
+  {
+    "label": "WingInsigniaRoundel",
+    "mapping_rect": [
+      -1.53999996185303,
+      -0.200000002980232,
+      0.479999989271164,
+      0.479999989271164
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "paw-roundel"
+  },
+  {
+    "label": "WingInsigniaPad",
+    "mapping_rect": [
+      -1.53999996185303,
+      -0.200000002980232,
+      0.479999989271164,
+      0.479999989271164
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "paw-roundel"
+  },
+  {
+    "label": "WingInsigniaToe",
+    "mapping_rect": [
+      -1.53999996185303,
+      -0.200000002980232,
+      0.479999989271164,
+      0.479999989271164
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "paw-roundel"
+  },
+  {
+    "label": "WingInsigniaToe",
+    "mapping_rect": [
+      -1.53999996185303,
+      -0.200000002980232,
+      0.479999989271164,
+      0.479999989271164
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "paw-roundel"
+  },
+  {
+    "label": "WingInsigniaToe",
+    "mapping_rect": [
+      -1.53999996185303,
+      -0.200000002980232,
+      0.479999989271164,
+      0.479999989271164
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "paw-roundel"
+  },
+  {
+    "label": "WingInsigniaToe",
+    "mapping_rect": [
+      -1.53999996185303,
+      -0.200000002980232,
+      0.479999989271164,
+      0.479999989271164
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "paw-roundel"
+  },
+  {
+    "label": "MainWing",
+    "mapping_rect": [
+      0.0,
+      -0.600000023841858,
+      2.40000009536743,
+      1.5
+    ],
+    "mirror_x": true,
+    "projection": 0,
+    "texture": "wing-metal"
+  },
+  {
+    "label": "RedWingCap",
+    "mapping_rect": [
+      2.09999990463257,
+      -0.200000002980232,
+      0.25,
+      0.550000011920929
+    ],
+    "mirror_x": true,
+    "projection": 0,
+    "texture": "red-enamel"
+  },
+  {
+    "label": "Tailplane",
+    "mapping_rect": [
+      0.0,
+      1.29999995231628,
+      1.14999997615814,
+      0.800000011920929
+    ],
+    "mirror_x": true,
+    "projection": 0,
+    "texture": "tailplane-metal"
+  },
+  {
+    "label": "RedTailCap",
+    "mapping_rect": [
+      0.939999997615814,
+      1.55999994277954,
+      0.189999997615814,
+      0.400000005960464
+    ],
+    "mirror_x": true,
+    "projection": 0,
+    "texture": "red-enamel"
+  },
+  {
+    "label": "WingInsigniaRoundel",
+    "mapping_rect": [
+      1.05999994277954,
+      -0.200000002980232,
+      0.479999989271164,
+      0.479999989271164
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "paw-roundel"
+  },
+  {
+    "label": "WingInsigniaPad",
+    "mapping_rect": [
+      1.05999994277954,
+      -0.200000002980232,
+      0.479999989271164,
+      0.479999989271164
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "paw-roundel"
+  },
+  {
+    "label": "WingInsigniaToe",
+    "mapping_rect": [
+      1.05999994277954,
+      -0.200000002980232,
+      0.479999989271164,
+      0.479999989271164
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "paw-roundel"
+  },
+  {
+    "label": "WingInsigniaToe",
+    "mapping_rect": [
+      1.05999994277954,
+      -0.200000002980232,
+      0.479999989271164,
+      0.479999989271164
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "paw-roundel"
+  },
+  {
+    "label": "WingInsigniaToe",
+    "mapping_rect": [
+      1.05999994277954,
+      -0.200000002980232,
+      0.479999989271164,
+      0.479999989271164
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "paw-roundel"
+  },
+  {
+    "label": "WingInsigniaToe",
+    "mapping_rect": [
+      1.05999994277954,
+      -0.200000002980232,
+      0.479999989271164,
+      0.479999989271164
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "paw-roundel"
+  },
+  {
+    "label": "CockpitLeather",
+    "mapping_rect": [
+      0.0,
+      0.0,
+      1.0,
+      1.0
+    ],
+    "mirror_x": false,
+    "projection": 2,
+    "texture": "pilot-leather"
+  },
+  {
+    "label": "PilotJacket",
+    "mapping_rect": [
+      0.0,
+      0.0,
+      1.0,
+      1.0
+    ],
+    "mirror_x": false,
+    "projection": 2,
+    "texture": "pilot-leather"
+  },
+  {
+    "label": "TabbyHead",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "TabbyEar",
+    "mapping_rect": [
+      -0.75,
+      -1.12999999523163,
+      1.5,
+      0.389999985694885
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "ear-fur"
+  },
+  {
+    "label": "TabbyEar",
+    "mapping_rect": [
+      -0.75,
+      -1.12999999523163,
+      1.5,
+      0.389999985694885
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "ear-fur"
+  },
+  {
+    "label": "PaintedCrownStripe",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "PaintedCrownStripe",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "PaintedCrownStripe",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "SideTabbyMark",
+    "mapping_rect": [
+      -0.720000028610229,
+      -1.10000002384186,
+      1.44000005722046,
+      1.17999994754791
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-head"
+  },
+  {
+    "label": "RearCockpitGlass",
+    "mapping_rect": [
+      0.0,
+      0.0,
+      1.0,
+      1.0
+    ],
+    "mirror_x": false,
+    "projection": 2,
+    "texture": "smoked-glass"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "StripedTail",
+    "mapping_rect": [
+      -0.159999996423721,
+      0.879999995231628,
+      0.319999992847443,
+      1.10000002384186
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "tabby-tail"
+  },
+  {
+    "label": "FuselageInsigniaRoundel",
+    "mapping_rect": [
+      -0.239999994635582,
+      0.340000003576279,
+      0.479999989271164,
+      0.479999989271164
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "paw-roundel"
+  },
+  {
+    "label": "FuselageInsigniaPad",
+    "mapping_rect": [
+      -0.239999994635582,
+      0.340000003576279,
+      0.479999989271164,
+      0.479999989271164
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "paw-roundel"
+  },
+  {
+    "label": "FuselageInsigniaToe",
+    "mapping_rect": [
+      -0.239999994635582,
+      0.340000003576279,
+      0.479999989271164,
+      0.479999989271164
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "paw-roundel"
+  },
+  {
+    "label": "FuselageInsigniaToe",
+    "mapping_rect": [
+      -0.239999994635582,
+      0.340000003576279,
+      0.479999989271164,
+      0.479999989271164
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "paw-roundel"
+  },
+  {
+    "label": "FuselageInsigniaToe",
+    "mapping_rect": [
+      -0.239999994635582,
+      0.340000003576279,
+      0.479999989271164,
+      0.479999989271164
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "paw-roundel"
+  },
+  {
+    "label": "FuselageInsigniaToe",
+    "mapping_rect": [
+      -0.239999994635582,
+      0.340000003576279,
+      0.479999989271164,
+      0.479999989271164
+    ],
+    "mirror_x": false,
+    "projection": 0,
+    "texture": "paw-roundel"
+  }
+]

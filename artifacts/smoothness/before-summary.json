@@ -1,0 +1,685 @@
+{
+  "file": "artifacts/smoothness/before.json",
+  "scenarios": [
+    {
+      "name": "p1",
+      "presentation": {
+        "scope": "last 1800 samples per series; milliseconds and game pixels",
+        "arrivalMs": {
+          "count": 70,
+          "mean": 57.638571428614,
+          "p95": 68.09999999403954,
+          "max": 69.40000000596046,
+          "std": 8.305476555002524
+        },
+        "simulationMs": {
+          "count": 70,
+          "mean": 57.61857142857147,
+          "p95": 66.70000000000032,
+          "max": 66.79999999999976,
+          "std": 8.232050479804114
+        },
+        "frameMs": {
+          "count": 242,
+          "mean": 16.665289256198346,
+          "p95": 17.600000008940697,
+          "max": 19.099999994039536,
+          "std": 0.666768541741666
+        },
+        "renderDelayMs": 100,
+        "frames": 242,
+        "categories": {
+          "interpolated": {
+            "count": 242,
+            "percent": 100
+          },
+          "frozen": {
+            "count": 0,
+            "percent": 0
+          },
+          "predicted": {
+            "count": 242,
+            "percent": 100
+          },
+          "corrected": {
+            "count": 23,
+            "percent": 9.50413223140496
+          },
+          "snapped": {
+            "count": 0,
+            "percent": 0
+          },
+          "stale": {
+            "count": 0,
+            "percent": 0
+          }
+        },
+        "arrivalCorrectionPx": {
+          "count": 70,
+          "mean": 0.052385676789719844,
+          "p95": 0.3112860978770593,
+          "max": 1.651951207493018,
+          "std": 0.2283964852143127
+        },
+        "appliedCorrectionPx": {
+          "count": 242,
+          "mean": 0.013273568035882746,
+          "p95": 0.06475731937248815,
+          "max": 0.4913186163106486,
+          "std": 0.05800090769838323
+        },
+        "reconciliationErrorPx": {
+          "count": 242,
+          "mean": 0.08649503300694888,
+          "p95": 0.43298904098091145,
+          "max": 3.212203464681061,
+          "std": 0.3783246070591952
+        },
+        "bufferedSnapshots": {
+          "count": 242,
+          "mean": 1.7396694214876034,
+          "p95": 2,
+          "max": 2,
+          "std": 0.43881495918416086
+        }
+      },
+      "movingPercent": [
+        100,
+        2.232142857142857
+      ],
+      "speed": [
+        {
+          "mean": 239.54462743993707,
+          "p95": 267.4285715706058,
+          "max": 286.43007510500934,
+          "std": 56.99597734466573
+        },
+        {
+          "mean": 0.04283185412516648,
+          "p95": 0.23568623036902298,
+          "max": 1.4619676306251304,
+          "std": 0.1796875221421211
+        }
+      ],
+      "localResponseMs": null,
+      "drawMs": {
+        "mean": 0.25867768635680854,
+        "p95": 0.5,
+        "max": 0.9000000059604645,
+        "std": 0.13886757002191288
+      },
+      "bandwidth": {
+        "windowSeconds": 20,
+        "observedSeconds": 6.23909999999404,
+        "measurement": "Local outgoing + incoming logical JSON, once per direction. P2P includes kind/data; LAN outgoing includes POST envelope, incoming is SSE data. Excludes fragmentation, headers, signaling, retransmissions; POST counts submissions, P2P counts fully queued messages. Decimal MB; relay is a payload-only estimate.",
+        "state": {
+          "messages": 81,
+          "bytes": 60078,
+          "messagesPerSecond": 12.98264172718459,
+          "bytesPerSecond": 9629.27345291106,
+          "averageBytes": 741.7037037037037,
+          "peakBytes": 766,
+          "estimatedMBPerHour": 34.66538443047982
+        },
+        "input": {
+          "messages": 81,
+          "bytes": 6255,
+          "messagesPerSecond": 12.98264172718459,
+          "bytesPerSecond": 1002.5484444881433,
+          "averageBytes": 77.22222222222223,
+          "peakBytes": 95,
+          "estimatedMBPerHour": 3.609174400157316
+        },
+        "relayEstimate": {
+          "piDownloadMBPerHour": 38.27455883063713,
+          "piUploadMBPerHour": 38.27455883063713,
+          "piTotalMBPerHour": 76.54911766127427
+        }
+      }
+    },
+    {
+      "name": "p2",
+      "presentation": {
+        "scope": "last 1800 samples per series; milliseconds and game pixels",
+        "arrivalMs": {
+          "count": 73,
+          "mean": 55.49178082179533,
+          "p95": 68.29999999701977,
+          "max": 69.40000000596046,
+          "std": 7.87791700151034
+        },
+        "simulationMs": {
+          "count": 73,
+          "mean": 55.48082191780847,
+          "p95": 66.69999999999999,
+          "max": 66.70000000000175,
+          "std": 7.768052902741688
+        },
+        "frameMs": {
+          "count": 243,
+          "mean": 16.666666666666668,
+          "p95": 17.600000008940697,
+          "max": 19.099999994039536,
+          "std": 0.6792637013983304
+        },
+        "renderDelayMs": 100,
+        "frames": 243,
+        "categories": {
+          "interpolated": {
+            "count": 243,
+            "percent": 100
+          },
+          "frozen": {
+            "count": 0,
+            "percent": 0
+          },
+          "predicted": {
+            "count": 243,
+            "percent": 100
+          },
+          "corrected": {
+            "count": 241,
+            "percent": 99.17695473251028
+          },
+          "snapped": {
+            "count": 0,
+            "percent": 0
+          },
+          "stale": {
+            "count": 0,
+            "percent": 0
+          }
+        },
+        "arrivalCorrectionPx": {
+          "count": 73,
+          "mean": 8.876011945845374,
+          "p95": 26.393467834682554,
+          "max": 31.697917366123818,
+          "std": 6.9971760216362355
+        },
+        "appliedCorrectionPx": {
+          "count": 243,
+          "mean": 1.0985042101288647,
+          "p95": 3.378921101010507,
+          "max": 3.917439097617433,
+          "std": 0.9581452817486771
+        },
+        "reconciliationErrorPx": {
+          "count": 243,
+          "mean": 7.15430054658776,
+          "p95": 22.10043099250015,
+          "max": 25.193976900651705,
+          "std": 6.25784032843688
+        },
+        "bufferedSnapshots": {
+          "count": 243,
+          "mean": 1.7983539094650205,
+          "p95": 2,
+          "max": 2,
+          "std": 0.4012292919353433
+        }
+      },
+      "movingPercent": [
+        0,
+        100
+      ],
+      "speed": [
+        {
+          "mean": 0,
+          "p95": 0,
+          "max": 0,
+          "std": 0
+        },
+        {
+          "mean": 223.13053920885088,
+          "p95": 357.7048954503548,
+          "max": 491.80112995478095,
+          "std": 82.09533270038315
+        }
+      ],
+      "localResponseMs": 23.799999997019768,
+      "drawMs": {
+        "mean": 0.2596707815618672,
+        "p95": 0.5,
+        "max": 2.3999999910593033,
+        "std": 0.23133868399745247
+      },
+      "bandwidth": {
+        "windowSeconds": 20,
+        "observedSeconds": 10.714399999991059,
+        "measurement": "Local outgoing + incoming logical JSON, once per direction. P2P includes kind/data; LAN outgoing includes POST envelope, incoming is SSE data. Excludes fragmentation, headers, signaling, retransmissions; POST counts submissions, P2P counts fully queued messages. Decimal MB; relay is a payload-only estimate.",
+        "state": {
+          "messages": 161,
+          "bytes": 120794,
+          "messagesPerSecond": 15.026506383944444,
+          "bytesPerSecond": 11273.986410821026,
+          "averageBytes": 750.2732919254659,
+          "peakBytes": 766,
+          "estimatedMBPerHour": 40.586351078955694
+        },
+        "input": {
+          "messages": 160,
+          "bytes": 12373,
+          "messagesPerSecond": 14.933174046155969,
+          "bytesPerSecond": 1154.8010154567987,
+          "averageBytes": 77.33125,
+          "peakBytes": 95,
+          "estimatedMBPerHour": 4.157283655644475
+        },
+        "relayEstimate": {
+          "piDownloadMBPerHour": 44.74363473460017,
+          "piUploadMBPerHour": 44.74363473460017,
+          "piTotalMBPerHour": 89.48726946920034
+        }
+      }
+    },
+    {
+      "name": "both-diagonal",
+      "presentation": {
+        "scope": "last 1800 samples per series; milliseconds and game pixels",
+        "arrivalMs": {
+          "count": 70,
+          "mean": 57.61571428562914,
+          "p95": 68.29999999701977,
+          "max": 69.5,
+          "std": 8.548193387908142
+        },
+        "simulationMs": {
+          "count": 70,
+          "mean": 57.61857142857155,
+          "p95": 66.70000000000087,
+          "max": 66.70000000000265,
+          "std": 8.184502652786596
+        },
+        "frameMs": {
+          "count": 242,
+          "mean": 16.666115702491656,
+          "p95": 17.700000002980232,
+          "max": 19.099999994039536,
+          "std": 0.677019930650501
+        },
+        "renderDelayMs": 100,
+        "frames": 242,
+        "categories": {
+          "interpolated": {
+            "count": 242,
+            "percent": 100
+          },
+          "frozen": {
+            "count": 0,
+            "percent": 0
+          },
+          "predicted": {
+            "count": 242,
+            "percent": 100
+          },
+          "corrected": {
+            "count": 238,
+            "percent": 98.34710743801652
+          },
+          "snapped": {
+            "count": 0,
+            "percent": 0
+          },
+          "stale": {
+            "count": 0,
+            "percent": 0
+          }
+        },
+        "arrivalCorrectionPx": {
+          "count": 70,
+          "mean": 6.981728786438879,
+          "p95": 18.477105175961466,
+          "max": 26.110346159732323,
+          "std": 5.316280703084917
+        },
+        "appliedCorrectionPx": {
+          "count": 242,
+          "mean": 0.927213662578146,
+          "p95": 2.5161017840915503,
+          "max": 4.030076797112526,
+          "std": 0.7761454804139348
+        },
+        "reconciliationErrorPx": {
+          "count": 242,
+          "mean": 6.010883009995158,
+          "p95": 16.79291965621682,
+          "max": 23.97938935052621,
+          "std": 5.002678815449034
+        },
+        "bufferedSnapshots": {
+          "count": 242,
+          "mean": 1.7355371900826446,
+          "p95": 2,
+          "max": 2,
+          "std": 0.4410467459215332
+        }
+      },
+      "movingPercent": [
+        98.66071428571429,
+        100
+      ],
+      "speed": [
+        {
+          "mean": 240.3748511685575,
+          "p95": 268.4368099625912,
+          "max": 272.99999990285517,
+          "std": 57.7723724833302
+        },
+        {
+          "mean": 233.83518755329655,
+          "p95": 320.0724374870151,
+          "max": 479.0259128155977,
+          "std": 68.9305799487716
+        }
+      ],
+      "localResponseMs": 25.5,
+      "drawMs": {
+        "mean": 0.2289256196130406,
+        "p95": 0.4000000059604645,
+        "max": 1.5,
+        "std": 0.15977153933144655
+      },
+      "bandwidth": {
+        "windowSeconds": 20,
+        "observedSeconds": 15.1525,
+        "measurement": "Local outgoing + incoming logical JSON, once per direction. P2P includes kind/data; LAN outgoing includes POST envelope, incoming is SSE data. Excludes fragmentation, headers, signaling, retransmissions; POST counts submissions, P2P counts fully queued messages. Decimal MB; relay is a payload-only estimate.",
+        "state": {
+          "messages": 239,
+          "bytes": 183300,
+          "messagesPerSecond": 15.772974756640819,
+          "bytesPerSecond": 12097.013694109883,
+          "averageBytes": 766.9456066945606,
+          "peakBytes": 809,
+          "estimatedMBPerHour": 43.54924929879558
+        },
+        "input": {
+          "messages": 239,
+          "bytes": 20976,
+          "messagesPerSecond": 15.772974756640819,
+          "bytesPerSecond": 1384.3260188087775,
+          "averageBytes": 87.76569037656904,
+          "peakBytes": 113,
+          "estimatedMBPerHour": 4.983573667711599
+        },
+        "relayEstimate": {
+          "piDownloadMBPerHour": 48.532822966507176,
+          "piUploadMBPerHour": 48.532822966507176,
+          "piTotalMBPerHour": 97.06564593301435
+        }
+      }
+    },
+    {
+      "name": "reverse-fire",
+      "presentation": {
+        "scope": "last 1800 samples per series; milliseconds and game pixels",
+        "arrivalMs": {
+          "count": 69,
+          "mean": 57.96521739121796,
+          "p95": 68.20000000298023,
+          "max": 69.40000000596046,
+          "std": 8.173336396856245
+        },
+        "simulationMs": {
+          "count": 69,
+          "mean": 57.96956521739067,
+          "p95": 66.70000000000087,
+          "max": 66.80000000000064,
+          "std": 8.233147994413672
+        },
+        "frameMs": {
+          "count": 242,
+          "mean": 16.664876033020906,
+          "p95": 17.799999997019768,
+          "max": 23,
+          "std": 0.8380700135964914
+        },
+        "renderDelayMs": 100,
+        "frames": 242,
+        "categories": {
+          "interpolated": {
+            "count": 242,
+            "percent": 100
+          },
+          "frozen": {
+            "count": 0,
+            "percent": 0
+          },
+          "predicted": {
+            "count": 242,
+            "percent": 100
+          },
+          "corrected": {
+            "count": 240,
+            "percent": 99.17355371900827
+          },
+          "snapped": {
+            "count": 0,
+            "percent": 0
+          },
+          "stale": {
+            "count": 0,
+            "percent": 0
+          }
+        },
+        "arrivalCorrectionPx": {
+          "count": 69,
+          "mean": 8.368271566118086,
+          "p95": 20.27620443147879,
+          "max": 30.922959794097437,
+          "std": 6.1380360612782985
+        },
+        "appliedCorrectionPx": {
+          "count": 242,
+          "mean": 1.0709318392597247,
+          "p95": 2.6250599319030776,
+          "max": 3.7797185749259365,
+          "std": 0.8324265233954871
+        },
+        "reconciliationErrorPx": {
+          "count": 242,
+          "mean": 6.983305846158731,
+          "p95": 17.55810004050096,
+          "max": 25.56347513911459,
+          "std": 5.432978526609373
+        },
+        "bufferedSnapshots": {
+          "count": 242,
+          "mean": 1.7272727272727273,
+          "p95": 2,
+          "max": 2,
+          "std": 0.4453617714151226
+        }
+      },
+      "movingPercent": [
+        98.66071428571429,
+        100
+      ],
+      "speed": [
+        {
+          "mean": 237.606350195342,
+          "p95": 270.3253127924311,
+          "max": 279.7734627966632,
+          "std": 60.32622129197363
+        },
+        {
+          "mean": 227.3807316656091,
+          "p95": 354.78595377372784,
+          "max": 493.1502157230633,
+          "std": 75.32624713074063
+        }
+      ],
+      "localResponseMs": 24.799999997019768,
+      "drawMs": {
+        "mean": 0.370247933243917,
+        "p95": 0.7000000029802322,
+        "max": 1.5,
+        "std": 0.21286888360338063
+      },
+      "bandwidth": {
+        "windowSeconds": 20,
+        "observedSeconds": 19.60520000000298,
+        "measurement": "Local outgoing + incoming logical JSON, once per direction. P2P includes kind/data; LAN outgoing includes POST envelope, incoming is SSE data. Excludes fragmentation, headers, signaling, retransmissions; POST counts submissions, P2P counts fully queued messages. Decimal MB; relay is a payload-only estimate.",
+        "state": {
+          "messages": 315,
+          "bytes": 340579,
+          "messagesPerSecond": 16.06716585395467,
+          "bytesPerSecond": 17371.870728171518,
+          "averageBytes": 1081.2031746031746,
+          "peakBytes": 2502,
+          "estimatedMBPerHour": 62.53873462141746
+        },
+        "input": {
+          "messages": 317,
+          "bytes": 26984,
+          "messagesPerSecond": 16.169179605408353,
+          "bytesPerSecond": 1376.3695346130567,
+          "averageBytes": 85.1230283911672,
+          "peakBytes": 113,
+          "estimatedMBPerHour": 4.954930324607004
+        },
+        "relayEstimate": {
+          "piDownloadMBPerHour": 67.49366494602447,
+          "piUploadMBPerHour": 67.49366494602447,
+          "piTotalMBPerHour": 134.98732989204893
+        }
+      }
+    },
+    {
+      "name": "enemy-heavy",
+      "presentation": {
+        "scope": "last 1800 samples per series; milliseconds and game pixels",
+        "arrivalMs": {
+          "count": 73,
+          "mean": 55.45342465765672,
+          "p95": 67.5,
+          "max": 68.79999999701977,
+          "std": 7.758090467348877
+        },
+        "simulationMs": {
+          "count": 73,
+          "mean": 55.48082191782826,
+          "p95": 66.70000000002574,
+          "max": 66.80000000002906,
+          "std": 7.725809041896974
+        },
+        "frameMs": {
+          "count": 243,
+          "mean": 16.66502057616848,
+          "p95": 17.599999994039536,
+          "max": 18.299999997019768,
+          "std": 0.5867980877798504
+        },
+        "renderDelayMs": 100,
+        "frames": 243,
+        "categories": {
+          "interpolated": {
+            "count": 243,
+            "percent": 100
+          },
+          "frozen": {
+            "count": 0,
+            "percent": 0
+          },
+          "predicted": {
+            "count": 243,
+            "percent": 100
+          },
+          "corrected": {
+            "count": 242,
+            "percent": 99.58847736625515
+          },
+          "snapped": {
+            "count": 0,
+            "percent": 0
+          },
+          "stale": {
+            "count": 0,
+            "percent": 0
+          }
+        },
+        "arrivalCorrectionPx": {
+          "count": 73,
+          "mean": 8.541688119715278,
+          "p95": 26.37594135116791,
+          "max": 32.00384849262754,
+          "std": 6.738790901671051
+        },
+        "appliedCorrectionPx": {
+          "count": 243,
+          "mean": 1.06697202232175,
+          "p95": 2.9218269686794818,
+          "max": 3.903375485104275,
+          "std": 0.8682772436297955
+        },
+        "reconciliationErrorPx": {
+          "count": 243,
+          "mean": 6.95599302209034,
+          "p95": 18.913222403570785,
+          "max": 24.834040984925174,
+          "std": 5.685922126170108
+        },
+        "bufferedSnapshots": {
+          "count": 243,
+          "mean": 1.8024691358024691,
+          "p95": 2,
+          "max": 2,
+          "std": 0.39813618510116056
+        }
+      },
+      "movingPercent": [
+        100,
+        100
+      ],
+      "speed": [
+        {
+          "mean": 241.70135529619185,
+          "p95": 268.4520124086752,
+          "max": 273.62485959717407,
+          "std": 51.56544177720594
+        },
+        {
+          "mean": 226.0201293321942,
+          "p95": 353.26101249099315,
+          "max": 466.69137661787113,
+          "std": 77.30996588495226
+        }
+      ],
+      "localResponseMs": 24.599999994039536,
+      "drawMs": {
+        "mean": 0.48683127601450854,
+        "p95": 1,
+        "max": 2.7000000029802322,
+        "std": 0.30060200305859786
+      },
+      "bandwidth": {
+        "windowSeconds": 20,
+        "observedSeconds": 20,
+        "measurement": "Local outgoing + incoming logical JSON, once per direction. P2P includes kind/data; LAN outgoing includes POST envelope, incoming is SSE data. Excludes fragmentation, headers, signaling, retransmissions; POST counts submissions, P2P counts fully queued messages. Decimal MB; relay is a payload-only estimate.",
+        "state": {
+          "messages": 353,
+          "bytes": 710130,
+          "messagesPerSecond": 17.65,
+          "bytesPerSecond": 35506.5,
+          "averageBytes": 2011.6997167138811,
+          "peakBytes": 25070,
+          "estimatedMBPerHour": 127.8234
+        },
+        "input": {
+          "messages": 355,
+          "bytes": 29853,
+          "messagesPerSecond": 17.75,
+          "bytesPerSecond": 1492.65,
+          "averageBytes": 84.09295774647887,
+          "peakBytes": 113,
+          "estimatedMBPerHour": 5.37354
+        },
+        "relayEstimate": {
+          "piDownloadMBPerHour": 133.19694,
+          "piUploadMBPerHour": 133.19694,
+          "piTotalMBPerHour": 266.39388
+        }
+      }
+    }
+  ]
+}

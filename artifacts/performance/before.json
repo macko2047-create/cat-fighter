@@ -1,0 +1,6 @@
+{
+  "medianMs": 1768.7000000476837,
+  "p95Ms": 6449,
+  "method": "15 warm draw + GPU flush samples; fixed 12 enemies, 175 bullets, 80 particles; headless Chrome",
+  "errors": []
+}

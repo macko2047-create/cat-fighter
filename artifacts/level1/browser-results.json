@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "checks": [
+    "all six PNG assets loaded",
+    "2P start",
+    "keyboard fire",
+    "pause/resume",
+    "175-second simulation",
+    "2P Boss HP",
+    "half-HP fire",
+    "mission clear",
+    "automatic next loop",
+    "team defeat",
+    "restart reset"
+  ],
+  "pageErrors": []
+}

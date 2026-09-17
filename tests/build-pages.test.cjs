@@ -30,7 +30,7 @@ test('generated ID is shared by JSON and boot UI; ROM/channel stays independent 
  assert.equal(ui.labels['rom-version'].textContent,'ROM Ver. 0.9.12 · dev');assert.equal(ui.labels['build-version'].textContent,'BUILD '+info.build);assert.deepEqual(ui.logs,['Cat Fighter build: '+info.build]);
  assert.equal(fs.readFileSync(path.join(root,'index.html'),'utf8'),before);
  const html=fs.readFileSync(path.join(output,'index.html'),'utf8');assert.match(html,/build-info\.js\?v=[a-f0-9]{12}/);assert.ok(html.indexOf('build-info.js')<html.indexOf('rom-version.js'));
- assert.equal(fs.existsSync(path.join(output,'src/p2p-transport.js')),false);assert.equal(fs.existsSync(path.join(output,'src/relay-transport.js')),false);
+ assert.equal(fs.existsSync(path.join(output,'src/p2p-transport.js')),true);assert.equal(fs.existsSync(path.join(output,'src/relay-transport.js')),false);
  execFileSync(process.execPath,[path.join(repo,'tools/version-assets.cjs'),'--root',output,'--check']);
 });
 test('same-minute uncommitted code change changes build and affected asset URL',t=>{

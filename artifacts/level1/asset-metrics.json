@@ -1,0 +1,42 @@
+[
+  {
+    "id": "small",
+    "source": "assets/enemies/sources/small.png",
+    "alpha": true,
+    "transparentFraction": 0.6003427173827375,
+    "sourceSize": [
+      1233,
+      1276
+    ]
+  },
+  {
+    "id": "heavy",
+    "source": "assets/enemies/sources/heavy.png",
+    "alpha": true,
+    "transparentFraction": 0.6259714762369791,
+    "sourceSize": [
+      1536,
+      1024
+    ]
+  },
+  {
+    "id": "boat",
+    "source": "assets/enemies/sources/boat.png",
+    "alpha": true,
+    "transparentFraction": 0.593130893565964,
+    "sourceSize": [
+      887,
+      1774
+    ]
+  },
+  {
+    "id": "boss",
+    "source": "assets/enemies/sources/boss.png",
+    "alpha": true,
+    "transparentFraction": 0.5325927734375,
+    "sourceSize": [
+      1536,
+      1024
+    ]
+  }
+]

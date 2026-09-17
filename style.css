@@ -380,6 +380,73 @@ button:disabled { opacity: .4; cursor: default; }
 #overlay { overflow-y: auto; padding: 16px 8px; justify-content: safe center; }
 #overlay h2 { font-size: clamp(34px, 8vh, 78px); margin: 12px 0; }
 #overlay p { margin: 8px 0; }
+body[data-mode="ready"] #overlay { overflow: hidden; gap: clamp(3px, .8vh, 8px); padding: clamp(6px, 1.4vh, 12px) 8px; }
+body[data-mode="ready"] #overlay h2 { font-size: clamp(27px, 6vh, 48px); line-height: .95; margin: 2px 0; }
+body[data-mode="ready"] #overlay :is(#message,#lobby-status,.hint) { margin: 2px 0; font-size: clamp(9px, 1.7vh, 12px); line-height: 1.3; }
+body[data-mode="ready"] #overlay > #start { min-height: 40px; margin: 2px; padding: 8px 16px; }
+body[data-mode="ready"] #overlay .menu-options button { min-height: 34px; margin: 2px; padding: 6px 8px; font-size: 9px; }
+#pause-actions { display: none; }
+body[data-mode="paused"] #overlay {
+  overflow: hidden;
+  justify-content: center;
+  gap: clamp(4px, 1.2vh, 10px);
+  padding: clamp(8px, 2vh, 18px);
+  background: linear-gradient(#04131db8, #04131de6);
+}
+body[data-mode="paused"] #overlay > :is(.eyebrow, #demo-return, #lobby-status, #player-status, label, .hint, .menu-options, .instructions) {
+  display: none !important;
+}
+body[data-mode="paused"] #overlay h2 {
+  margin: 0;
+  font-size: clamp(30px, 7vh, 58px);
+  line-height: 1;
+  letter-spacing: -2px;
+}
+body[data-mode="paused"] #overlay #message {
+  max-width: min(92%, 430px);
+  margin: 0;
+  font-size: clamp(10px, 2.2vh, 12px);
+  line-height: 1.45;
+}
+body[data-mode="paused"] #overlay > #start,
+body[data-mode="paused"] #pause-actions {
+  width: min(300px, calc(100% - 12px));
+}
+body[data-mode="paused"] #overlay > #start {
+  min-width: 0;
+  min-height: 38px;
+  margin: 0;
+  padding: 9px 12px;
+}
+body[data-mode="paused"] #pause-actions {
+  display: grid;
+  gap: clamp(3px, .8vh, 7px);
+}
+body[data-mode="paused"] #pause-actions button {
+  width: 100%;
+  min-width: 0;
+  min-height: 38px;
+  margin: 0;
+  padding: 8px 12px;
+  touch-action: manipulation;
+}
+#pause-main-menu small {
+  display: block;
+  margin-top: 2px;
+  color: #eab9aa;
+  font-size: 8px;
+  letter-spacing: 1px;
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  body[data-mode="paused"] #overlay { gap: 3px; padding: 6px; }
+  body[data-mode="paused"] #overlay h2 { font-size: 28px; }
+  body[data-mode="paused"] #overlay #message { max-width: 96%; margin: 0; font-size: 9px; line-height: 1.25; }
+  body[data-mode="paused"] #overlay > #start,
+  body[data-mode="paused"] #pause-actions { width: min(260px, calc(100% - 8px)); }
+  body[data-mode="paused"] #overlay > #start,
+  body[data-mode="paused"] #pause-actions button { min-height: 32px; padding: 5px 8px; font-size: 10px; }
+  #pause-main-menu small { display: none; }
+}
 body.in-flight { overflow: hidden; height: var(--play-height, 100dvh); }
 .in-flight header, .in-flight aside { display: none; }
 .in-flight main {
@@ -404,46 +471,66 @@ body.in-flight { overflow: hidden; height: var(--play-height, 100dvh); }
 .in-flight .cabinet { display: flex; flex-direction: column; }
 .in-flight .screen, .in-flight .bottomline { flex: none; }
 
-/* Keep the result on the battlefield, with restart controls below the title. */
+/* Dedicated, fixed-height run result. */
 .in-flight[data-mode="over"] #overlay {
-  top: 46%;
-  background: linear-gradient(#081e3022, #081e30dd);
-  justify-content: flex-start;
-  padding: 12px 8px;
-}
-[data-mode="over"] #overlay h2 {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
+  inset: 0;
   overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
+  justify-content: center;
+  padding: clamp(8px, 2vh, 18px);
+  background: linear-gradient(#04131db8, #04131df2);
 }
-[data-mode="over"] #overlay > .eyebrow,
-[data-mode="over"] #overlay > .hint,
-[data-mode="over"] #overlay > .instructions { display: none; }
-[data-mode="over"] #overlay #message { max-width: 94%; }
-[data-mode="over"] #overlay > button { min-width: min(220px, 90%); flex: none; }
-[data-mode="over"] #overlay .menu-options { flex: none; }
+[data-mode="over"] #overlay > :not(#game-over-panel) { display: none !important; }
+[data-mode="over"] #game-over-panel {
+  display: grid;
+  width: min(360px, calc(100% - 12px));
+  gap: clamp(5px, 1.2vh, 10px);
+  place-items: center;
+  padding: clamp(10px, 2.2vh, 20px);
+  border: 2px solid #bfa96d;
+  background: #0a2530e8;
+  box-shadow: 0 12px 40px #0009;
+}
+[data-mode="over"] #game-over-panel h2 {
+  margin: 0;
+  font-size: clamp(30px, 7vh, 58px);
+  line-height: 1;
+  letter-spacing: -2px;
+}
+[data-mode="over"] #game-over-panel p { margin: 0; font: 11px/1.4 var(--arcade-font); color: #bce7d9; }
+[data-mode="over"] #final-score {
+  color: #ffe19a;
+  font: clamp(38px, 10vh, 76px)/1 var(--arcade-font);
+  letter-spacing: clamp(1px, 1vw, 5px);
+  text-shadow: 3px 4px #142c32;
+}
+[data-mode="over"] #game-over-panel button {
+  width: min(280px, 100%);
+  min-width: 0;
+  min-height: 42px;
+  margin: 0;
+  padding: 9px 12px;
+}
+[data-mode="over"] #game-over-retry { background: var(--gold); color: #17272a; border: 0; font-weight: bold; }
 @media (max-height: 500px) and (orientation: landscape) {
-  .in-flight[data-mode="over"] #overlay { top: 45%; padding: 4px 6px; }
-  [data-mode="over"] #overlay #message { font-size: 10px; line-height: 1.5; margin: 2px 0 4px; }
-  .in-flight[data-mode="over"] #overlay > button { width: 90%; margin: 2px; padding: 7px; }
-  .in-flight[data-mode="over"] #overlay #join { padding: 4px; font-size: 10px; }
-  .in-flight[data-mode="over"] #overlay .menu-options { gap: 0; }
-  .in-flight[data-mode="over"] #overlay .menu-options button { padding: 5px; margin: 2px; font-size: 9px; }
+  .in-flight[data-mode="over"] #overlay { padding: 4px; }
+  [data-mode="over"] #game-over-panel { width: min(420px, calc(100% - 8px)); grid-template-columns: 1fr 1fr; gap: 4px 8px; padding: 7px; }
+  [data-mode="over"] #game-over-panel h2,
+  [data-mode="over"] #game-over-panel > p,
+  [data-mode="over"] #final-score { grid-column: 1 / -1; }
+  [data-mode="over"] #game-over-panel h2 { font-size: 27px; }
+  [data-mode="over"] #final-score { font-size: 34px; }
+  [data-mode="over"] #game-over-panel button { min-height: 34px; padding: 5px 8px; font-size: 9px; }
 }
 
 /* LAN setup stays reachable on both desktop and the full-screen touch layout. */
-#lan-dialog { width: min(540px, 94vw); max-height: 88dvh; overflow-y: auto; }
+#lan-dialog { width: min(540px, 94vw); max-height: 88dvh; overflow: hidden; }
 #lan-dialog p { line-height: 1.6; }
 #lan-dialog input { display: block; width: 100%; padding: 12px; font: inherit; text-transform: uppercase; }
 #lan-addresses { overflow-wrap: anywhere; user-select: all; color: #ffd483; }
 #lan-host-url { text-transform: none !important; }
-#lan-rooms { display: grid; gap: 8px; }
+#lan-rooms { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 #lan-rooms button { width: 100%; margin: 0; }
+#lan-rooms button:only-child { grid-column: 1 / -1; }
 #lan-bar { position: fixed; top: env(safe-area-inset-top, 0px); left: 50%; transform: translateX(-50%); z-index: 5; max-width: 95vw; font-size: 10px; padding: 3px 9px; margin: 0; opacity: .9; }
 #lan-bar[hidden], #lan-leave[hidden] { display: none; }
 .arcade-shell header, .arcade-shell aside,
@@ -501,28 +588,28 @@ body.in-flight { overflow: hidden; height: var(--play-height, 100dvh); }
 [data-chapter="bomb"] #demo-finger[data-pressed="true"] svg { transform: translateY(0) scale(.9); fill: #fff6cc; }
 button:disabled { opacity: .5; cursor: default; }
 
-/* Shared-screen aircraft selection; art is the actual normal-flight sprite. */
-#overlay.selecting-aircraft { justify-content: flex-start; }
-#overlay.selecting-aircraft > h2 { font-size: clamp(18px, 5cqi, 30px); letter-spacing: 0; line-height: 1.2; margin: 6px 0; }
-#overlay.selecting-aircraft > #message { font: 13px/1.4 monospace; }
-.selecting-aircraft > :is(#join, #join-p1, label, .hint, #lobby-status, .eyebrow) { display: none !important; }
-#aircraft-menu { width: min(100%, 530px); display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-family: monospace; }
-.pilot-choice { min-width: 0; padding: 6px; border: 2px solid var(--pilot); border-radius: 8px; background: #0b2029; --pilot: #ffcf7c; }
-.pilot-choice.p2 { --pilot: #8be0d1; }
-.pilot-choice h3 { color: var(--pilot); font-size: 13px; line-height: 1.4; min-height: 36px; margin: 4px 0; }
-.aircraft-cards { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 5px; }
-#overlay .aircraft-cards button { display: grid; place-items: center; min-width: 0; width: 100%; margin: 0; padding: 4px; background: #122f39; border: 2px solid #567079; border-radius: 5px; font: 12px monospace; }
-#overlay .aircraft-cards button[aria-pressed="true"] { border-color: var(--pilot); box-shadow: inset 0 0 0 1px var(--pilot); }
-.aircraft-art { display: block; width: clamp(44px, 16cqi, 80px); max-width: 100%; aspect-ratio: 1; background-size: 400% 200%; background-position: left top; }
+/* Fixed player identities and controller-led local join. */
+#player-status { width: min(100%, 430px); display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 7px; font-family: monospace; }
+.ready-player { min-width: 0; min-height: 70px; display: flex; align-items: center; gap: 8px; padding: 7px; border: 2px solid #ffcf7c; border-radius: 7px; background: #0b2029; text-align: left; }
+.ready-player.p2 { border-color: #8be0d1; color: #bdf0e5; }
+.ready-player.not-joined { border-style: dashed; opacity: .65; }
+.ready-aircraft { width: clamp(42px, 11cqi, 58px); aspect-ratio: 1; flex: none; background-size: 400% 200%; background-position: left top; }
 .model-0 { background-image: url('assets/players/p1/sheet.png'); }
 .model-1 { background-image: url('assets/players/p2/sheet.png'); }
-.aircraft-owner { display: block; min-height: 36px; font-size: 10px; line-height: 1.4; padding: 3px 0; }
-#overlay .pilot-actions button { width: 100%; min-width: 0; min-height: 44px; margin: 5px 0 0; padding: 6px 3px; font: bold 12px monospace; }
-#overlay .pilot-help { font: 11px/1.4 monospace; text-wrap: pretty; }
-#selection-status { grid-column: 1 / -1; font: bold 13px/1.4 monospace; }
-#overlay.selecting-aircraft #start { position: sticky; bottom: 0; z-index: 2; min-height: 48px; flex-shrink: 0; box-shadow: 0 0 0 6px #10252b; }
-#aircraft-menu { flex-shrink: 0; }
-#overlay .aircraft-cards button[aria-pressed="true"] { opacity: 1; }
+.ready-player b, .ready-player small { display: block; }
+.ready-player b { font-size: 12px; }
+.ready-player small { margin-top: 5px; color: #e9dba8; font-size: 9px; line-height: 1.35; }
+#controller-activation { grid-column: 1 / -1; display: flex; align-items: center; justify-content: center; gap: 7px; min-height: 30px; padding: 4px 8px; border: 1px solid #75d9ce; background: #12262c; color: #fff0bc; font: 9px/1.4 var(--arcade-font); letter-spacing: .7px; }
+.controller-badge { display: grid; place-items: center; width: 18px; height: 18px; flex: none; border: 1px solid #75d9ce; border-radius: 5px; color: #75d9ce; font: bold 15px/1 monospace; }
+@media (max-height: 500px) and (orientation: landscape) {
+  #overlay:not([style*="display: none"]) { gap: 3px; padding-block: 5px; }
+  #overlay:not([style*="display: none"]) > h2 { font-size: 20px; line-height: .85; margin: 1px 0; }
+  #overlay:not([style*="display: none"]) > :is(.eyebrow,.hint,#message) { display: none; }
+  body[data-mode="ready"] #overlay > #start { min-height: 32px; padding-block: 4px; }
+  .ready-player { min-height: 44px; padding: 3px; }
+  .ready-aircraft { width: 36px; }
+  #controller-activation { min-height: 24px; padding-block: 2px; }
+}
 .start-ready { animation: ready-pulse 1s ease-in-out infinite; }
 @keyframes ready-pulse { 50% { box-shadow: 0 0 22px #ffe49b; background: #ffe49b; color: #10252b; } }
 @media (prefers-reduced-motion: reduce) { .start-ready { animation: none; outline: 3px solid #ffe49b; } }
@@ -584,6 +671,13 @@ button:disabled { opacity: .5; cursor: default; }
 }
 
 @media (max-height: 380px) {
+  #lan-dialog { padding: 6px; }
+  #lan-dialog .link-marquee { padding-bottom: 3px; }
+  #lan-dialog #coop-step { padding: 3px 5px; margin: 3px 0; font-size: 10px; }
+  #lan-dialog section { padding: 4px; }
+  #lan-dialog #coop-guest-panel h3 { display: none; }
+  #lan-dialog #coop-guest-panel p { margin: 3px 0; font-size: 10px; }
+  #lan-dialog .link-footer { margin-top: 4px; }
   #lan-dialog #coop-connected { display: grid; grid-template-columns: 1fr 1.4fr; align-items: center; gap: 6px; }
   #lan-dialog #coop-role { margin: 0; font-size: 11px; }
   #lan-dialog #coop-room-code { margin: 0; font-size: 18px; letter-spacing: 1px; }
@@ -623,10 +717,8 @@ body:has(#drop-in:not([hidden])) { --deck-height: 128px; }
 .pilot-exit-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
 #overlay .pilot-exit-actions button { font-size: 10px; min-height: 48px; }
 
-/* One touch pilot per device; the second choice appears after a peer connects. */
-#aircraft-menu.solo { grid-template-columns: minmax(0, 1fr); max-width: 400px; }
-#aircraft-menu.solo .aircraft-art { width: clamp(80px, 25cqi, 130px); }
-[data-input-mode="touch"] :is(#coop-local, #drop-in, #join, #join-p1, #aircraft-0, #aircraft-1) { display: none !important; }
+/* Touch keeps the same fixed-player ready screen; local P2 joins by controller. */
+[data-input-mode="touch"] :is(#coop-local, #drop-in) { display: none !important; }
 [data-input-mode="touch"] #overlay > label { display: none; }
 
 /* Controller service panel uses the cabinet's gold / teal marquee. */
@@ -646,10 +738,7 @@ body:has(#drop-in:not([hidden])) { --deck-height: 128px; }
 .arcade-shell #demo-controllers, .arcade-shell #test { min-height: 44px; }
 @media (max-width: 480px) { .joycon-readiness { grid-template-columns: 1fr; gap: 0; } }
 
-/* Cabinet controller onboarding and hands-on controls. */
-#controller-activation{display:flex;align-items:center;justify-content:center;gap:12px;max-width:580px;margin:10px auto;padding:10px 16px;border:2px solid #75d9ce;background:#12262c;color:#fff0bc;font-size:12px;text-align:center;letter-spacing:1px}
-#controller-activation[hidden]{display:none}
-#controller-activation svg{width:64px;height:40px;flex-shrink:0;fill:none;stroke:#75d9ce;stroke-width:3}
+/* Controller configuration and hands-on controls. */
 .ready-pulse{animation:controller-ready .7s ease-out}
 @keyframes controller-ready{0%{box-shadow:0 0 30px #fff0bc;background:#376a5b}100%{box-shadow:none}}
 .custom-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
@@ -662,6 +751,3 @@ body:has(#drop-in:not([hidden])) { --deck-height: 128px; }
 #controller-physical{overflow-wrap:anywhere;font-size:11px}
 .menu-focus,#settings .menu-focus{outline:3px solid #fff0bc;outline-offset:3px;box-shadow:0 0 16px #75d9ce;border-color:#fff0bc!important}
 @media(prefers-reduced-motion:reduce){.ready-pulse{animation:none}}
-#controller-activation{position:fixed;z-index:3;bottom:calc(env(safe-area-inset-bottom) + 4px);left:12px;right:100px;max-width:580px;margin:0 auto;padding:6px 10px;pointer-events:none;font:10px/1.5 var(--arcade-font)}
-#controller-activation svg{width:48px;height:32px}
-body[data-arcade="off"] #controller-activation,body[data-arcade="boot"] #controller-activation{display:none}

@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "checks": [
+    "five appearances",
+    "threshold reaction",
+    "pause clock",
+    "bomb defeat",
+    "harmless angry wreck",
+    "next loop reset",
+    "file startup"
+  ],
+  "errors": []
+}

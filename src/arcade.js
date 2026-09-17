@@ -18,6 +18,7 @@
   let phase='off', clock=0, index=0, time=0, scene=null, simulating=false;
   let steering={x:0,y:0,fire:false}, trail=[], bombUsed=false, overTime=0;
   let lastScore=0, feedback='', feedbackUntil=0, lastFieldHeight=0;
+  const autoReturn=(()=>{try{return new URLSearchParams(location.search).get('arcade')==='1';}catch{return false;}})();
   const body=document.body, neutral=()=>({x:0,y:0,fire:false});
   const setPhase=value=>{phase=value;body.dataset.arcade=value;};
   const planeY=()=>Math.min(540,Math.max(200,H*.78-180*H/canvas.getBoundingClientRect().height));
@@ -139,6 +140,7 @@
   }
   window.arcade={
     get phase(){return phase;},get simulating(){return simulating;},
+    returnToMainMenu:attract,
     // Read-only diagnostics for simulation/integration checks.
     get demoState(){return scene?JSON.parse(JSON.stringify(scene)):null;},
     get chapter(){return chapters[index].id;},
@@ -155,7 +157,7 @@
       $('#watch-demo').disabled=!!window.lan?.active;
       const frozen=document.hidden||$('#lan-dialog').open||$('#settings').open;
       if(phase==='game') {
-        const returning=mode==='over'&&!window.lan?.active;
+        const returning=autoReturn&&mode==='over'&&!window.lan?.active;
         $('#demo-return').hidden=!returning;
         if(returning){if(!frozen)overTime+=dt;$('#demo-return').textContent=`${Math.max(0,Math.ceil(15-overTime))}s until DEMO · Press RETRY to fly again`;if(overTime>=15){attract();paint();return true;}}
         else overTime=0;
@@ -174,7 +176,7 @@
   $('#boot').onclick=()=>{if(phase!=='off')return;setPhase('boot');clock=0;$('#boot').hidden=true;$('#boot-log').hidden=false;sound=true;sfx.playSfx('start');$('#sound').textContent=$('#demo-sound').textContent='SOUND ON';$('#fullscreen').onclick();};
   $('#demo-start').onclick=()=>start();
   $('#demo-lan').onclick=()=>$('#lan-open').onclick();
-  $('#demo-options').onclick=()=>{dismiss();show('READY FOR TAKEOFF','Choose your aircraft and fly solo or with a friend.');};
+  $('#demo-options').onclick=()=>window.aircraftMenu?.open();
   $('#demo-sound').onclick=()=>{$('#sound').onclick();$('#demo-sound').textContent=$('#sound').textContent;};
   $('#watch-demo').onclick=attract;$('#overlay').style.display='none';window.flightControls?.sync();
 })();

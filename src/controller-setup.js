@@ -55,10 +55,14 @@
       $('#controller-activation-text').textContent=text+' ✓';
       banner.classList.remove('ready-pulse'); void banner.offsetWidth; banner.classList.add('ready-pulse');
     }
-    const ready=list.filter(p=>activated.has(p.id+':'+p.index)).map(p=>{
+    const deviceReady=list.filter(p=>activated.has(p.id+':'+p.index)).map(p=>{
       const slot=slots.indexOf(p);
       return `${slot<0 ? 'CONTROLLER' : 'P'+(slot+1)+' CONTROLLER'} READY ✓`;
     }).join(' · ') || (physicalActivated.size ? 'CONTROLLER CONNECTED ✓ · PRESS PRIMARY ON EACH HALF' : 'PRESS ANY BUTTON TO ACTIVATE CONTROLLER');
+    const ready=mode==='ready' && window.arcade?.phase==='game' && !window.lan?.active
+      ? joined[1] ? 'P2 JOINED ✓'
+      : assignments[0]===null ? 'PRESS START / PRIMARY TO USE A CONTROLLER' : 'P2 PRESS START / PRIMARY TO JOIN'
+      : deviceReady;
     if ($('#controller-activation-text').textContent!==ready) $('#controller-activation-text').textContent=ready;
     $('#controller-activation').hidden=['playing','paused'].includes(mode);
   }
@@ -136,7 +140,7 @@
           remember(list);
           cancel();
           previous.set(p.index,pressed);
-          status(`P${target+1} now uses ${controllerName(p)}. Ready — return to aircraft selection.`);
+          status(`P${target+1} now uses ${controllerName(p)}. Ready — return to the ready screen.`);
           renderDevices();
           last.set(p.index,pressed);
           return true;

@@ -1,0 +1,87 @@
+[
+  {
+    "alpha": true,
+    "bounds": [
+      92,
+      15,
+      840,
+      871
+    ],
+    "file": "p1-normal.png",
+    "pitch": 0.0,
+    "roll": 0.0,
+    "size": [
+      1024,
+      1024
+    ],
+    "yaw": 0
+  },
+  {
+    "alpha": true,
+    "bounds": [
+      136,
+      15,
+      742,
+      894
+    ],
+    "file": "p1-roll-left.png",
+    "pitch": 0.0,
+    "roll": -28.0,
+    "size": [
+      1024,
+      1024
+    ],
+    "yaw": 0
+  },
+  {
+    "alpha": true,
+    "bounds": [
+      136,
+      15,
+      742,
+      894
+    ],
+    "file": "p1-roll-right.png",
+    "pitch": 0.0,
+    "roll": 28.0,
+    "size": [
+      1024,
+      1024
+    ],
+    "yaw": 0
+  },
+  {
+    "alpha": true,
+    "bounds": [
+      92,
+      11,
+      840,
+      899
+    ],
+    "file": "p1-pitch-up.png",
+    "pitch": 10.0,
+    "roll": 0.0,
+    "size": [
+      1024,
+      1024
+    ],
+    "yaw": 0
+  },
+  {
+    "alpha": true,
+    "bounds": [
+      92,
+      33,
+      840,
+      819
+    ],
+    "file": "p1-pitch-down.png",
+    "pitch": -10.0,
+    "roll": 0.0,
+    "size": [
+      1024,
+      1024
+    ],
+    "yaw": 0
+  }
+]

@@ -38,7 +38,7 @@ function runtime(){
     interrupt(){this.close();this.onerror?.();}
   }
   const sandbox={console,Math,performance,TextEncoder,AbortSignal,EventSource:SSE,
-    fetch:(url,options)=>fetch(base+url,options),location:{origin:base},
+    fetch:(url,options)=>fetch(base+url,options),location:{origin:base,search:'?transport=lan'},URLSearchParams,
     document:{createElement:()=>el('created-'+Math.random()),hidden:false,body:{classList:{toggle(){}},dataset:{}},documentElement:{style:{setProperty(){}}},querySelector:el,
       addEventListener:(n,f)=>(documentEvents[n]??=[]).push(f)},
     window:{innerHeight:800,innerWidth:600,addEventListener:(n,f)=>(events[n]??=[]).push(f)},
@@ -51,7 +51,7 @@ function runtime(){
 (async()=>{
   for(let i=0;i<2048;i++)assert.match(generateRoomCode(),/^[0-9]{6}$/,'generated room codes are six numeric characters');
   if(!base){server=createLanServer({roomCodeGenerator:()=> '012847'});await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',resolve);});base=`http://127.0.0.1:${server.address().port}`;}
-  let timer;
+  let timer,hostCadence=0,hostFrameAt=0,movementProbe=null;
   const host=runtime(),guest=runtime();
   const post=(route,data={},token)=>fetch(base+'/lan/'+route,{method:'POST',headers:{'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})},body:JSON.stringify(data)});
   try{
@@ -62,7 +62,7 @@ function runtime(){
     cancel.el('#lan-close').onclick();
     assert.equal(cancel.run('mode'),'playing','closing Wi-Fi settings without a room resumes the active run');
     assert.equal((await fetch(base+'/tools/lan-server.cjs')).status,404,'server source not served');
-    assert.equal((await fetch(base+'/src/p2p-transport.js')).status,404,'archived Internet transport is not served');
+    assert.equal((await fetch(base+'/src/p2p-transport.js')).status,200,'restored P2P client is served');
     assert.equal((await fetch(base+'/src/relay-transport.js')).status,404,'archived relay transport is not served');
     assert.equal((await fetch(base+'/src/..%2FREADME.md')).status,403,'encoded traversal rejected');
     const checkHost=await (await post('create')).json();
@@ -82,8 +82,10 @@ function runtime(){
     for(let i=0;i<50;i++){listed=await roomList();if(listed.rooms.some(r=>r.code===code))break;await new Promise(r=>setTimeout(r,20));}
     assert.deepEqual(listed,{rooms:[{code}]},'only connected empty room is public, no credentials');
     await guest.el('#lan-open').onclick();
-    assert.equal(guest.el('#lan-rooms').children.length,1,'dialog discovers available host');
-    assert.ok(guest.el('#lan-addresses').textContent.includes(base),'server address visible before joining');
+    await guest.el('#lan-search').onclick();
+    assert.equal(guest.el('#lan-rooms').children.length,1,'FIND GAME discovers an available game');
+    assert.equal(guest.el('#lan-rooms').children[0].textContent,'JOIN GAME','discovery hides the internal code');
+    assert.equal(guest.el('#lan-addresses').textContent,'','normal discovery does not expose server addresses');
     guest.el('#lan-close').onclick();
     host.run('start()');assert.equal(host.run('mode'),'ready','host waits for P2');
     await guest.el('#lan-rooms').children[0].onclick();
@@ -91,7 +93,11 @@ function runtime(){
     assert.equal(host.run('window.lan.menuState.code'),code);
     assert.equal(guest.run('window.lan.menuState.code'),code,'host and guest resolve the same string room code');
     assert.deepEqual(await roomList(),{rooms:[]},'full room is excluded');
-    timer=setInterval(()=>{const now=performance.now();host.run(`frame(${now})`);guest.run(`frame(${now})`);},16);
+    timer=setInterval(()=>{const now=performance.now();
+      if(now-hostFrameAt>=hostCadence){host.run(`frame(${now})`);hostFrameAt=now;}
+      guest.run(`frame(${now})`);
+      if(movementProbe)movementProbe.push(Math.abs(guest.run('window.lan.lastVisual.players[1].x')-host.run('players[1].x')));
+    },16);
     await wait(()=>host.run('window.lan.ready')&&guest.run('window.lan.ready'));
     assert.equal((await post('join',{code})).status,409,'third player rejected');
     assert.equal((await post('state',{code,state:{players:[]}},'invalid')).status,403);
@@ -104,7 +110,12 @@ function runtime(){
     assert.equal(host.run('JSON.stringify(window.receivedSelection)'),JSON.stringify({model:0,ready:true,revision:7}),'Wi-Fi forwards versioned selection state');
     guest.run('delete window.aircraftMenu');
     host.run('delete window.aircraftMenu');
+    const startPad={id:'Menu transition pad',index:19,axes:[0,0],buttons:Array.from({length:17},(_,i)=>({pressed:i===9,value:i===9?1:0}))};
+    host.pad([startPad]);
     host.run("start();wave=999;nextSupply=999;extraLifeSpawned=true;players.forEach(p=>p.inv=99)");
+    host.run('window.lan.poll();window.lan.poll()');
+    assert.equal(host.run('mode'),'playing','held menu Start is consumed by the LAN gameplay ledger');
+    startPad.buttons[9]={pressed:false,value:0};host.run('window.lan.poll()');
     await wait(()=>guest.run("mode==='playing'&&players.length===2"));
     assert.equal(guest.el('#start').disabled,true,'guest cannot restart host');
     for(const peer of [host,guest]){
@@ -112,6 +123,49 @@ function runtime(){
       assert.ok(stats.state.messages>0&&stats.input.messages>0,'both payload directions are measured on each LAN peer');
       assert.ok(stats.state.bytes>stats.input.bytes,'state and input counters remain separate');
     }
+    // Probe the actual guest draw path while the real HTTP/SSE host keeps firing.
+    guest.run(`window.fireProbe=[];window.originalPresent=window.lan.present;
+      window.lan.present=function(state){const before=JSON.stringify(state),out=window.originalPresent(state);
+        for(const s of out.shots.filter(s=>s.age===0))window.fireProbe.push({x:s.x,y:s.y,px:out.players[1].x,py:out.players[1].y,level:out.players[1].level});
+        if(JSON.stringify(state)!==before)throw Error('Guest presentation mutated authoritative state');
+        const ids=out.shots.filter(s=>s.netId!=null).map(s=>s.netId);
+        if(new Set(ids).size!==ids.length)throw Error('Duplicate authoritative bullet');
+        return out;};`);
+    host.key('KeyF');
+    for(const direction of ['KeyA','KeyD']){
+      guest.run('window.fireProbe=[]');guest.key(direction);guest.key('KeyF');
+      await wait(()=>guest.run('window.fireProbe.length')>=4);
+      const probe=guest.run('window.fireProbe');
+      for(const s of probe){assert.equal(s.x,s.px);assert.equal(s.y,s.py-25);}
+      assert.ok(direction==='KeyA'?probe.at(-1).x<probe[0].x:probe.at(-1).x>probe[0].x);
+      assert.ok(host.run('shots.some(s=>s.owner.index===0)&&shots.some(s=>s.owner.index===1)'), 'simultaneous authoritative P1/P2 fire');
+      guest.key(direction,true);guest.key('KeyF',true);
+    }
+    host.key('KeyF',true);
+    // The host now runs below the 35 ms world-step cap while P2 keeps a
+    // responsive local frame rate. Measure actual simultaneous runtime state,
+    // including HTTP/SSE delivery and rendering, through rapid reversals.
+    hostCadence=40;movementProbe=[];guest.run('window.fireProbe=[]');guest.key('KeyF');
+    for(let i=0;i<8;i++){
+      const direction=i%2?'KeyD':'KeyA';guest.key(direction);
+      await new Promise(r=>setTimeout(r,160));guest.key(direction,true);
+    }
+    guest.key('KeyF',true);hostCadence=0;
+    const maxDivergence=Math.max(...movementProbe);movementProbe=null;
+    console.log('P2 real HTTP/SSE maximum same-time predicted/rendered vs host divergence:',maxDivergence,'px');
+    assert.ok(maxDivergence<30,'slow-host movement must not accumulate a growing input backlog');
+    const reversals=guest.run('window.fireProbe');assert.ok(reversals.length>=6);
+    for(const s of reversals){assert.equal(s.x,s.px);assert.equal(s.y,s.py-25);}
+    host.run('Object.assign(players[1],{level:3,rapid:true})');
+    await wait(()=>guest.run('players[1].level===3&&players[1].rapid'));
+    guest.run('window.fireProbe=[]');guest.key('KeyF');
+    await wait(()=>guest.run('window.fireProbe.length')>=9);guest.key('KeyF',true);
+    const spread=guest.run('window.fireProbe');
+    for(let i=0;i+2<spread.length;i+=3)for(let j=0;j<3;j++){
+      assert.equal(spread[i+j].x,spread[i+j].px+(j-1)*12);assert.equal(spread[i+j].y,spread[i+j].py-25);
+    }
+    host.run('Object.assign(players[1],{level:1,rapid:false})');
+    guest.run('window.lan.present=window.originalPresent');
     const x=host.run('players[1].x'),p1x=host.run('players[0].x');
     guest.key('KeyD');guest.key('KeyF');
     await wait(()=>host.run('players[1].x')>x+20&&host.run('shots.some(s=>s.owner.index===1)'));
@@ -160,7 +214,7 @@ function runtime(){
     assert.deepEqual(await roomList(),{rooms:[]},'closed host is removed');
     await guest.el('#lan-search').onclick();
     assert.equal(guest.el('#lan-rooms').children.length,0);
-    assert.match(guest.el('#lan-discovery-status').textContent,/No available rooms/);
+    assert.match(guest.el('#lan-discovery-status').textContent,/No games found/);
     console.log('PASS: host discovery, one-click join, empty/full/closed rooms, real HTTP/SSE rooms, isolation, P2 keyboard/touch/gamepad, bombs, death/reset/rejoin/rewards, pause, disconnect/reconnect, next loop, leave and host shutdown.');
   }finally{clearInterval(timer);for(const s of streams)s.close();host.el('#lan-leave').onclick();guest.el('#lan-leave').onclick();if(server){server.dispose();await new Promise(r=>server.close(r));}}
 })().catch(e=>{console.error(e);process.exitCode=1;});

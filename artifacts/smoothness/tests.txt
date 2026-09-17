@@ -1,0 +1,21 @@
+✔ UTF-8 logical JSON is unchanged, classified once, with rolling rates and relay math (4.829041ms)
+✔ P2P measures identical reassembled JSON once, excludes fragments and rejected sends (9.476ms)
+✔ interpolates every moving group using copies; authoritative state stays byte-identical (1.85225ms)
+✔ latest membership prevents ghosts and mismatched IDs cannot blend (0.177125ms)
+✔ teleport, death, entering and pause snap safely (1.0935ms)
+✔ immediate local motion, smooth release reconciliation, no authoritative write (0.263375ms)
+✔ stale stream, loop reset and reconnect do not interpolate prior history (0.109209ms)
+✔ reordered projectiles follow IDs, not array indices (0.10575ms)
+✔ touch prediction stops at target and never writes the input or hitbox (0.092875ms)
+✔ stable simulation clock rejects arrival jitter without changing any snapshot (1.779041ms)
+✔ P2 constant-speed prediction has no snapshot-frequency sawtooth (0.530459ms)
+✔ diagnostics are bounded, read-only, and distinguish pause from stale waiting (0.261541ms)
+✔ forward simulation discontinuity rebuilds presentation without a long freeze (0.09725ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 96.882875

@@ -102,6 +102,54 @@
 
     };
   }
-  root.CatPresentation={create};
+  // Local bullets never enter game.shots. Match first-seen host IDs to the
+  // nearest compatible pending pellet; thereafter latest host membership owns life.
+  function createShotPrediction(spawn,cooldown,fireSound){
+    let visuals=[],seen=new Set(),initial=new Set(),cool=null,signature=null;
+    function reset(){visuals=[];seen.clear();initial.clear();cool=null;signature=null;}
+    const key=s=>[s.inputEpoch,s.mode,s.loop,s.loopTransition,s.players[1]?.netId,
+      s.players[1]?.lives,s.players[1]?.respawn,s.players[1]?.entering].join(':');
+    function accept(state){
+      const next=key(state);
+      if(next!==signature){reset();signature=next;cool=state.players[1]?.cool??0;
+        seen=new Set(state.shots.map(s=>s.netId));initial=new Set(seen);return;}
+      const ids=new Set(state.shots.filter(s=>!s.dead).map(s=>s.netId));
+      initial=new Set([...initial].filter(id=>ids.has(id)));
+      visuals=visuals.filter(v=>v.netId==null||ids.has(v.netId));
+      for(const s of state.shots){
+        if(s.dead||s.owner?.index!==1||s.netId==null||seen.has(s.netId))continue;
+        const pending=visuals.filter(v=>v.netId==null&&Math.abs(v.vx-s.vx)<.001&&Math.abs(v.vy-(s.vy??-550))<.001);
+        // Different frame cadences can leave surplus local volleys pending.
+        // FIFO then binds an increasingly old visual to a NEW host bullet,
+        // letting it cross the target while waiting for that later ID to die.
+        // Match the closest flight position without moving the visual itself.
+        const distance=v=>(v.x-s.x)**2+(v.y-s.y)**2;
+        const v=pending.reduce((best,v)=>!best||distance(v)<distance(best)?v:best,null);
+        if(v){
+          // Older unconfirmed pellets of this lane were superseded by this
+          // authoritative volley (including shots lost between snapshots).
+          const superseded=new Set(pending.slice(0,pending.indexOf(v)));
+          visuals=visuals.filter(v=>!superseded.has(v));
+          v.netId=s.netId;
+        }
+      }
+      seen=ids;
+    }
+    function render(state,p,dt,fire,ready){
+      if(!ready||state.mode!=='playing'||state.loopTransition!==0||!p||p.lives<=0||p.respawn>0||p.entering){reset();return state;}
+      // Advance independently, never recompute a spawned bullet from the plane.
+      for(const v of visuals){v.x+=v.vx*dt;v.y+=v.vy*dt;v.age+=dt;}
+      visuals=visuals.filter(v=>v.netId!=null||(v.y>-20&&v.x>-20&&v.x<620&&v.age<=.5));
+      cool=(cool??p.cool??0)-dt;
+      if(fire&&cool<=0){cool=cooldown(p);visuals.push(...spawn(p).map(s=>({...s,owner:{index:1},age:0})));fireSound();}
+      const matched=new Set(visuals.filter(v=>v.netId!=null).map(v=>v.netId));
+      // A host volley without a pending match is not another local birth.
+      // Showing that delayed/interpolated fallback creates a second stream
+      // behind the moving plane. Only pre-existing shots bypass prediction.
+      return {...state,shots:[...state.shots.filter(s=>!matched.has(s.netId)&&(s.owner?.index!==1||(!s.dead&&initial.has(s.netId)))),...visuals.filter(v=>v.y>-20&&v.x>-20&&v.x<620).map(v=>({...v}))]};
+    }
+    return {accept,render,reset};
+  }
+  root.CatPresentation={create,createShotPrediction};
   if(typeof module!=='undefined')module.exports=root.CatPresentation;
 })(typeof window==='undefined'?globalThis:window);

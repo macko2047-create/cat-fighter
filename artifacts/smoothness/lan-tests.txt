@@ -1,0 +1,1 @@
+PASS: host discovery, one-click join, empty/full/closed rooms, real HTTP/SSE rooms, isolation, P2 keyboard/touch/gamepad, bombs, death/reset/rejoin/rewards, pause, disconnect/reconnect, next loop, leave and host shutdown.

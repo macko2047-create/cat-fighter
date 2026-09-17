@@ -118,10 +118,11 @@
     }
   }
   $("#fullscreen").onclick = fullscreen;
-  $("#start").addEventListener("click", fullscreen);
+  // A deliberate RESUME after leaving fullscreen must not force fullscreen back on.
+  $("#start").addEventListener("click", () => { if (mode !== "paused") fullscreen(); }, true);
   window.addEventListener("keydown", e => {
-    if (e.code === "Enter" && !$("#settings").open) fullscreen();
-  });
+    if (e.code === "Enter" && mode !== "paused" && !$("#settings").open) fullscreen();
+  }, true);
   window.addEventListener("blur", controls.reset);
   // iPad browser chrome can shrink the visible viewport independently of dvh.
   function fitViewport() {

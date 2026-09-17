@@ -9,9 +9,9 @@ function client(content) {
   });
   return {requests, request: window.CatP2P.request};
 }
-test('missing/empty config preserves absolute same-origin /p2p routes', async () => {
+test('missing/empty configuration fails closed', async () => {
   for (const origin of [undefined, '', '   ']) {
-    const c = client(origin); await c.request('create'); assert.equal(c.requests[0].url, '/p2p/create');
+    const c = client(origin); await assert.rejects(c.request('create'), /Missing public signaling/); assert.equal(c.requests.length, 0);
   }
 });
 test('explicit HTTPS origin applies to every signaling operation and omits cookies', async () => {

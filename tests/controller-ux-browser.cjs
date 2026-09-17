@@ -57,14 +57,10 @@ const {chromium,webkit}=require('playwright'),assert=require('node:assert/strict
   assert.deepEqual(await page.evaluate(()=>config(pads()[0])),{fire:1,bomb:0,pause:9,confirm:1,back:0});
   await press(14);await press(14);assert.equal(await page.locator('#settings').isVisible(),false);
   await page.evaluate(()=>{document.documentElement.requestFullscreen=()=>Promise.resolve();$('#boot').click();arcade.frame(3);});
-  await press(13);await focus('#demo-start');await press(13);
-  assert.equal(await page.locator('#aircraft-menu').isVisible(),true);
-  await focus('[data-slot="0"][data-model="0"]');await move(1,0);await press(13);
-  assert.equal(await page.evaluate(()=>aircraft[0]),1,'controller selects aircraft');
-  await move(0,1);await press(13);
-  assert.equal(await page.locator('#start').isEnabled(),true,'controller confirms');
-  await move(0,1);
-  assert.equal(await page.evaluate(()=>document.activeElement.id),'start');
+  await press(13);
+  assert.equal(await page.evaluate(()=>mode),'ready');
+  assert.match(await page.locator('#player-status-0').textContent(),/P1 · GINGER.*READY/s);
+  await focus('#start');
   // Map Confirm to Pause to reproduce the shared transition edge.
   await page.evaluate(()=>{bindings['Half Joy-Con P1']={confirm:9};rawPad.buttons[15].pressed=true;poll();});
   assert.equal(await page.evaluate(()=>mode),'playing','controller starts without touch');
@@ -78,17 +74,13 @@ const {chromium,webkit}=require('playwright'),assert=require('node:assert/strict
   await page.locator('#pause').tap();assert.equal(await page.evaluate(()=>mode),'paused','touch pause remains available');
   await page.evaluate(()=>$('#test').click());await page.evaluate(()=>poll());
   await page.screenshot({path:'artifacts/controller-settings/controller-ux.png'});
-  await page.keyboard.press('Escape');await page.locator('#watch-demo').tap();
-  await page.keyboard.press('ArrowUp');await page.keyboard.press('Enter');
-  assert.equal(await page.locator('#aircraft-menu').isVisible(),true,'keyboard opens aircraft selection');
-  await page.keyboard.press('ArrowLeft');await page.keyboard.press('ArrowRight');await page.keyboard.press('Enter');
-  await page.keyboard.press('ArrowDown');await page.keyboard.press('Enter');
-  assert.equal(await page.locator('#start').isEnabled(),true,'keyboard confirms aircraft');
-  for(let i=0;i<3 && await page.evaluate(()=>document.activeElement.id)!=='start';i++)await page.keyboard.press('ArrowDown');
-  assert.equal(await page.evaluate(()=>document.activeElement.id),'start','keyboard moves through Change Aircraft to Start');
+  await page.keyboard.press('Escape');await page.evaluate(()=>{window.confirm=()=>true;});await page.locator('#pause-main-menu').tap();
+  await focus('#demo-start');await page.keyboard.press('Enter');
+  assert.equal(await page.evaluate(()=>mode),'ready','keyboard opens the fixed-player ready screen');
+  await focus('#start');
   await page.keyboard.press('Enter');
   assert.equal(await page.evaluate(()=>mode),'playing','keyboard starts from focus');
   assert.deepEqual(errors,[]);
-  console.log('PASS: hybrid activation, physical/logical readiness, focus, live test, five-action remap/reload/reset, aircraft/confirm/start/back, held Start/Pause, keyboard/touch and browser errors.');
+  console.log('PASS: hybrid activation, physical/logical readiness, focus, live test, five-action remap/reload/reset, fixed-player ready/start, held Start/Pause, keyboard/touch and browser errors.');
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

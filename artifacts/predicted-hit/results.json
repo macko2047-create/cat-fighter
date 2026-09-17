@@ -1,0 +1,51 @@
+[
+  {
+    "name": "stationary",
+    "frames": 251,
+    "damage": 9,
+    "maxLead": 88.60499999672174,
+    "backside": 0
+  },
+  {
+    "name": "left",
+    "frames": 77,
+    "damage": 5,
+    "maxLead": 71.77499999999998,
+    "backside": 0
+  },
+  {
+    "name": "right",
+    "frames": 77,
+    "damage": 5,
+    "maxLead": 71.72000000655669,
+    "backside": 0
+  },
+  {
+    "name": "three-way",
+    "frames": 251,
+    "damage": 42,
+    "maxLead": 88.4400000000006,
+    "backside": 0
+  },
+  {
+    "name": "rapid",
+    "frames": 731,
+    "damage": 280,
+    "maxLead": 69.35499999999922,
+    "backside": 0
+  },
+  {
+    "name": "small",
+    "frames": 119,
+    "damage": 3,
+    "maxLead": 109.01000000000045,
+    "backside": 0
+  },
+  {
+    "name": "p1",
+    "frames": 161,
+    "damage": 7,
+    "maxLead": 0,
+    "backside": 0
+  }
+]

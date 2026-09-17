@@ -4,7 +4,7 @@ const {chromium,webkit}=require('playwright');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
-const out=path.join('artifacts/p2p',process.env.P2P_BROWSER||'chromium');
+const out=fs.mkdtempSync(path.join(require('node:os').tmpdir(),'cat-p2p-'));
 const {createP2PServer}=require('../tools/p2p-server.cjs');
 (async()=>{
   const server=createP2PServer({iceServers:[]});
@@ -31,8 +31,10 @@ const {createP2PServer}=require('../tools/p2p-server.cjs');
       const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
       page.on('request',req=>{if(/\/(p2p|lan)\//.test(req.url()))requests.push({url:req.url(),body:req.postData()});});
       if(process.env.SMOOTHNESS_MEASURE==='before')await page.route('**/src/presentation.js',route=>route.fulfill({contentType:'text/javascript',body:''}));
-      await page.goto(base);
+      await page.route(base+'/?transport=p2p',async route=>{const response=await route.fetch();await route.fulfill({response,body:(await response.text()).replace('name="cat-fighter-signaling-origin" content=""',`name="cat-fighter-signaling-origin" content="${base}"`)});});
+      await page.goto(base+'/?transport=p2p');
       await page.evaluate(()=>{document.documentElement.requestFullscreen=()=>Promise.resolve();document.querySelector('#boot').onclick();window.arcade.frame(3);});
+      await page.evaluate(()=>{window.__hooks=[];const create=CatP2P.create;CatP2P.create=(s,h)=>{__hooks.push(h);return create(s,h);};});
       pages.push(page);
     }
     const [host,guest]=pages;
@@ -42,19 +44,17 @@ const {createP2PServer}=require('../tools/p2p-server.cjs');
     // Static hosting has no signaling route. A failed Create must leave a
     // usable demo/menu behind the dialog instead of a frozen READY canvas.
     await host.route('**/p2p/create',route=>route.fulfill({status:404,contentType:'text/html',body:'Not found'}));
-    await click(host,'#demo-lan');await click(host,'#p2p-create');
+    await click(host,'#demo-lan');await click(host,'#lan-create');
     assert.match(await host.locator('#lan-status').textContent(),/signaling server/);
     assert.equal(await run(host,'window.lan.active'),false);
     await click(host,'#lan-close');
     assert.equal(await run(host,'window.arcade.phase'),'demo');
     assert.equal(await host.locator('#demo-start').isVisible(),true);
-    await click(host,'#demo-start');await wait(host,"mode==='playing'");
-    await click(host,'#watch-demo');
     await host.unroute('**/p2p/create');
-    await click(host,'#lan-open');await click(host,'#p2p-create');
-    const code=await host.inputValue('#p2p-code');assert.match(code,/^\d{6}$/);
+    await click(host,'#lan-open');await host.locator('#coop-host').tap();await wait(host,'lan.active');
+    const code=await host.inputValue('#lan-code');assert.match(code,/^\d{6}$/);
     assert.equal(await run(host,'window.lan.canStart()'),false);
-    await click(guest,'#lan-open');await guest.fill('#p2p-code',code);await click(guest,'#p2p-join');
+    await click(guest,'#lan-open');await guest.locator('#coop-guest').tap();await guest.fill('#lan-code',code);await click(guest,'#lan-join');
     await Promise.all(pages.map(p=>wait(p,'window.lan.ready')));
     assert.equal(await run(host,'mode'),'ready','pairing cannot start the game');
     assert.equal(await run(guest,'window.lan.canStart()'),false);
@@ -104,6 +104,7 @@ const {createP2PServer}=require('../tools/p2p-server.cjs');
     const x=await run(host,'players[1].x'),p1=await run(host,'players[0].x');
     await run(guest,"keys.add('KeyD');keys.add('KeyF')");
     await wait(host,`players[1].x>${x+20}&&shots.some(s=>s.owner.index===1)`);
+    await run(host,"keys.add('KeyF')");await wait(guest,'shots.some(s=>s.owner.index===0)');await run(host,'keys.clear()');
     await run(guest,'keys.clear();window.lan.command("bomb")');
     await wait(host,'players[1].bombs===2');assert.equal(await run(host,'players[0].x'),p1);
     assert.equal(await run(host,'players[0].bombs'),3);
@@ -120,16 +121,23 @@ const {createP2PServer}=require('../tools/p2p-server.cjs');
     await run(guest,"window.__pads=[{id:'P2 pad',index:0,axes:[1,0],buttons:Array.from({length:16},()=>({pressed:false}))}]");
     await wait(host,`players[1].x>${gx+15}`);await run(guest,'window.__pads=[]');await wait(host,"mode==='paused'");
     await run(host,'pause()');await wait(guest,"mode==='playing'");
+    await run(host,'players[1].lives=0;players[1].rejoinRemaining=0;players[1].entering=false;players[1].respawn=0');
+    await wait(guest,'players[1].lives===0');
+    const hostLives=await run(host,'players[0].lives');
+    await run(guest,"lan.command('rejoin')");await wait(host,'players[1].lives===3');
+    assert.equal(await run(host,'players[0].lives'),hostLives);
     // Full boss visuals/debris and fragmented snapshots use the existing renderer.
     await run(host,"elapsed=175;bossSpawned=false;update(.01);damageEnemy(enemies.find(e=>e.type==='boss'),600);explode(300,300,'#ffeeaa',600)");
     await wait(guest,"enemies.some(e=>e.type==='boss')&&bossDebris.length>0&&sparks.length>100");
     await guest.screenshot({path:path.join(out,'boss-snapshot.png')});
     assert.ok(requests.filter(r=>r.url.includes('/p2p/')).every(r=>!r.body||!r.body.includes('"state"')&&!r.body.includes('"input"')),'signaling never receives gameplay');
-    assert.equal(requests.filter(r=>/\/lan\/(state|input|events)/.test(r.url)).length,0,'P2P never uses the LAN relay');
+    assert.equal(requests.filter(r=>/\/lan\//.test(r.url)).length,0,'P2P never uses the LAN relay');
     // Silent stall clears controls and pauses; returned packets do not auto-resume.
     await run(guest,"keys.add('KeyD');window.__drop=true");await wait(host,"mode==='paused'&&!window.lan.ready");
     assert.deepEqual(await run(host,'window.lan.inputFor(1)'),{x:0,y:0,fire:false,target:null});
-    await run(guest,'keys.clear();window.__drop=false');await wait(host,'window.lan.ready');assert.equal(await run(host,'mode'),'paused');
+    await run(guest,'keys.clear();window.__drop=false');
+    for(const p of pages)await p.unroute('**/p2p/**');
+    await click(guest,'#p2p-reconnect');await wait(host,'window.lan.ready');assert.equal(await run(host,'mode'),'paused');
     await run(host,'pause()');await wait(guest,"mode==='playing'");
     await run(guest,"window.dispatchEvent(new Event('blur'))");await wait(host,"mode==='paused'");
     await run(host,'pause()');await wait(guest,"mode==='playing'");
@@ -172,18 +180,43 @@ const {createP2PServer}=require('../tools/p2p-server.cjs');
     await click(guest,'#p2p-reconnect');await Promise.all(pages.map(p=>wait(p,'window.lan.ready')));
     assert.equal(await run(host,'mode'),'paused');assert.equal(await run(host,'score'),score);
     await run(host,'pause()');await wait(guest,"mode==='playing'");
+    assert.ok(await run(guest,'lan.diagnostics().inputReplication.reconciliations>0'),'P2P uses current reconciliation');
+    // Background transition closes stale input even if pause actions cannot pass.
+    await run(guest,"Object.defineProperty(document,'hidden',{configurable:true,value:true});document.dispatchEvent(new Event('visibilitychange'))");
+    await wait(host,"mode==='paused'&&!lan.ready");
+    await run(guest,"delete document.hidden");await click(guest,'#p2p-reconnect');
+    await Promise.all(pages.map(p=>wait(p,'lan.ready')));
+    assert.equal(await run(host,'mode'),'paused');
+    await run(host,'pause()');await wait(guest,"mode==='playing'");
+    // Protocol rejects an entire invalid input/state before ACK or state mutation.
+    for(const [sender,receiver,kind,data] of [[guest,host,'input',{x:0,y:0,fire:false,target:null,actions:['bomb'],inputEpoch:0,moves:'invalid'}],[host,guest,'state',{mode:'playing',score:999999,players:[]}]]){
+      const before=await run(receiver,'score');
+      await sender.evaluate(({kind,data})=>__channels.at(-1).send(JSON.stringify({id:9998,part:0,total:1,data:JSON.stringify({kind,data})})),{kind,data});
+      await wait(receiver,"mode==='paused'&&!lan.ready");
+      assert.equal(await run(receiver,'score'),before);
+      await wait(host,'!lan.ready');await click(host,'#p2p-reconnect');
+      await Promise.all(pages.map(p=>wait(p,'lan.ready')));
+      await run(host,'pause()');await wait(guest,"mode==='playing'");
+    }
     // Malicious guest cannot publish authoritative state, even a well-formed one.
     await run(guest,`window.__channels.at(-1).send(JSON.stringify({id:9999,part:0,total:1,data:JSON.stringify({kind:'state',data:{score:999999}})}))`);
     await wait(host,"mode==='paused'&&!window.lan.ready");assert.notEqual(await run(host,'score'),999999);
     await click(host,'#p2p-reconnect');await Promise.all(pages.map(p=>wait(p,'window.lan.ready')));
     await click(guest,'#lan-leave');await wait(host,'!window.lan.active');
-    await click(host,'#p2p-create');
-    const nextCode=await host.inputValue('#p2p-code');
-    await guest.evaluate(code=>document.querySelector('#p2p-code').value=code,nextCode);await click(guest,'#p2p-join');
+    await click(host,'#lan-create');
+    const nextCode=await host.inputValue('#lan-code');
+    await guest.evaluate(code=>document.querySelector('#lan-code').value=code,nextCode);await click(guest,'#lan-join');
     await Promise.all(pages.map(p=>wait(p,'window.lan.ready')));
+    // Old room hooks cannot affect the new room, even if dispatched late.
+    for(const p of pages){
+      await run(p,"__hooks[0].lost('stale');__hooks[0].ended();__hooks[0].ready();__hooks[0].message('state',{});");
+      assert.equal(await run(p,'lan.ready'),true);
+    }
     await run(guest,"window.dispatchEvent(new Event('pagehide'))");
     assert.equal(await run(guest,'window.lan.active'),false,'pagehide cannot leave a closed transport active after bfcache restore');
     await wait(host,'!window.lan.active');
+    await run(guest,"window.dispatchEvent(new PageTransitionEvent('pageshow',{persisted:true}))");
+    assert.equal(await run(guest,'lan.active'),false);
     assert.deepEqual(errors,[]);
     console.log('PASS: real direct RTCDataChannels, six-digit room flow, explicit host start, no relay/media, keyboard/touch/gamepad, bomb ownership, boss/debris fragmentation, signaling outage, both asymmetric traffic stalls, snapshot-loss cleanup under backpressure, explicit host resume, blur pause, reconnect, authority rejection and leave.');
   }finally{await secondary?.close();await browser?.close();server.dispose();await new Promise(r=>server.close(r));}

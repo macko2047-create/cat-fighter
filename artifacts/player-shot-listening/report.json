@@ -1,0 +1,5619 @@
+{
+  "sampleRate": 44100,
+  "decoded": [
+    0.11285714285714285,
+    0.10807256235827664,
+    0.10895691609977325,
+    0.1046031746031746
+  ],
+  "segments": [
+    {
+      "name": "01-isolated-shots",
+      "start": 0.16834467120181407,
+      "end": 1.068344671201814,
+      "peak": 0.12066650390625,
+      "peak_dBFS": -18.368265399641288,
+      "rms": 0.007492850271782048,
+      "clippedSamples": 0,
+      "events": [
+        {
+          "time": 0.1799546485260771,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 0.6617687074829932,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        }
+      ],
+      "note": "First 0.9 seconds retained to isolate the first two gameplay shots before enemy audio begins; metrics here are from the exported PCM."
+    },
+    {
+      "name": "02-sustained-rapid",
+      "start": 4.220226757369614,
+      "end": 8.40562358276644,
+      "peak": 0.13979829847812653,
+      "peak_dBFS": -17.08996228941154,
+      "rms": 0.019201571526564064,
+      "clippedSamples": 0,
+      "events": [
+        {
+          "time": 4.231836734693878,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 4.295691609977324,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 4.365351473922902,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 4.429206349206349,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 4.493061224489796,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 4.562721088435374,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 4.626575963718821,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 4.696235827664399,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 4.765895691609978,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 4.829750566893424,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 4.896507936507937,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 4.963265306122449,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 5.027120181405896,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 5.0967800453514736,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 5.16063492063492,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 5.230294784580499,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 5.294149659863946,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 5.294149659863946,
+          "type": "fallback",
+          "tag": "enemy_shot"
+        },
+        {
+          "time": 5.363809523809524,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 5.42766439909297,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 5.497324263038549,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 5.532154195011338,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 5.561179138321996,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 5.596009070294785,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 5.630839002267574,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 5.648253968253968,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 5.648253968253968,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 5.69469387755102,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 5.764353741496599,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 5.828208616780046,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 5.897868480725624,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 5.96172335600907,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 6.031383219954648,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 6.095238095238095,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 6.164897959183674,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 6.22875283446712,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 6.298412698412698,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 6.362267573696145,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 6.431927437641724,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 6.460952380952381,
+          "type": "fallback",
+          "tag": "enemy_shot"
+        },
+        {
+          "time": 6.49578231292517,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 6.565442176870748,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 6.629297052154195,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 6.698956916099773,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 6.7628117913832195,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 6.832471655328798,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 6.896326530612245,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 6.960181405895692,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 7.02984126984127,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 7.02984126984127,
+          "type": "fallback",
+          "tag": "enemy_shot"
+        },
+        {
+          "time": 7.093696145124716,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 7.163356009070295,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 7.227210884353742,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 7.29687074829932,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 7.360725623582766,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 7.430385487528345,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 7.4478004535147395,
+          "type": "fallback",
+          "tag": "enemy_shot"
+        },
+        {
+          "time": 7.494240362811792,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 7.56390022675737,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 7.627755102040816,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 7.697414965986394,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 7.761269841269841,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 7.83092970521542,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 7.894784580498866,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 7.964444444444444,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 8.028299319727891,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 8.097959183673469,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 8.161814058956915,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        }
+      ]
+    },
+    {
+      "name": "03-three-way",
+      "start": 8.591383219954649,
+      "end": 12.776780045351474,
+      "peak": 0.12663015723228455,
+      "peak_dBFS": -17.94925707754328,
+      "rms": 0.019171733266245532,
+      "clippedSamples": 0,
+      "events": [
+        {
+          "time": 8.59718820861678,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 8.661043083900227,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 8.730702947845804,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 8.794557823129251,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 8.864217687074829,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 8.928072562358278,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 8.997732426303855,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 9.061587301587302,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 9.13124716553288,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 9.195102040816327,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 9.264761904761905,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 9.328616780045351,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 9.398276643990929,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 9.462131519274376,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 9.531791383219955,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 9.595646258503402,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 9.66530612244898,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 9.729160997732427,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 9.798820861678005,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 9.862675736961451,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 9.880090702947847,
+          "type": "fallback",
+          "tag": "enemy_shot"
+        },
+        {
+          "time": 9.89750566893424,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 9.93233560090703,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 9.961360544217687,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 9.996190476190476,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 10.013605442176871,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 10.013605442176871,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 10.060045351473923,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 10.1297052154195,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 10.19936507936508,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 10.263219954648527,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 10.327074829931973,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 10.396734693877551,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 10.460589569160998,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 10.530249433106576,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 10.530249433106576,
+          "type": "fallback",
+          "tag": "enemy_shot"
+        },
+        {
+          "time": 10.594104308390023,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 10.6637641723356,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 10.727619047619047,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 10.797278911564625,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 10.861133786848072,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 10.930793650793651,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 10.994648526077098,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 11.064308390022676,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 11.128163265306123,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 11.162993197278912,
+          "type": "fallback",
+          "tag": "enemy_shot"
+        },
+        {
+          "time": 11.1978231292517,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 11.261678004535147,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 11.331337868480725,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 11.395192743764172,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 11.464852607709751,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 11.528707482993198,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 11.598367346938776,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 11.662222222222223,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 11.7318820861678,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 11.795736961451247,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 11.81315192743764,
+          "type": "fallback",
+          "tag": "enemy_shot"
+        },
+        {
+          "time": 11.865396825396825,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 11.929251700680272,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 11.96408163265306,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 11.99891156462585,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 12.010521541950114,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 12.062766439909296,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 12.080181405895692,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 12.080181405895692,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 12.126621315192743,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 12.196281179138323,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 12.26013605442177,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 12.329795918367347,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 12.393650793650794,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 12.463310657596372,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 12.527165532879819,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 12.712925170068027,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        }
+      ]
+    },
+    {
+      "name": "04-two-player-three-way",
+      "start": 12.962539682539683,
+      "end": 17.171156462585035,
+      "peak": 0.24227097630500793,
+      "peak_dBFS": -12.313972211312535,
+      "rms": 0.03326712313630866,
+      "clippedSamples": 0,
+      "events": [
+        {
+          "time": 12.979954648526077,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 12.979954648526077,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 13.043809523809523,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 13.043809523809523,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 13.113469387755101,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 13.113469387755101,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 13.177324263038548,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 13.177324263038548,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 13.246984126984128,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 13.246984126984128,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 13.310839002267574,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 13.310839002267574,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 13.380498866213152,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 13.380498866213152,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 13.444353741496599,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 13.444353741496599,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 13.514013605442177,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 13.514013605442177,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 13.577868480725623,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 13.577868480725623,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 13.647528344671201,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 13.647528344671201,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 13.711383219954648,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 13.711383219954648,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 13.781043083900228,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 13.781043083900228,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 13.844897959183674,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 13.844897959183674,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 13.914557823129252,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 13.914557823129252,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 13.978412698412699,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 13.978412698412699,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 14.048072562358277,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 14.048072562358277,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 14.111927437641723,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 14.111927437641723,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 14.181587301587301,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 14.181587301587301,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 14.245442176870748,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 14.245442176870748,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 14.245442176870748,
+          "type": "fallback",
+          "tag": "enemy_shot"
+        },
+        {
+          "time": 14.280272108843537,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 14.315102040816326,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 14.315102040816326,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 14.344126984126984,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 14.361541950113379,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 14.378956916099773,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 14.378956916099773,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 14.396371882086168,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 14.396371882086168,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 14.413786848072561,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 14.448616780045352,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 14.448616780045352,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 14.477641723356008,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 14.477641723356008,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 14.512471655328799,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 14.512471655328799,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 14.582131519274377,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 14.582131519274377,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 14.645986394557823,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 14.645986394557823,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 14.715646258503401,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 14.715646258503401,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 14.779501133786848,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 14.779501133786848,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 14.843356009070295,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 14.843356009070295,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 14.913015873015873,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 14.913015873015873,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 14.97687074829932,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 14.97687074829932,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 15.046530612244897,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 15.046530612244897,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 15.110385487528344,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 15.110385487528344,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 15.180045351473924,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 15.180045351473924,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 15.249705215419501,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 15.249705215419501,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 15.313560090702948,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 15.313560090702948,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 15.377414965986395,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 15.377414965986395,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 15.447074829931973,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 15.447074829931973,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 15.51092970521542,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 15.51092970521542,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 15.528344671201815,
+          "type": "fallback",
+          "tag": "enemy_shot"
+        },
+        {
+          "time": 15.545759637188208,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 15.580589569160997,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 15.580589569160997,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 15.615419501133786,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 15.644444444444444,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 15.644444444444444,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 15.66185941043084,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 15.66185941043084,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 15.714104308390022,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 15.714104308390022,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 15.777959183673469,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 15.777959183673469,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 15.847619047619048,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 15.847619047619048,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 15.911473922902495,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 15.911473922902495,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 15.981133786848073,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 15.981133786848073,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 16.04498866213152,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 16.04498866213152,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 16.114648526077097,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 16.114648526077097,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 16.178503401360544,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 16.178503401360544,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 16.248163265306122,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 16.248163265306122,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 16.31201814058957,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 16.31201814058957,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 16.381678004535146,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 16.381678004535146,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 16.445532879818593,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 16.445532879818593,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 16.51519274376417,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 16.51519274376417,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 16.579047619047618,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 16.579047619047618,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 16.648707482993196,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 16.648707482993196,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 16.712562358276642,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 16.712562358276642,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 16.782222222222224,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 16.782222222222224,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 16.828662131519273,
+          "type": "fallback",
+          "tag": "enemy_shot"
+        },
+        {
+          "time": 16.84607709750567,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 16.84607709750567,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 16.91573696145125,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 16.91573696145125,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 17.11310657596372,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        }
+      ]
+    },
+    {
+      "name": "05-with-enemy-hits",
+      "start": 17.374331065759637,
+      "end": 21.559727891156463,
+      "peak": 0.2554415464401245,
+      "peak_dBFS": -11.85416930493912,
+      "rms": 0.03432353969403564,
+      "clippedSamples": 0,
+      "events": [
+        {
+          "time": 17.38013605442177,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 17.38013605442177,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 17.443990929705215,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 17.443990929705215,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 17.455600907029478,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 17.513650793650793,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 17.513650793650793,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 17.536870748299318,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 17.57750566893424,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 17.57750566893424,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 17.618140589569162,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 17.647165532879818,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 17.647165532879818,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 17.69360544217687,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 17.711020408163265,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 17.711020408163265,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 17.77487528344671,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 17.780680272108842,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 17.780680272108842,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 17.84453514739229,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 17.84453514739229,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 17.856145124716555,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 17.914195011337867,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 17.914195011337867,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 17.937414965986395,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 17.978049886621314,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 17.978049886621314,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 18.018684807256236,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 18.047709750566895,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 18.047709750566895,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 18.094149659863945,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 18.11156462585034,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 18.11156462585034,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 18.17541950113379,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 18.18122448979592,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 18.18122448979592,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 18.245079365079366,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 18.245079365079366,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 18.25668934240363,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 18.314739229024944,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 18.314739229024944,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 18.33795918367347,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 18.37859410430839,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 18.37859410430839,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 18.41922902494331,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 18.44825396825397,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 18.44825396825397,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 18.494693877551022,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 18.512108843537415,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 18.512108843537415,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 18.575963718820862,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 18.581768707482993,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 18.581768707482993,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 18.64562358276644,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 18.64562358276644,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 18.657233560090702,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 18.68045351473923,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 18.715283446712018,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 18.715283446712018,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 18.72689342403628,
+          "type": "fallback",
+          "tag": "enemy_shot"
+        },
+        {
+          "time": 18.73269841269841,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 18.744308390022677,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 18.76172335600907,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 18.779138321995465,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 18.779138321995465,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 18.796553287981858,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 18.796553287981858,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 18.819773242630387,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 18.848798185941043,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 18.848798185941043,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 18.877823129251702,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 18.895238095238096,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 18.91265306122449,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 18.91265306122449,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 18.930068027210883,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 18.930068027210883,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 18.976507936507936,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 18.982312925170067,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 18.982312925170067,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 19.046167800453514,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 19.046167800453514,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 19.051972789115645,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 19.11002267573696,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 19.11002267573696,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 19.13324263038549,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 19.17968253968254,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 19.17968253968254,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 19.22031746031746,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 19.243537414965985,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 19.243537414965985,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 19.29578231292517,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 19.313197278911563,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 19.313197278911563,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 19.37705215419501,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 19.37705215419501,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 19.37705215419501,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 19.44671201814059,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 19.44671201814059,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 19.452517006802722,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 19.51637188208617,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 19.51637188208617,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 19.533786848072562,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 19.580226757369616,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 19.580226757369616,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 19.620861678004534,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 19.644081632653062,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 19.644081632653062,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 19.696326530612247,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 19.71374149659864,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 19.71374149659864,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 19.777596371882087,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 19.777596371882087,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 19.777596371882087,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 19.847256235827665,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 19.847256235827665,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 19.853061224489796,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 19.91111111111111,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 19.91111111111111,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 19.934331065759636,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 19.98077097505669,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 19.98077097505669,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 20.01560090702948,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 20.02140589569161,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 20.044625850340136,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 20.044625850340136,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 20.079455782312927,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 20.09687074829932,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 20.114285714285714,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 20.114285714285714,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 20.131700680272107,
+          "type": "fallback",
+          "tag": "enemy_shot"
+        },
+        {
+          "time": 20.131700680272107,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 20.131700680272107,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 20.143310657596373,
+          "type": "fallback",
+          "tag": "enemy_shot"
+        },
+        {
+          "time": 20.17814058956916,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 20.17814058956916,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 20.17814058956916,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 20.24780045351474,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 20.24780045351474,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 20.25360544217687,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 20.311655328798185,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 20.311655328798185,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 20.334875283446713,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 20.381315192743763,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 20.381315192743763,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 20.416145124716554,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 20.44517006802721,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 20.44517006802721,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 20.497414965986394,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 20.514829931972788,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 20.514829931972788,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 20.572879818594103,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 20.578684807256234,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 20.578684807256234,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 20.648344671201816,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 20.648344671201816,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 20.654149659863947,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 20.712199546485262,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 20.712199546485262,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 20.735419501133787,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 20.78185941043084,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 20.78185941043084,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 20.816689342403627,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 20.845714285714287,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 20.845714285714287,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 20.897959183673468,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 20.915374149659865,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 20.915374149659865,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 20.97342403628118,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 20.97922902494331,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 20.97922902494331,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 21.04888888888889,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 21.04888888888889,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 21.05469387755102,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 21.112743764172336,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 21.112743764172336,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 21.13596371882086,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 21.176598639455783,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 21.176598639455783,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 21.217233560090705,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 21.24625850340136,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 21.24625850340136,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 21.24625850340136,
+          "type": "fallback",
+          "tag": "enemy_shot"
+        },
+        {
+          "time": 21.298503401360545,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 21.310113378684807,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 21.310113378684807,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 21.373968253968254,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 21.455238095238094,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 21.536507936507938,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        }
+      ]
+    },
+    {
+      "name": "06-with-explosions",
+      "start": 21.73968253968254,
+      "end": 25.925079365079366,
+      "peak": 0.30663251876831055,
+      "peak_dBFS": -10.267635791149976,
+      "rms": 0.039815241371993174,
+      "clippedSamples": 0,
+      "events": [
+        {
+          "time": 21.745487528344672,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 21.745487528344672,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 21.81514739229025,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 21.81514739229025,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 21.879002267573696,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 21.879002267573696,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 21.948662131519274,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 21.948662131519274,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 21.995102040816327,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 21.995102040816327,
+          "type": "fallback",
+          "tag": "heavy_explosion"
+        },
+        {
+          "time": 21.995102040816327,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 21.995102040816327,
+          "type": "fallback",
+          "tag": "heavy_explosion"
+        },
+        {
+          "time": 22.01251700680272,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 22.01251700680272,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 22.0821768707483,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 22.0821768707483,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 22.146031746031746,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 22.146031746031746,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 22.215691609977323,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 22.215691609977323,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 22.244716553287983,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 22.244716553287983,
+          "type": "fallback",
+          "tag": "heavy_explosion"
+        },
+        {
+          "time": 22.244716553287983,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 22.244716553287983,
+          "type": "fallback",
+          "tag": "heavy_explosion"
+        },
+        {
+          "time": 22.27954648526077,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 22.27954648526077,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 22.343401360544217,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 22.343401360544217,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 22.413061224489795,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 22.413061224489795,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 22.482721088435373,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 22.482721088435373,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 22.49433106575964,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 22.49433106575964,
+          "type": "fallback",
+          "tag": "heavy_explosion"
+        },
+        {
+          "time": 22.49433106575964,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 22.49433106575964,
+          "type": "fallback",
+          "tag": "heavy_explosion"
+        },
+        {
+          "time": 22.54657596371882,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 22.54657596371882,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 22.610430839002266,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 22.610430839002266,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 22.680090702947847,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 22.680090702947847,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 22.743945578231294,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 22.743945578231294,
+          "type": "fallback",
+          "tag": "heavy_explosion"
+        },
+        {
+          "time": 22.743945578231294,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 22.743945578231294,
+          "type": "fallback",
+          "tag": "heavy_explosion"
+        },
+        {
+          "time": 22.743945578231294,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 22.743945578231294,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 22.813605442176872,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 22.813605442176872,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 22.87746031746032,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 22.87746031746032,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 22.947120181405896,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 22.947120181405896,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 22.99356009070295,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 22.99356009070295,
+          "type": "fallback",
+          "tag": "heavy_explosion"
+        },
+        {
+          "time": 22.99356009070295,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 22.99356009070295,
+          "type": "fallback",
+          "tag": "heavy_explosion"
+        },
+        {
+          "time": 23.010975056689343,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 23.010975056689343,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 23.063219954648527,
+          "type": "fallback",
+          "tag": "enemy_shot"
+        },
+        {
+          "time": 23.08063492063492,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 23.08063492063492,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 23.144489795918368,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 23.144489795918368,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 23.214149659863946,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 23.214149659863946,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 23.2431746031746,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 23.2431746031746,
+          "type": "fallback",
+          "tag": "heavy_explosion"
+        },
+        {
+          "time": 23.2431746031746,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 23.2431746031746,
+          "type": "fallback",
+          "tag": "heavy_explosion"
+        },
+        {
+          "time": 23.278004535147392,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 23.278004535147392,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 23.34766439909297,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 23.34766439909297,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 23.411519274376417,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 23.411519274376417,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 23.481179138321995,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 23.481179138321995,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 23.492789115646257,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 23.492789115646257,
+          "type": "fallback",
+          "tag": "heavy_explosion"
+        },
+        {
+          "time": 23.492789115646257,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 23.492789115646257,
+          "type": "fallback",
+          "tag": "heavy_explosion"
+        },
+        {
+          "time": 23.54503401360544,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 23.54503401360544,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 23.54503401360544,
+          "type": "fallback",
+          "tag": "enemy_shot"
+        },
+        {
+          "time": 23.54503401360544,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 23.579863945578232,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 23.61469387755102,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 23.61469387755102,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 23.632108843537416,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 23.632108843537416,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 23.678548752834466,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 23.678548752834466,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 23.742403628117913,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 23.742403628117913,
+          "type": "fallback",
+          "tag": "heavy_explosion"
+        },
+        {
+          "time": 23.742403628117913,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 23.742403628117913,
+          "type": "fallback",
+          "tag": "heavy_explosion"
+        },
+        {
+          "time": 23.748208616780044,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 23.748208616780044,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 23.81206349206349,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 23.81206349206349,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 23.881723356009072,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 23.881723356009072,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 23.94557823129252,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 23.94557823129252,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 23.980408163265306,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 23.99201814058957,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 23.99201814058957,
+          "type": "fallback",
+          "tag": "heavy_explosion"
+        },
+        {
+          "time": 23.99201814058957,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 23.99201814058957,
+          "type": "fallback",
+          "tag": "heavy_explosion"
+        },
+        {
+          "time": 24.015238095238097,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 24.015238095238097,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 24.044263038548753,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 24.079092970521543,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 24.079092970521543,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 24.096507936507937,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 24.096507936507937,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 24.14875283446712,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 24.14875283446712,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 24.212607709750568,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 24.212607709750568,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 24.241632653061224,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 24.241632653061224,
+          "type": "fallback",
+          "tag": "heavy_explosion"
+        },
+        {
+          "time": 24.241632653061224,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 24.241632653061224,
+          "type": "fallback",
+          "tag": "heavy_explosion"
+        },
+        {
+          "time": 24.282267573696146,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 24.282267573696146,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 24.3112925170068,
+          "type": "fallback",
+          "tag": "enemy_shot"
+        },
+        {
+          "time": 24.346122448979592,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 24.346122448979592,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 24.38095238095238,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 24.40997732426304,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 24.40997732426304,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 24.444807256235826,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 24.479637188208617,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 24.479637188208617,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 24.49124716553288,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 24.49124716553288,
+          "type": "fallback",
+          "tag": "heavy_explosion"
+        },
+        {
+          "time": 24.49124716553288,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 24.49124716553288,
+          "type": "fallback",
+          "tag": "heavy_explosion"
+        },
+        {
+          "time": 24.49705215419501,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 24.49705215419501,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 24.543492063492064,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 24.543492063492064,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 24.61315192743764,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 24.61315192743764,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 24.67700680272109,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 24.67700680272109,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 24.740861678004535,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 24.740861678004535,
+          "type": "fallback",
+          "tag": "heavy_explosion"
+        },
+        {
+          "time": 24.740861678004535,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 24.740861678004535,
+          "type": "fallback",
+          "tag": "heavy_explosion"
+        },
+        {
+          "time": 24.746666666666666,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 24.746666666666666,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 24.810521541950113,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 24.810521541950113,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 24.88018140589569,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 24.88018140589569,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 24.944036281179137,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 24.944036281179137,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 24.99047619047619,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 24.99047619047619,
+          "type": "fallback",
+          "tag": "heavy_explosion"
+        },
+        {
+          "time": 24.993378684807258,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 24.99628117913832,
+          "type": "fallback",
+          "tag": "heavy_explosion"
+        },
+        {
+          "time": 25.013696145124715,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 25.013696145124715,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 25.077551020408162,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 25.077551020408162,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 25.14721088435374,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 25.14721088435374,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 25.211065759637187,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 25.211065759637187,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 25.245895691609977,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 25.245895691609977,
+          "type": "fallback",
+          "tag": "heavy_explosion"
+        },
+        {
+          "time": 25.245895691609977,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 25.245895691609977,
+          "type": "fallback",
+          "tag": "heavy_explosion"
+        },
+        {
+          "time": 25.280725623582768,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 25.280725623582768,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 25.344580498866215,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 25.344580498866215,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 25.414240362811793,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 25.414240362811793,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 25.47809523809524,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 25.47809523809524,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 25.495510204081633,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 25.495510204081633,
+          "type": "fallback",
+          "tag": "heavy_explosion"
+        },
+        {
+          "time": 25.495510204081633,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 25.495510204081633,
+          "type": "fallback",
+          "tag": "heavy_explosion"
+        },
+        {
+          "time": 25.547755102040817,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 25.547755102040817,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 25.611609977324264,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 25.611609977324264,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 25.611609977324264,
+          "type": "fallback",
+          "tag": "enemy_shot"
+        },
+        {
+          "time": 25.68126984126984,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 25.68126984126984,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 25.74512471655329,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 25.74512471655329,
+          "type": "fallback",
+          "tag": "heavy_explosion"
+        },
+        {
+          "time": 25.74512471655329,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 25.74512471655329,
+          "type": "fallback",
+          "tag": "heavy_explosion"
+        },
+        {
+          "time": 25.83219954648526,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 25.896054421768707,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        }
+      ]
+    },
+    {
+      "name": "07-mute-unmute",
+      "start": 26.110839002267575,
+      "end": 29.80861678004535,
+      "peak": 0.2508823275566101,
+      "peak_dBFS": -12.010598596343037,
+      "rms": 0.02829120418952838,
+      "clippedSamples": 0,
+      "events": [
+        {
+          "time": 26.110839002267575,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 26.110839002267575,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 26.180498866213153,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 26.180498866213153,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 26.2443537414966,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 26.2443537414966,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 26.314013605442177,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 26.314013605442177,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 26.377868480725624,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 26.377868480725624,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 26.447528344671202,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 26.447528344671202,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 26.51138321995465,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 26.51138321995465,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 26.581043083900227,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 26.581043083900227,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 26.644897959183673,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 26.644897959183673,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 26.71455782312925,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 26.71455782312925,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 26.778412698412698,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 26.778412698412698,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 26.848072562358276,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 26.848072562358276,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 26.911927437641722,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 26.911927437641722,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 26.9815873015873,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 26.9815873015873,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 27.045442176870747,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 27.045442176870747,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 27.115102040816325,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 27.115102040816325,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 28.12517006802721,
+          "type": "fallback",
+          "tag": "soundEnabled"
+        },
+        {
+          "time": 28.177414965986394,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 28.177414965986394,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 28.24707482993197,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 28.24707482993197,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 28.31092970521542,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 28.31092970521542,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 28.380589569160996,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 28.380589569160996,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 28.444444444444443,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 28.444444444444443,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 28.514104308390024,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 28.514104308390024,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 28.57795918367347,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 28.57795918367347,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 28.64761904761905,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 28.64761904761905,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 28.676643990929705,
+          "type": "fallback",
+          "tag": "enemy_shot"
+        },
+        {
+          "time": 28.711473922902496,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 28.711473922902496,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 28.746303854875283,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 28.781133786848073,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 28.781133786848073,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 28.81015873015873,
+          "type": "fallback",
+          "tag": "enemy_shot"
+        },
+        {
+          "time": 28.81015873015873,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 28.84498866213152,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 28.84498866213152,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 28.862403628117914,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 28.862403628117914,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 28.914648526077098,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 28.914648526077098,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 28.978503401360545,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 28.978503401360545,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 29.048163265306123,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 29.048163265306123,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 29.11201814058957,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 29.11201814058957,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 29.181678004535147,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 29.181678004535147,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 29.245532879818594,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 29.245532879818594,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 29.31519274376417,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 29.31519274376417,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 29.37904761904762,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 29.37904761904762,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 29.448707482993196,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 29.448707482993196,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 29.512562358276643,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 29.512562358276643,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 29.58222222222222,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 29.58222222222222,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        }
+      ]
+    },
+    {
+      "name": "08-pause-resume",
+      "start": 29.99437641723356,
+      "end": 33.686349206349206,
+      "peak": 0.2529087960720062,
+      "peak_dBFS": -11.940721315911162,
+      "rms": 0.028331330481790706,
+      "clippedSamples": 0,
+      "events": [
+        {
+          "time": 29.99437641723356,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 29.99437641723356,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 30.06403628117914,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 30.06403628117914,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 30.127891156462585,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 30.127891156462585,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 30.197551020408163,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 30.197551020408163,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 30.26140589569161,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 30.26140589569161,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 30.331065759637188,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 30.331065759637188,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 30.394920634920634,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 30.394920634920634,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 30.464580498866212,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 30.464580498866212,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 30.52843537414966,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 30.52843537414966,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 30.598095238095237,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 30.598095238095237,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 30.661950113378683,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 30.661950113378683,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 30.731609977324265,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 30.731609977324265,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 30.79546485260771,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 30.79546485260771,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 30.86512471655329,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 30.86512471655329,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 30.928979591836736,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 30.928979591836736,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 32.01451247165533,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 32.01451247165533,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 32.07836734693878,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 32.07836734693878,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 32.14802721088435,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 32.14802721088435,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 32.2118820861678,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 32.2118820861678,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 32.28154195011338,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 32.28154195011338,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 32.31056689342404,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 32.345396825396826,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 32.345396825396826,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 32.38022675736961,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 32.41505668934241,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 32.41505668934241,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 32.4324716553288,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 32.4324716553288,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 32.478911564625854,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 32.478911564625854,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 32.54857142857143,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 32.54857142857143,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 32.612426303854875,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 32.612426303854875,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 32.682086167800456,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 32.682086167800456,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 32.682086167800456,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 32.7459410430839,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 32.7459410430839,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 32.7459410430839,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 32.76335600907029,
+          "type": "fallback",
+          "tag": "enemy_shot"
+        },
+        {
+          "time": 32.79818594104309,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        },
+        {
+          "time": 32.79818594104309,
+          "type": "fallback",
+          "tag": "small_explosion"
+        },
+        {
+          "time": 32.81560090702948,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 32.81560090702948,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 32.879455782312924,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 32.879455782312924,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 32.949115646258505,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 32.949115646258505,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 33.01297052154195,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 33.01297052154195,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 33.04780045351474,
+          "type": "fallback",
+          "tag": "enemy_shot"
+        },
+        {
+          "time": 33.0768253968254,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 33.0768253968254,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 33.14648526077097,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 33.14648526077097,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 33.21034013605442,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 33.21034013605442,
+          "type": "buffer",
+          "variant": 0,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 33.28,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 33.28,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 33.34385487528345,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 33.34385487528345,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 33.41351473922902,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 33.41351473922902,
+          "type": "buffer",
+          "variant": 1,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 33.47736961451247,
+          "type": "buffer",
+          "variant": 2,
+          "tag": "fire",
+          "owner": 0
+        },
+        {
+          "time": 33.47736961451247,
+          "type": "buffer",
+          "variant": 3,
+          "tag": "fire",
+          "owner": 1
+        },
+        {
+          "time": 33.58185941043084,
+          "type": "fallback",
+          "tag": "enemy_shot"
+        },
+        {
+          "time": 33.645714285714284,
+          "type": "fallback",
+          "tag": "enemy_hit"
+        }
+      ]
+    }
+  ],
+  "mute": {
+    "start": 27.12090702947846,
+    "gain": 0,
+    "end": 28.12517006802721,
+    "peak": 0,
+    "peak_dBFS": null,
+    "rms": 0,
+    "clippedSamples": 0
+  },
+  "pause": {
+    "start": 30.998639455782314,
+    "mode": "paused",
+    "end": 32.00290249433107,
+    "lateTail": {
+      "peak": 0,
+      "peak_dBFS": null,
+      "rms": 0,
+      "clippedSamples": 0
+    },
+    "newShots": 0
+  },
+  "errors": [],
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  ],
+  "requests": {
+    "/assets/audio/sfx/player_shot_01.wav": 1,
+    "/assets/audio/sfx/player_shot_02.wav": 1,
+    "/assets/audio/sfx/player_shot_03.wav": 1,
+    "/assets/audio/sfx/player_shot_04.wav": 1,
+    "/assets/audio/music/music_level1.mp3": 1
+  },
+  "testFiles": [
+    {
+      "file": "/Users/maccow/isonated project/Cat Fighter/artifacts/player-shot-generated/player_shot_01.wav",
+      "sha256": "a483b35662433c2266d2141cd74465b644a4592186641c91730cb22861e87ecd"
+    },
+    {
+      "file": "/Users/maccow/isonated project/Cat Fighter/artifacts/player-shot-generated/player_shot_02.wav",
+      "sha256": "eaa30f620a12d119d7351a80a18cd33d06039ed3856961ee21d7340b9e5e6ed8"
+    },
+    {
+      "file": "/Users/maccow/isonated project/Cat Fighter/artifacts/player-shot-generated/player_shot_03.wav",
+      "sha256": "31e4239cffe809d8b86667ad3a2a30075368b66eb366ce5837d779e7261171c8"
+    },
+    {
+      "file": "/Users/maccow/isonated project/Cat Fighter/artifacts/player-shot-generated/player_shot_04.wav",
+      "sha256": "23093a7631484be4fb361359cda0d0f0e4d4c94da6cb52c3d7f321d55561146e"
+    }
+  ],
+  "subjectiveAcceptance": "NOT COMPLETED: no agent audio listening input; human listening required."
+}

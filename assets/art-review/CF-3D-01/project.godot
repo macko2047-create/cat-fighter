@@ -1,0 +1,12 @@
+[application]
+config/name="CF-3D-01 P1 Motion Prototype"
+run/main_scene=""
+
+[display]
+window/size/viewport_width=512
+window/size/viewport_height=512
+
+[rendering]
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+environment/defaults/default_clear_color=Color(0, 0, 0, 0)

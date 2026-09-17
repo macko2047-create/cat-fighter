@@ -1,0 +1,76 @@
+ M index.html
+ M src/lan.js
+ M src/p2p-transport.js
+ M src/presentation.js
+ M tests/lan.test.cjs
+ M tests/presentation.test.cjs
+?? .DS_Store
+?? artifacts/.DS_Store
+?? artifacts/arcade-boot/
+?? artifacts/arcade-ui/
+?? artifacts/boss-damage/
+?? artifacts/boss-debris/
+?? artifacts/controller-settings/
+?? artifacts/gameplay-update/
+?? artifacts/github-pages/
+?? artifacts/level1/
+?? artifacts/p2p/boss-snapshot.png
+?? artifacts/p2p/mixed/
+?? artifacts/p2p/paired.png
+?? artifacts/p2p/webkit/
+?? artifacts/performance/
+?? artifacts/player-shot-audio/
+?? artifacts/player-shot-generated/
+?? artifacts/player-shot-listening/
+?? artifacts/reference-style/
+?? artifacts/smoothness/
+?? artifacts/touch-ui/
+?? assets/.DS_Store
+?? assets/art-review/
+?? assets/audio/.DS_Store
+?? assets/audio/sfx/.DS_Store
+?? assets/enemies/sources/
+?? assets/models/
+?? assets/players/.DS_Store
+?? assets/players/p1/.gitkeep
+?? assets/players/p2/.gitkeep
+?? docs/ARCADE-UI-AND-REJOIN.md
+?? docs/BOSS-DAMAGE.md
+?? docs/CF-AIRCRAFT-VISUAL-FRAMEWORK-v0.1.md
+?? docs/CF-CAT-HEAD-07-dimension-extraction.md
+?? docs/CF-CAT-HEAD-08-reference-dimensions.json
+?? docs/CF-CAT-HEAD-08-reference-dimensions.md
+?? docs/CF-L1-ART-01-player-sprite-production-spec.md
+?? docs/GAMEPLAY-UPDATE-2026-09-09.md
+?? docs/LEVEL1-INTEGRATION.md
+?? docs/NETWORK-BANDWIDTH.md
+?? docs/REFERENCE-STYLE-UPDATE.md
+?? docs/RENDER-PERFORMANCE.md
+?? docs/SMALL-FLIGHT-VARIETY.md
+?? docs/TWO-PLAYER-SMOOTHNESS.md
+?? logs/
+?? src/.DS_Store
+?? src/bandwidth.js
+?? tests/aircraft-p2-browser.cjs
+?? tests/bandwidth.test.cjs
+?? tests/bonus-layout-browser.cjs
+?? tests/boss-damage-browser.cjs
+?? tests/boss-debris-browser.cjs
+?? tests/controller-defaults-browser.cjs
+?? tests/controller-export-browser.cjs
+?? tests/controller-menu.test.cjs
+?? tests/controller-setup-browser.cjs
+?? tests/drop-in-browser.cjs
+?? tests/half-controllers-browser.cjs
+?? tests/level1-browser.cjs
+?? tests/lobby-rewards-browser.cjs
+?? tests/player-shot-browser.cjs
+?? tests/rejoin-browser.cjs
+?? tests/smoothness-browser.cjs
+?? tests/smoothness-replay.cjs
+?? tests/smoothness-summary.cjs
+?? tests/viewport.test.cjs
+?? tools/build-arcade-font.py
+?? tools/build-boss-damage.cjs
+?? tools/build-level1-assets.cjs
+?? tools/server-app/
